@@ -1,6 +1,6 @@
 {
   "name": "Birthday Countdown & Celebration",
-  "description": "A personal and romantic birthday countdown and celebration created with love for October 5th, featuring glowing pink and blue aesthetic, subtle romantic messages, background music, photo burst celebration, and memory vault.",
+  "description": "A personal and romantic birthday reveal experience created with love, featuring an intimate opening screen, 3-2-1 reveal countdown, 10-second photo hover surprise, glowing pink and blue aesthetic, background music, and memory vault.",
   "requestFramePermissions": [
     "camera",
     "microphone"

@@ -60,33 +60,92 @@ const loopMusic = true;
  */
 const defaultMemories = [
   {
+    id: "mem-1",
+    type: "photo",
+    mediaUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&auto=format&fit=crop&q=80",
     title: "Our Golden Hour Laughs",
-    date: "A Summer Evening",
-    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&auto=format&fit=crop&q=80",
-    caption: "One of my absolute favorite evenings with you—we couldn't stop laughing."
+    date: "A Warm Summer Evening",
+    caption: "One of my absolute favorite evenings with you—we couldn't stop laughing until our cheeks hurt.",
+    isHighlight: true,
+    style: "tape",
+    size: "normal",
+    tilt: "left"
   },
   {
-    title: "Midnight Drive With You",
+    id: "mem-2",
+    type: "photo",
+    mediaUrl: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&auto=format&fit=crop&q=80",
+    title: "", // Title is optional - tested here with blank string
     date: "Starry Road Trip",
-    image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
-    caption: "Windows down, your hand in mine, favorite songs playing under the starry sky."
+    caption: "Windows down, your hand in mine, favorite songs playing under the starry sky.",
+    isHighlight: false,
+    style: "polaroid",
+    size: "normal",
+    tilt: "right"
   },
   {
+    id: "mem-3",
+    type: "video",
+    mediaUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800&auto=format&fit=crop&q=80",
+    title: "Candid Joy & Laughter",
+    date: "Dancing in the Kitchen",
+    caption: "That sweet little dance you do whenever you're truly happy is the sweetest thing in the world.",
+    isHighlight: true,
+    style: "card",
+    size: "wide",
+    tilt: "slight"
+  },
+  {
+    id: "mem-4",
+    type: "photo",
+    mediaUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80",
     title: "Sunday Mornings & Big Dreams",
     date: "Our Quiet Moments",
-    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80",
-    caption: "Coffee, warm cuddles, and talking for hours about our future together."
+    caption: "Coffee, warm cuddles, and talking for hours about all our future adventures together.",
+    isHighlight: false,
+    style: "tape",
+    size: "normal",
+    tilt: "left"
   },
   {
+    id: "mem-5",
+    type: "photo",
+    mediaUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
     title: "My Favorite Smile",
     date: "Every Single Day",
-    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
-    caption: "Watching you shine and smile is the best feeling in the world. I'm so proud of you."
+    caption: "Watching you shine and smile is the best feeling in the world. I'm so proud of you.",
+    isHighlight: true,
+    style: "polaroid",
+    size: "normal",
+    tilt: "right"
+  },
+  {
+    id: "mem-6",
+    type: "photo",
+    mediaUrl: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800&auto=format&fit=crop&q=80",
+    title: "", // Title is optional
+    date: "Forever & Always",
+    caption: "Every single day with you is my favorite day. Happy Birthday, my love! ❤️",
+    isHighlight: false,
+    style: "tape",
+    size: "tall",
+    tilt: "slight"
   }
 ];
 
 /**
- * 9. Initial Pre-Loaded Heartfelt Guestbook Wishes
+ * 9. Initial Pre-Loaded Heartfelt Guestbook & Love Notes Wishes
+ * Demonstrates the allowed combinations:
+ * - Text + 3 photos
+ * - Text + 2 photos + 1 short video
+ * - Text + 1 photo + 1 audio voice recording
+ * - Text message with sticker
  */
 const defaultGuestbookMessages = [
   {
@@ -94,48 +153,69 @@ const defaultGuestbookMessages = [
     author: "With all my heart ❤️",
     role: "Forever Yours 💌",
     avatar: "❤️",
-    message: "Happy Birthday, beautiful! I put together this surprise because you deserve the world and so much more. Thank you for making my life so incredibly bright. I love you with all my heart, today and every day! ❤️✨",
+    message: "Happy Birthday, beautiful! I put together this whole birthday chapter experience because you deserve the world and so much more. Thank you for making my life so incredibly bright and loving. I love you with all my heart, today and every single day! ❤️✨",
     sticker: "💖",
     date: "Today",
-    likes: 35,
+    likes: 38,
     likedByUser: true,
-    type: "text"
+    photos: [
+      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80"
+    ],
+    videoUrl: null,
+    audioUrl: null,
+    type: "photos"
   },
   {
     id: "wish-1",
     author: "Jessica M.",
     role: "Best Friend 👯‍♀️",
     avatar: "JM",
-    message: "Happy Birthday to my absolute favorite human! Thank you for always being there with late-night taco runs, endless belly laughs, and unconditional love. This is YOUR year to shine! 💖✨",
+    message: "Happy Birthday to my absolute favorite human! Thank you for always being there with late-night taco runs, endless belly laughs, and unconditional love. Here's a sweet clip and memories from our favorite trip! 💖✨",
     sticker: "💖",
     date: "Today",
-    likes: 16,
+    likes: 19,
     likedByUser: false,
-    type: "text"
+    photos: [
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80"
+    ],
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    audioUrl: null,
+    type: "video"
   },
   {
     id: "wish-2",
     author: "Liam & David",
     role: "College Crew 🎓",
     avatar: "LD",
-    message: "Happiest of birthdays, Sarah! Can't wait to celebrate tonight with the whole gang. Raising a giant toast to you and many more epic road trips ahead! 🥂🎉",
+    message: "Happiest of birthdays! Can't wait to celebrate tonight with the whole gang. Raising a giant toast to you and many more epic road trips ahead! 🥂🎉",
     sticker: "🥂",
     date: "Today",
-    likes: 12,
+    likes: 14,
     likedByUser: false,
+    photos: [],
+    videoUrl: null,
+    audioUrl: null,
     type: "text"
   },
   {
     id: "wish-3",
-    author: "Auntie Clara",
+    author: "Mom & Dad",
     role: "Family Love 💕",
-    avatar: "AC",
-    message: "Wishing my wonderful niece the sweetest birthday celebration! Watching you grow into such a kind, brilliant person brings all of us so much pride. Big hugs! 🎂❤️",
+    avatar: "MD",
+    message: "Wishing our precious girl the sweetest birthday! We left you a little audio note with all our love and blessings. You are our biggest pride and joy. Happy Birthday! 🎂❤️",
     sticker: "🎂",
     date: "Today",
-    likes: 24,
+    likes: 27,
     likedByUser: false,
-    type: "text"
+    photos: [
+      "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&auto=format&fit=crop&q=80"
+    ],
+    videoUrl: null,
+    audioUrl: "https://actions.google.com/sounds/v1/water/rain_heavy.ogg",
+    type: "audio"
   }
 ];
 
@@ -197,9 +277,104 @@ const defaultBurstPhotos = [
 // ============================================================================
 const SUPABASE_URL = "https://rqehrbituhykrmiujhuk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o5hbaYx5BDiX8kqzNV8nYw_4gQ05n3e";
+const SUPABASE_STORAGE_BUCKET = "Birthday-assets";
 
 let supabaseClient = null;
 let currentSupabaseRowId = 1;
+
+// Admin Authentication State
+let currentAdminSession = null;
+let currentAdminUser = null;
+
+/**
+ * Returns true if an authenticated admin session is active
+ */
+function isCurrentUserAdmin() {
+  return Boolean(currentAdminUser && currentAdminSession?.access_token);
+}
+
+/**
+ * Update UI according to admin authentication state
+ */
+function updateAdminUI(session) {
+  currentAdminSession = session || null;
+  currentAdminUser = session?.user || null;
+
+  const isAuth = isCurrentUserAdmin();
+  const banner = document.getElementById("adminAuthBanner");
+  const label = document.getElementById("adminStatusLabel");
+  const toggleBtn = document.getElementById("toggleAdminLoginBtn");
+  const signOutBtn = document.getElementById("adminSignOutBtn");
+  const loginForm = document.getElementById("adminLoginForm");
+
+  if (banner) {
+    if (isAuth) {
+      banner.classList.add("logged-in");
+    } else {
+      banner.classList.remove("logged-in");
+    }
+  }
+
+  if (label) {
+    if (isAuth) {
+      const email = currentAdminUser.email || "Admin";
+      label.textContent = `🛡️ Admin Active: ${email}`;
+    } else {
+      label.textContent = "Visitor Mode (Public Read-Only)";
+    }
+  }
+
+  if (toggleBtn) {
+    toggleBtn.style.display = isAuth ? "none" : "inline-flex";
+  }
+
+  if (signOutBtn) {
+    signOutBtn.style.display = isAuth ? "inline-flex" : "none";
+  }
+
+  if (isAuth && loginForm) {
+    loginForm.style.display = "none";
+  }
+}
+
+/**
+ * Prompt and open the admin login drawer
+ */
+function openAdminLoginForm(reasonMessage) {
+  const loginForm = document.getElementById("adminLoginForm");
+  const passwordInput = document.getElementById("adminPasswordInput");
+
+  if (loginForm) {
+    loginForm.style.display = "block";
+  }
+  if (reasonMessage) {
+    showStorageStatus("adminAuthStatus", reasonMessage, "error", 6000);
+  }
+  if (passwordInput) {
+    passwordInput.focus();
+  }
+}
+
+/**
+ * Initialize Supabase Auth listener and retrieve existing session
+ */
+async function initSupabaseAuth() {
+  const client = getSupabaseClient();
+  if (!client || !client.auth) return;
+
+  try {
+    const { data } = await client.auth.getSession();
+    if (data?.session) {
+      updateAdminUI(data.session);
+    }
+
+    client.auth.onAuthStateChange((_event, session) => {
+      updateAdminUI(session);
+    });
+  } catch (err) {
+    console.warn("[Supabase Auth] Session init warning:", err);
+  }
+}
 
 /**
  * Lazily initialize the Supabase client if the official SDK is available
@@ -214,6 +389,197 @@ function getSupabaseClient() {
     }
   }
   return supabaseClient;
+}
+
+/**
+ * Display clear upload and persistence status feedback in the customization panel
+ */
+function showStorageStatus(elementId, message, type = "success", duration = 5000) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.textContent = message;
+  el.className = `storage-upload-status ${type}`;
+  el.style.display = "flex";
+
+  if (duration > 0) {
+    setTimeout(() => {
+      if (el.textContent === message) {
+        el.style.display = "none";
+      }
+    }, duration);
+  }
+}
+
+/**
+ * Upload a file directly to the Supabase Storage bucket 'Birthday-assets'
+ * under photos/, backgrounds/, or music/.
+ * Protected: requires an authenticated admin account.
+ * Returns { success: true, publicUrl, fileName } or { success: false, error }
+ */
+async function uploadToSupabaseStorage(folder, file) {
+  if (!isCurrentUserAdmin()) {
+    openAdminLoginForm("🔒 Admin sign-in required to upload files to Supabase Storage.");
+    return {
+      success: false,
+      error: "Admin authentication required. Sign in as admin to upload assets."
+    };
+  }
+
+  const bucket = SUPABASE_STORAGE_BUCKET;
+  const cleanExt = (file.name.split('.').pop() || 'bin').toLowerCase();
+  const cleanBase = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const fileName = `${Date.now()}_${cleanBase}.${cleanExt}`;
+  const filePath = `${folder}/${fileName}`;
+
+  // 1. Try official Supabase SDK (automatically attaches authenticated JWT session)
+  const client = getSupabaseClient();
+  if (client && client.storage) {
+    try {
+      const { data, error } = await client.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true
+        });
+
+      if (!error && data) {
+        const { data: urlData } = client.storage
+          .from(bucket)
+          .getPublicUrl(filePath);
+        return {
+          success: true,
+          publicUrl: urlData.publicUrl,
+          path: filePath,
+          fileName
+        };
+      }
+
+      if (error) {
+        console.warn("[Supabase Storage SDK upload note]:", error);
+        if (error.message && error.message.toLowerCase().includes("row-level security")) {
+          return {
+            success: false,
+            error: "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
+          };
+        }
+      }
+    } catch (sdkErr) {
+      console.warn("[Supabase Storage SDK error]:", sdkErr);
+    }
+  }
+
+  // 2. Direct REST upload fallback with authenticated JWT
+  try {
+    const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`;
+    const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
+    const res = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_PUBLISHABLE_KEY,
+        "Authorization": `Bearer ${authToken}`,
+        "x-upsert": "true"
+      },
+      body: file
+    });
+
+    if (res.ok) {
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${filePath}`;
+      return {
+        success: true,
+        publicUrl,
+        path: filePath,
+        fileName
+      };
+    } else {
+      const err = await res.json().catch(() => ({}));
+      const msg = err.message || err.error || res.statusText;
+      return {
+        success: false,
+        error: msg.includes("row-level security")
+          ? "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
+          : msg
+      };
+    }
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Load celebration photos from Supabase Storage (photos/).
+ * Queries the Birthday-assets bucket and populates currentPhotos for the celebration burst.
+ */
+async function loadBirthdayPhotosFromSupabase() {
+  const bucket = SUPABASE_STORAGE_BUCKET;
+  let fileList = [];
+
+  // 1. Try SDK list
+  const client = getSupabaseClient();
+  if (client && client.storage) {
+    try {
+      const { data, error } = await client.storage
+        .from(bucket)
+        .list("photos", {
+          limit: 100,
+          sortBy: { column: "created_at", order: "desc" }
+        });
+
+      if (!error && Array.isArray(data)) {
+        fileList = data.filter(f => f.name && f.name !== ".emptyFolderPlaceholder");
+      }
+    } catch (e) {
+      console.warn("[Supabase Storage] SDK list note:", e);
+    }
+  }
+
+  // 2. Fallback direct REST list
+  if (fileList.length === 0) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/${bucket}`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prefix: "photos", limit: 100 })
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) {
+          fileList = rows.filter(f => f.name && f.name !== ".emptyFolderPlaceholder");
+        }
+      }
+    } catch (e) {
+      console.warn("[Supabase Storage] REST list note:", e);
+    }
+  }
+
+  if (fileList.length > 0) {
+    const loadedPhotos = fileList.map(f => {
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/photos/${f.name}`;
+      return {
+        id: "sb-" + f.name,
+        name: f.name,
+        src: publicUrl,
+        caption: f.name.replace(/^[0-9]+_/, "").replace(/\.[^/.]+$/, "").replace(/_/g, " "),
+        timestamp: f.created_at ? new Date(f.created_at).getTime() : Date.now(),
+        fromSupabase: true
+      };
+    });
+
+    currentPhotos = loadedPhotos;
+    renderPhotoThumbnails();
+
+    // Cache locally for instant offline preview
+    try {
+      localStorage.setItem("birthday_burst_photos_v1", JSON.stringify(currentPhotos));
+    } catch (_) {}
+
+    console.log(`[Supabase Storage] Successfully synced ${loadedPhotos.length} photos from photos/ bucket`);
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -296,8 +662,12 @@ async function loadBirthdayContentFromSupabase() {
 
       // Update music URL if specified in Supabase
       if (row.music_url && typeof row.music_url === "string" && row.music_url.trim() !== "") {
+        currentMusicUrl = row.music_url.trim();
         if (bgAudio) {
-          bgAudio.src = row.music_url.trim();
+          bgAudio.src = currentMusicUrl;
+        }
+        if (devMusicInput) {
+          devMusicInput.value = currentMusicUrl;
         }
       }
 
@@ -313,18 +683,22 @@ async function loadBirthdayContentFromSupabase() {
 
 /**
  * Save updated birthday content to Supabase so it persists across refreshes and devices.
+ * Protected: requires an active admin session to update the remote database.
  */
 async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) {
-  if (!newMessage || typeof newMessage !== "string") return false;
+  if (!isCurrentUserAdmin()) {
+    console.log("[Supabase] Visitor mode: remote database update skipped (admin login required to persist online).");
+    return false;
+  }
 
   const payload = {
-    birthday_message: newMessage.trim(),
-    background_url: (newBgUrl || "").trim(),
-    music_url: (newMusicUrl || "").trim(),
+    birthday_message: (newMessage || currentMessage || "").trim(),
+    background_url: (newBgUrl || currentBgImage || "").trim(),
+    music_url: (newMusicUrl || currentMusicUrl || "").trim(),
     updated_at: new Date().toISOString()
   };
 
-  // 1. Try official SDK
+  // 1. Try official SDK (automatically passes authenticated JWT)
   const client = getSupabaseClient();
   if (client) {
     try {
@@ -334,7 +708,7 @@ async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) 
         .eq("id", currentSupabaseRowId);
 
       if (!error) {
-        console.log("[Supabase SDK] Saved online birthday content:", data);
+        console.log("[Supabase SDK] Saved online birthday content as authenticated admin:", data);
         return true;
       }
       console.warn("[Supabase SDK] Update note:", error.message);
@@ -343,13 +717,14 @@ async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) 
     }
   }
 
-  // 2. Direct REST fallback
+  // 2. Direct REST fallback with admin JWT
   try {
+    const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
     const res = await fetch(`${SUPABASE_URL}/rest/v1/birthday_content?id=eq.${currentSupabaseRowId}`, {
       method: "PATCH",
       headers: {
         "apikey": SUPABASE_PUBLISHABLE_KEY,
-        "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        "Authorization": `Bearer ${authToken}`,
         "Content-Type": "application/json",
         "Prefer": "return=representation"
       },
@@ -357,7 +732,7 @@ async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) 
     });
     if (res.ok) {
       const data = await res.json();
-      console.log("[Supabase REST] Saved online birthday content:", data);
+      console.log("[Supabase REST] Saved online birthday content as authenticated admin:", data);
       return true;
     }
   } catch (restErr) {
@@ -372,6 +747,7 @@ let targetDate = new Date(birthdayDate);
 let currentName = birthdayName;
 let currentMessage = birthdayMessage;
 let currentBgImage = backgroundImage;
+let currentMusicUrl = backgroundMusic;
 let currentOverlayOpacity = overlayOpacity;
 
 let countdownInterval = null;
@@ -396,7 +772,8 @@ let burstConfig = {
   colorPinkIntensity: 1.0,
   colorBlueIntensity: 1.0,
   colorPurpleIntensity: 1.0,
-  headline: "Happy Birthday, My Love ❤️"
+  headline: "Happy Birthday, My Love ❤️",
+  revealThirdTitle: "MY EVERYTHING ❤️"
 };
 
 let photoBurstActiveTimeout = null;
@@ -418,18 +795,22 @@ let modalMediaRecorder = null;
 let modalRecordedChunks = [];
 let modalRecordedBlobUrl = null;
 
-// DOM Elements
-const daysEl = document.getElementById("days");
-const hoursEl = document.getElementById("hours");
-const minutesEl = document.getElementById("minutes");
-const secondsEl = document.getElementById("seconds");
+// DOM Elements - Opening Screen, 3-2-1 Reveal & 10s Photo Reveal
+const openingScreen = document.getElementById("openingScreen");
+const openingMessage = document.getElementById("openingMessage");
+const openingPersonName = document.getElementById("openingPersonName");
+const showMeBtn = document.getElementById("showMeBtn");
 
-const daysBox = document.getElementById("daysBox");
-const hoursBox = document.getElementById("hoursBox");
-const minutesBox = document.getElementById("minutesBox");
-const secondsBox = document.getElementById("secondsBox");
+const revealCountdownStage = document.getElementById("revealCountdownStage");
+const revealCountdownNum = document.getElementById("revealCountdownNum");
+const revealCountdownSub = document.getElementById("revealCountdownSub");
 
-const countdownScreen = document.getElementById("countdownScreen");
+const tenSecondPhotoReveal = document.getElementById("tenSecondPhotoReveal");
+const revealTimerProgress = document.getElementById("revealTimerProgress");
+const revealCountdownSeconds = document.getElementById("revealCountdownSeconds");
+const threeFloatingPhotosStage = document.getElementById("threeFloatingPhotosStage");
+const skipRevealBtn = document.getElementById("skipRevealBtn");
+
 const celebrationScreen = document.getElementById("celebrationScreen");
 
 const heroPersonName = document.getElementById("heroPersonName");
@@ -485,6 +866,7 @@ const closeDevModalBtn = document.getElementById("closeDevModal");
 const devDateInput = document.getElementById("devDateInput");
 const devNameInput = document.getElementById("devNameInput");
 const devHeadlineInput = document.getElementById("devHeadlineInput");
+const devRevealThirdTitleInput = document.getElementById("devRevealThirdTitleInput");
 const devMessageInput = document.getElementById("devMessageInput");
 const devBgInput = document.getElementById("devBgInput");
 const devOpacityInput = document.getElementById("devOpacityInput");
@@ -504,8 +886,10 @@ const panelPhotoCount = document.getElementById("panelPhotoCount");
 const photoThumbnailsGrid = document.getElementById("photoThumbnailsGrid");
 const photoFileInput = document.getElementById("photoFileInput");
 const addPhotosBtn = document.getElementById("addPhotosBtn");
+const syncSupabasePhotosBtn = document.getElementById("syncSupabasePhotosBtn");
 const loadSamplePhotosBtn = document.getElementById("loadSamplePhotosBtn");
 const clearAllPhotosBtn = document.getElementById("clearAllPhotosBtn");
+const photoUploadStatus = document.getElementById("photoUploadStatus");
 
 // Customize Panel - Burst & FX Controls
 const burstStyleSelect = document.getElementById("burstStyleSelect");
@@ -524,12 +908,14 @@ const confettiSpeedSelect = document.getElementById("confettiSpeedSelect");
 // Customize Panel - Background Tab
 const bgFileInput = document.getElementById("bgFileInput");
 const uploadBgBtn = document.getElementById("uploadBgBtn");
+const bgUploadStatus = document.getElementById("bgUploadStatus");
 const bgGradientPresetSelect = document.getElementById("bgGradientPresetSelect");
 
 // Customize Panel - Music Tab
 const audioFileInput = document.getElementById("audioFileInput");
 const uploadAudioBtn = document.getElementById("uploadAudioBtn");
 const uploadedAudioName = document.getElementById("uploadedAudioName");
+const musicUploadStatus = document.getElementById("musicUploadStatus");
 const devMusicInput = document.getElementById("devMusicInput");
 const previewMusicBtn = document.getElementById("previewMusicBtn");
 const devMusicVolume = document.getElementById("devMusicVolume");
@@ -546,12 +932,26 @@ const testBurstModalFooterBtn = document.getElementById("testBurstModalFooterBtn
 const closeDevModalBottomBtn = document.getElementById("closeDevModalBottomBtn");
 const customizeNavTabs = document.getElementById("customizeNavTabs");
 
+// Customize Panel - Admin Authentication Elements
+const adminAuthBanner = document.getElementById("adminAuthBanner");
+const adminStatusPill = document.getElementById("adminStatusPill");
+const adminStatusLabel = document.getElementById("adminStatusLabel");
+const toggleAdminLoginBtn = document.getElementById("toggleAdminLoginBtn");
+const adminSignOutBtn = document.getElementById("adminSignOutBtn");
+const adminLoginForm = document.getElementById("adminLoginForm");
+const adminEmailInput = document.getElementById("adminEmailInput");
+const adminPasswordInput = document.getElementById("adminPasswordInput");
+const adminSignInBtn = document.getElementById("adminSignInBtn");
+const adminMagicLinkBtn = document.getElementById("adminMagicLinkBtn");
+const adminCancelLoginBtn = document.getElementById("adminCancelLoginBtn");
+const adminAuthStatus = document.getElementById("adminAuthStatus");
+
 // Quick Test Buttons
-const test10sBtn = document.getElementById("test10sBtn");
+const testRevealSequenceBtn = document.getElementById("testRevealSequenceBtn");
 const testZeroBtn = document.getElementById("testZeroBtn");
 const testLastDayBtn = document.getElementById("testLastDayBtn");
 const testGuestbookBtn = document.getElementById("testGuestbookBtn");
-const resetCountdownBtn = document.getElementById("resetCountdownBtn");
+const resetExperienceBtn = document.getElementById("resetExperienceBtn");
 
 // Lightbox Elements
 const lightboxModal = document.getElementById("lightboxModal");
@@ -579,64 +979,61 @@ let mediaRecorder = null;
 let recordedChunks = [];
 let recordedBlobUrl = null;
 
+// Multi-Page Chapter Navigation Elements
+const pageChapter1 = document.getElementById("pageChapter1");
+const pageChapter2 = document.getElementById("pageChapter2");
+const pageChapter3 = document.getElementById("pageChapter3");
+const chapterNavBar = document.getElementById("chapterNavBar");
+const chapterBtn1 = document.getElementById("chapterBtn1");
+const chapterBtn2 = document.getElementById("chapterBtn2");
+const chapterBtn3 = document.getElementById("chapterBtn3");
+
+// Tap to continue chapter banner buttons (matches both HTML IDs and legacy IDs)
+const goToPage2Btn = document.getElementById("goToPage2Btn") || document.getElementById("turnToChapter2Btn");
+const goToPage3Btn = document.getElementById("goToPage3Btn") || document.getElementById("turnToChapter3Btn");
+const backToPage1Btn = document.getElementById("backToPage1Btn") || document.getElementById("backToChapter1Btn");
+const backToPage2Btn = document.getElementById("backToPage2Btn") || document.getElementById("backToChapter2Btn");
+const backToPage1From3Btn = document.getElementById("backToPage1From3Btn") || document.getElementById("backToChapter1From3Btn");
+const openSignLoveNoteFromChapterBtn = document.getElementById("openSignLoveNoteFromChapterBtn");
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  initSupabaseAuth();
   setupDynamicContent();
   setupBackground();
-  startCountdown();
+  initOpeningScreen();
   initParticlesCanvas();
   initConfettiCanvas();
   setupEventListeners();
-  renderMemories();
+  initScrapbookMemories();
   initBackgroundMusic();
   initGuestbook();
+  initLoveNotesSystem();
+  initChapterSystem();
   initPhotoStorageAndBurstSettings();
   loadBirthdayContentFromSupabase();
+  loadBirthdayPhotosFromSupabase();
 });
 
-// Subtle Romantic Messages Rotation
-const romanticCountdownMessages = [
-  "Counting down to your day...",
-  "Almost there, beautiful ❤️",
-  "Just a little longer...",
-  "Every second brings me closer to celebrating you ✨",
-  "Can't wait to see you smile ❤️"
-];
-let romanticMsgIndex = 0;
-let romanticMsgInterval = null;
-
-function initRomanticCountdownMessages() {
-  const msgEl = document.getElementById("romanticSubtleMsg");
-  if (!msgEl) return;
-
-  if (romanticMsgInterval) clearInterval(romanticMsgInterval);
-
-  msgEl.textContent = romanticCountdownMessages[0];
-
-  romanticMsgInterval = setInterval(() => {
-    if (isCelebrationActive) {
-      clearInterval(romanticMsgInterval);
-      return;
-    }
-    msgEl.classList.add("fade-out");
-    setTimeout(() => {
-      romanticMsgIndex = (romanticMsgIndex + 1) % romanticCountdownMessages.length;
-      msgEl.textContent = romanticCountdownMessages[romanticMsgIndex];
-      msgEl.classList.remove("fade-out");
-    }, 400);
-  }, 4500);
-}
-
 function setupDynamicContent() {
-  const countdownEyebrow = document.getElementById("countdownEyebrow");
-  if (countdownEyebrow) {
-    countdownEyebrow.textContent = "Something I Made Just For You ❤️";
+  if (openingPersonName) {
+    openingPersonName.textContent = currentName;
   }
-  const countdownMainTitle = document.getElementById("countdownMainTitle");
-  if (countdownMainTitle) {
-    countdownMainTitle.textContent = "Your Special Day Is Almost Here...";
+  if (openingMessage) {
+    openingMessage.innerHTML = `I made something Just for you, <span class="recipient-highlight" id="openingPersonName">${currentName}</span> ❤️`;
+  }
+
+  // Update photo sticker image on Opening Screen with a real photo
+  const stickerImg = document.getElementById("showMeStickerImg");
+  if (stickerImg) {
+    const photos = getThreeHeroPhotos();
+    if (photos && photos.length > 0 && photos[0]) {
+      stickerImg.src = photos[0];
+    } else if (currentBgImage && currentBgImage.trim() !== "") {
+      stickerImg.src = currentBgImage;
+    }
   }
 
   if (heroPersonName) heroPersonName.textContent = currentName;
@@ -654,25 +1051,7 @@ function setupDynamicContent() {
   }
   if (celebrationMsg) celebrationMsg.textContent = currentMessage;
 
-  // Format date readable
-  if (targetDateDisplay) {
-    try {
-      const options = { month: 'long', day: 'numeric', year: 'numeric' };
-      targetDateDisplay.textContent = targetDate.toLocaleDateString(undefined, options);
-    } catch {
-      targetDateDisplay.textContent = "October 5";
-    }
-  }
-
   // Set initial dev form values
-  if (devDateInput) {
-    try {
-      const isoLocal = new Date(targetDate.getTime() - targetDate.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
-      devDateInput.value = isoLocal;
-    } catch {
-      devDateInput.value = birthdayDate;
-    }
-  }
   if (devNameInput) devNameInput.value = currentName;
   if (devMessageInput) devMessageInput.value = currentMessage;
   if (devBgInput) devBgInput.value = currentBgImage;
@@ -706,68 +1085,319 @@ function setupBackground() {
 }
 
 // ============================================================================
-// COUNTDOWN TIMER ENGINE
+// EXPERIENCE SEQUENCE CONTROLLER
+// (Opening Screen -> "SHOW ME" -> 3-2-1 Reveal -> 10s Photo Hover -> Main Celebration)
 // ============================================================================
-function startCountdown() {
-  if (countdownInterval) clearInterval(countdownInterval);
+let revealCountdownTimer = null;
+let photoRevealTimer = null;
+let photoRevealSecondsInterval = null;
 
-  initRomanticCountdownMessages();
-  updateCountdown();
-  countdownInterval = setInterval(updateCountdown, 1000);
+function initOpeningScreen() {
+  if (revealCountdownTimer) {
+    clearInterval(revealCountdownTimer);
+    revealCountdownTimer = null;
+  }
+  if (photoRevealTimer) {
+    clearTimeout(photoRevealTimer);
+    photoRevealTimer = null;
+  }
+  if (photoRevealSecondsInterval) {
+    clearInterval(photoRevealSecondsInterval);
+    photoRevealSecondsInterval = null;
+  }
+
+  isCelebrationActive = false;
+
+  // Make sure opening screen is active and visible
+  if (openingScreen) {
+    openingScreen.style.display = "flex";
+    openingScreen.classList.add("active");
+  }
+
+  if (revealCountdownStage) {
+    revealCountdownStage.style.display = "none";
+  }
+
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    tenSecondPhotoReveal.style.display = "none";
+  }
+
+  if (celebrationScreen) {
+    celebrationScreen.classList.remove("active");
+  }
+
+  // Hide Chapter navigation bar on opening screen
+  if (chapterNavBar) {
+    chapterNavBar.style.display = "none";
+  }
+
+  // Update recipient name in message
+  if (openingPersonName) {
+    openingPersonName.textContent = currentName;
+  }
 }
 
-function updateCountdown() {
-  const now = new Date().getTime();
-  const distance = targetDate.getTime() - now;
+function startRevealSequence() {
+  // Hide Opening Screen
+  if (openingScreen) {
+    openingScreen.classList.remove("active");
+    openingScreen.style.display = "none";
+  }
 
-  // If countdown reached zero or passed
-  if (distance <= 0) {
+  // Hide any active celebration or overlay
+  if (celebrationScreen) {
+    celebrationScreen.classList.remove("active");
+  }
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    tenSecondPhotoReveal.style.display = "none";
+  }
+
+  // Attempt to play music smoothly on user interaction
+  if (!isMusicPlaying && !userExplicitlyPaused) {
+    playMusic();
+  }
+
+  // Show 3 -> 2 -> 1 Reveal stage
+  if (revealCountdownStage) {
+    revealCountdownStage.style.display = "flex";
+  }
+
+  let count = 3;
+  if (revealCountdownNum) {
+    revealCountdownNum.textContent = String(count);
+    revealCountdownNum.className = "reveal-countdown-number tick-pop";
+  }
+  if (revealCountdownSub) {
+    revealCountdownSub.textContent = "Getting your surprise ready...";
+  }
+
+  if (revealCountdownTimer) clearInterval(revealCountdownTimer);
+
+  revealCountdownTimer = setInterval(() => {
+    count--;
+    if (count > 0) {
+      if (revealCountdownNum) {
+        revealCountdownNum.textContent = String(count);
+        revealCountdownNum.className = "reveal-countdown-number";
+        void revealCountdownNum.offsetWidth; // Restart CSS keyframe animation
+        revealCountdownNum.className = "reveal-countdown-number tick-pop";
+      }
+      if (revealCountdownSub) {
+        revealCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
+      }
+    } else {
+      // Reached 0: Immediately transition to birthday reveal & 10s photo hover
+      clearInterval(revealCountdownTimer);
+      revealCountdownTimer = null;
+
+      if (revealCountdownStage) {
+        revealCountdownStage.style.display = "none";
+      }
+
+      triggerBirthdayRevealWithPhotoHover();
+    }
+  }, 1000);
+}
+
+function triggerBirthdayRevealWithPhotoHover() {
+  // Launch celebration confetti
+  startConfettiAnimation();
+
+  // Launch the 10-second photo hover reveal
+  startTenSecondPhotoReveal();
+}
+
+function getThreeHeroPhotos() {
+  let photoUrls = [];
+
+  if (Array.isArray(currentPhotos) && currentPhotos.length > 0) {
+    photoUrls = currentPhotos
+      .map(p => (typeof p === "string" ? p : (p.src || p.url || "")))
+      .filter(u => Boolean(u) && u.trim() !== "");
+  }
+
+  if (photoUrls.length === 0 && Array.isArray(defaultBurstPhotos) && defaultBurstPhotos.length > 0) {
+    photoUrls = defaultBurstPhotos.slice();
+  }
+
+  // Fallback if no photos
+  if (photoUrls.length === 0) {
+    photoUrls = [
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80"
+    ];
+  }
+
+  const p1 = photoUrls[0];
+  const p2 = photoUrls[1] || photoUrls[0];
+  const p3 = photoUrls[2] || photoUrls[1] || photoUrls[0];
+
+  return [p1, p2, p3];
+}
+
+function getRevealThirdTitle() {
+  if (burstConfig.revealThirdTitle && burstConfig.revealThirdTitle.trim() !== "") {
+    return burstConfig.revealThirdTitle.trim();
+  }
+  if (currentPhotos && currentPhotos[2] && (currentPhotos[2].caption || currentPhotos[2].name)) {
+    return (currentPhotos[2].caption || currentPhotos[2].name).trim();
+  }
+  return "MY EVERYTHING ❤️";
+}
+
+function startTenSecondPhotoReveal() {
+  if (!tenSecondPhotoReveal) {
+    // If element missing, jump directly to main celebration
     triggerCelebration();
     return;
   }
 
-  // If within last 24 hours (last day), unlock heartfelt memory vault & video messages
-  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-  if (distance <= ONE_DAY_MS && lastDaySection && !lastDaySection.classList.contains("unlocked")) {
-    unlockLastDaySection();
+  // Pick the three prominent photos
+  const [photo1, photo2, photo3] = getThreeHeroPhotos();
+  const title1 = "MY BABY";
+  const title2 = "MY LOVE";
+  const title3 = getRevealThirdTitle();
+
+  if (threeFloatingPhotosStage) {
+    threeFloatingPhotosStage.innerHTML = `
+      <!-- Photo 1: Furthest in background, smaller, slightly blurred/subdued, moves forward smoothly -->
+      <div class="reveal-photo-card card-photo-1" id="revealCard1" title="Click to view memory (${escapeHtml(title1)})">
+        <div class="reveal-card-inner">
+          <img src="${photo1}" alt="${title1} - Cherished memory with ${escapeHtml(currentName)}" class="reveal-photo-img" />
+          <div class="reveal-specular-sheen"></div>
+        </div>
+        <div class="reveal-photo-badge badge-photo-1">
+          <span>✨</span>
+          <span>${title1}</span>
+          <span>✨</span>
+        </div>
+      </div>
+
+      <!-- Photo 2: Starts behind Photo 1 / middle layer, slightly larger, moves forward toward viewer -->
+      <div class="reveal-photo-card card-photo-2" id="revealCard2" title="Click to view memory (${escapeHtml(title2)})">
+        <div class="reveal-card-inner">
+          <img src="${photo2}" alt="${title2} - Cherished memory with ${escapeHtml(currentName)}" class="reveal-photo-img" />
+          <div class="reveal-specular-sheen"></div>
+        </div>
+        <div class="reveal-photo-badge badge-photo-2">
+          <span>❤️</span>
+          <span>${title2}</span>
+          <span>❤️</span>
+        </div>
+      </div>
+
+      <!-- Photo 3: Starts deep, moves forward to front-center, largest, main focal centerpiece -->
+      <div class="reveal-photo-card card-photo-3" id="revealCard3" title="Click to view memory (${escapeHtml(title3)})">
+        <div class="reveal-card-inner">
+          <img src="${photo3}" alt="${escapeHtml(title3)} - Cherished memory with ${escapeHtml(currentName)}" class="reveal-photo-img" />
+          <div class="reveal-specular-sheen"></div>
+        </div>
+        <div class="reveal-photo-badge badge-photo-3">
+          <span>👑</span>
+          <span>${escapeHtml(title3)}</span>
+          <span>✨</span>
+        </div>
+      </div>
+    `;
+
+    // Hook click to lightbox on each photo
+    const card1 = document.getElementById("revealCard1");
+    const card2 = document.getElementById("revealCard2");
+    const card3 = document.getElementById("revealCard3");
+
+    if (card1) card1.addEventListener("click", () => openLightbox(photo1, title1));
+    if (card2) card2.addEventListener("click", () => openLightbox(photo2, title2));
+    if (card3) card3.addEventListener("click", () => openLightbox(photo3, title3));
   }
 
-  // Calculate days, hours, minutes, seconds
-  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  // Reset timer UI (10s progress bar and countdown)
+  if (revealTimerProgress) {
+    revealTimerProgress.style.animation = "none";
+    void revealTimerProgress.offsetWidth;
+    revealTimerProgress.style.animation = "revealBarShrink 10s linear forwards";
+  }
 
-  // Update UI with smooth bounce on change
-  updateDigit(daysEl, daysBox, days);
-  updateDigit(hoursEl, hoursBox, hours);
-  updateDigit(minutesEl, minutesBox, minutes);
-  updateDigit(secondsEl, secondsBox, seconds);
+  let remainingSec = 10;
+  if (revealCountdownSeconds) {
+    revealCountdownSeconds.textContent = `${remainingSec}s`;
+  }
+
+  if (photoRevealSecondsInterval) clearInterval(photoRevealSecondsInterval);
+  photoRevealSecondsInterval = setInterval(() => {
+    remainingSec--;
+    if (remainingSec >= 1 && revealCountdownSeconds) {
+      revealCountdownSeconds.textContent = `${remainingSec}s`;
+    } else {
+      clearInterval(photoRevealSecondsInterval);
+      photoRevealSecondsInterval = null;
+    }
+  }, 1000);
+
+  // Show the 10-second photo reveal overlay
+  tenSecondPhotoReveal.style.display = "flex";
+  void tenSecondPhotoReveal.offsetWidth;
+  tenSecondPhotoReveal.classList.add("active");
+
+  // Schedule transition to main birthday experience after 10 seconds
+  if (photoRevealTimer) clearTimeout(photoRevealTimer);
+  photoRevealTimer = setTimeout(() => {
+    completePhotoRevealToMainExperience();
+  }, 10000);
 }
 
-function updateDigit(textEl, boxEl, value) {
-  if (!textEl) return;
-  const formatted = String(value).padStart(2, "0");
-  if (textEl.textContent !== formatted) {
-    textEl.textContent = formatted;
-    if (boxEl) {
-      boxEl.classList.add("tick");
-      setTimeout(() => boxEl.classList.remove("tick"), 300);
-    }
+function completePhotoRevealToMainExperience() {
+  if (photoRevealTimer) {
+    clearTimeout(photoRevealTimer);
+    photoRevealTimer = null;
   }
+  if (photoRevealSecondsInterval) {
+    clearInterval(photoRevealSecondsInterval);
+    photoRevealSecondsInterval = null;
+  }
+
+  // Smooth fade out of the 10s photo reveal overlay
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    setTimeout(() => {
+      tenSecondPhotoReveal.style.display = "none";
+    }, 700);
+  }
+
+  // Transition into main birthday experience
+  triggerCelebration();
+}
+
+function resetToOpeningScreen() {
+  initOpeningScreen();
 }
 
 // ============================================================================
-// CELEBRATION REVEAL & CONFETTI
+// CELEBRATION REVEAL & CONFETTI (Main Birthday Experience)
 // ============================================================================
 function triggerCelebration() {
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (romanticMsgInterval) clearInterval(romanticMsgInterval);
+  if (revealCountdownTimer) clearInterval(revealCountdownTimer);
+  if (photoRevealTimer) clearTimeout(photoRevealTimer);
+  if (photoRevealSecondsInterval) clearInterval(photoRevealSecondsInterval);
 
   isCelebrationActive = true;
 
-  // Swap views with smooth animation
-  if (countdownScreen) countdownScreen.classList.add("hidden");
+  // Ensure Opening Screen and Reveal Stage are hidden
+  if (openingScreen) {
+    openingScreen.classList.remove("active");
+    openingScreen.style.display = "none";
+  }
+  if (revealCountdownStage) {
+    revealCountdownStage.style.display = "none";
+  }
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    tenSecondPhotoReveal.style.display = "none";
+  }
+
+  // Activate Celebration screen
   if (celebrationScreen) celebrationScreen.classList.add("active");
 
   const celebrationEyebrow = document.getElementById("celebrationEyebrow");
@@ -800,8 +1430,14 @@ function triggerCelebration() {
   // Launch celebratory Confetti
   startConfettiAnimation();
 
-  // Trigger Photo Burst feature (with 5-second pinned hero cards)
-  triggerPhotoBurst();
+  // Trigger Photo Burst feature (with 5-second pinned hero cards that settle into layout)
+  showHeroPinnedPhotos();
+
+  // Show Chapter navigation bar and ensure Chapter 1 is active
+  if (chapterNavBar) {
+    chapterNavBar.style.display = "flex";
+  }
+  showChapter(1, false);
 
   // Keep music playing smoothly; if not yet started and user hasn't explicitly paused, start it
   if (!isMusicPlaying && !userExplicitlyPaused) {
@@ -1176,6 +1812,7 @@ function handleLikeWish(id) {
     item.likedByUser = true;
   }
   saveGuestbookMessages();
+  renderLoveNotes();
   renderGuestbookGallery(currentGuestbookFilter);
 }
 
@@ -1192,7 +1829,143 @@ function closeSignGuestbook() {
   stopModalCamera();
 }
 
-function setupGuestbookModal() {
+// ============================================================================
+// CHAPTER 3 — BIRTHDAY LOVE NOTES & WISHES ENGINE
+// ============================================================================
+
+let noteModalPhotos = []; // array of data URLs or URLs
+let noteModalVideo = null; // video data URL or blob URL
+let noteModalVoice = null; // audio data URL or blob URL
+let noteModalSticker = "💖";
+let noteModalVideoRecorder = null;
+let noteModalVoiceRecorder = null;
+let noteModalVideoStream = null;
+let noteModalVoiceStream = null;
+let noteModalVideoChunks = [];
+let noteModalVoiceChunks = [];
+
+function initLoveNotesSystem() {
+  renderLoveNotes();
+  setupLoveNotesModal();
+  setupAdminLoveNotes();
+}
+
+function renderLoveNotes() {
+  const loveNotesGrid = document.getElementById("loveNotesCardsGrid") || document.getElementById("loveNotesGrid");
+  if (!loveNotesGrid) return;
+
+  const countBadge = document.getElementById("guestbookCount");
+  if (countBadge) {
+    countBadge.textContent = String(guestbookMessages.length);
+  }
+
+  loveNotesGrid.innerHTML = "";
+
+  // Prompt card to invite more wishes
+  const promptCard = document.createElement("div");
+  promptCard.className = "love-note-card prompt-card";
+  promptCard.id = "loveNotePromptCard";
+  promptCard.innerHTML = `
+    <div style="text-align: center; padding: 1.5rem 1rem;">
+      <div style="font-size: 2.2rem; margin-bottom: 0.6rem;">💌</div>
+      <h4 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-pink-primary); margin-bottom: 0.4rem;">Add Your Love Note</h4>
+      <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+        Leave a sweet birthday wish, photos, short video, or voice message for ${escapeHtml(currentName)}!
+      </p>
+      <button type="button" class="primary-btn pulse-glow" style="margin: 0 auto; padding: 0.6rem 1.3rem; font-size: 0.9rem;">
+        <span>✍️ Write a Note</span>
+      </button>
+    </div>
+  `;
+  promptCard.addEventListener("click", openSignGuestbook);
+  loveNotesGrid.appendChild(promptCard);
+
+  guestbookMessages.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "love-note-card";
+    card.id = `loveNoteCard_${item.id}`;
+
+    const isLiked = Boolean(item.likedByUser);
+    const stickerHtml = item.sticker ? `<span class="love-note-sticker">${escapeHtml(item.sticker)}</span>` : "";
+
+    // Photos grid (up to 3)
+    let photosHtml = "";
+    if (item.photos && item.photos.length > 0) {
+      const pCount = Math.min(item.photos.length, 3);
+      const imgTags = item.photos.slice(0, 3).map((src, idx) => `
+        <div class="love-note-media-item" data-photo-src="${escapeHtml(src)}">
+          <img src="${src}" alt="Note photo ${idx + 1}" loading="lazy" />
+        </div>
+      `).join("");
+      photosHtml = `<div class="love-note-media-grid count-${pCount}">${imgTags}</div>`;
+    }
+
+    // Video Box
+    let videoHtml = "";
+    if (item.videoUrl) {
+      videoHtml = `
+        <div class="love-note-video-box">
+          <video src="${item.videoUrl}" controls playsinline preload="metadata"></video>
+        </div>
+      `;
+    }
+
+    // Voice / Audio Box
+    let voiceHtml = "";
+    if (item.audioUrl) {
+      voiceHtml = `
+        <div class="love-note-audio-box">
+          <div class="love-note-audio-header">🎙️ Voice Note</div>
+          <audio src="${item.audioUrl}" controls style="width: 100%; height: 38px;"></audio>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="love-note-header">
+        <div class="love-note-avatar">${escapeHtml(item.avatar || "💌")}</div>
+        <div class="love-note-author-meta">
+          <span class="love-note-author-name">${escapeHtml(item.author)}</span>
+          <span class="love-note-author-role">${escapeHtml(item.role || "Loved One 💕")}</span>
+        </div>
+        ${stickerHtml}
+      </div>
+      <p class="love-note-body-text">${escapeHtml(item.message || "")}</p>
+      ${photosHtml}
+      ${videoHtml}
+      ${voiceHtml}
+      <div class="love-note-footer">
+        <span class="love-note-date">${escapeHtml(item.date || "Today")}</span>
+        <button class="love-note-like-btn ${isLiked ? 'liked' : ''}" data-id="${item.id}" type="button" title="Send love">
+          <span>${isLiked ? '❤️' : '🤍'}</span>
+          <span>${item.likes || 0}</span>
+        </button>
+      </div>
+    `;
+
+    // Click photo to open lightbox
+    card.querySelectorAll(".love-note-media-item").forEach(el => {
+      el.addEventListener("click", () => {
+        const src = el.getAttribute("data-photo-src");
+        if (src) openLightbox(src, `${item.author}'s photo wish`);
+      });
+    });
+
+    // Like button
+    const likeBtn = card.querySelector(".love-note-like-btn");
+    if (likeBtn) {
+      likeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleLikeWish(item.id);
+      });
+    }
+
+    loveNotesGrid.appendChild(card);
+  });
+}
+
+// Multi-attachment rules and modal setup
+function setupLoveNotesModal() {
   if (openSignGuestbookBtn) {
     openSignGuestbookBtn.addEventListener("click", openSignGuestbook);
   }
@@ -1205,205 +1978,505 @@ function setupGuestbookModal() {
     });
   }
 
-  // Filter Tabs
-  if (guestbookFilterTabs) {
-    const tabBtns = guestbookFilterTabs.querySelectorAll(".guestbook-tab-btn");
-    tabBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        tabBtns.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderGuestbookGallery(btn.dataset.filter);
-      });
-    });
-  }
-
-  // Mode Switcher (Text vs Video)
-  if (modeTextBtn && modeVideoBtn) {
-    modeTextBtn.addEventListener("click", () => {
-      modeTextBtn.classList.add("active");
-      modeVideoBtn.classList.remove("active");
-      if (textWishForm) textWishForm.style.display = "block";
-      if (videoWishForm) videoWishForm.style.display = "none";
-      stopModalCamera();
-    });
-
-    modeVideoBtn.addEventListener("click", () => {
-      modeVideoBtn.classList.add("active");
-      modeTextBtn.classList.remove("active");
-      if (textWishForm) textWishForm.style.display = "none";
-      if (videoWishForm) videoWishForm.style.display = "block";
-    });
-  }
-
   // Sticker Picker
-  if (stickerPicker) {
-    const options = stickerPicker.querySelectorAll(".sticker-option");
-    options.forEach(btn => {
-      btn.addEventListener("click", () => {
-        options.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        selectedSticker = btn.dataset.sticker || "💖";
+  const stickerOptions = document.querySelectorAll("#stickerPicker .sticker-option");
+  stickerOptions.forEach(btn => {
+    btn.addEventListener("click", () => {
+      stickerOptions.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      noteModalSticker = btn.dataset.sticker || "💖";
+    });
+  });
+
+  // Photos file input
+  const notePhotosInput = document.getElementById("notePhotosInput");
+  if (notePhotosInput) {
+    notePhotosInput.addEventListener("change", (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+
+      const maxAllowed = (noteModalVideo || noteModalVoice) ? 2 : 3;
+      const slotsRemaining = Math.max(0, maxAllowed - noteModalPhotos.length);
+
+      if (slotsRemaining <= 0) {
+        alert(`You can only attach up to ${maxAllowed} photos with your current selection.`);
+        notePhotosInput.value = "";
+        return;
+      }
+
+      const filesToRead = files.slice(0, slotsRemaining);
+      let readCount = 0;
+
+      filesToRead.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          noteModalPhotos.push(loadEvent.target.result);
+          readCount++;
+          if (readCount === filesToRead.length) {
+            updateNoteAttachmentStatus();
+          }
+        };
+        reader.readAsDataURL(file);
       });
+
+      notePhotosInput.value = "";
     });
   }
 
-  // Text Form Submit
-  if (textWishForm) {
-    textWishForm.addEventListener("submit", (e) => {
+  // Video Section toggles and recording
+  const openVideoRecorderBtn = document.getElementById("openVideoRecorderBtn");
+  const noteVideoPanel = document.getElementById("noteVideoPanel");
+  const closeVideoPanelBtn = document.getElementById("closeVideoPanelBtn");
+  const startNoteVideoRecBtn = document.getElementById("startNoteVideoRecBtn");
+  const stopNoteVideoRecBtn = document.getElementById("stopNoteVideoRecBtn");
+  const noteVideoFileInput = document.getElementById("noteVideoFileInput");
+  const noteVideoPreview = document.getElementById("noteVideoPreview");
+  const noteVideoRecIndicator = document.getElementById("noteVideoRecIndicator");
+
+  if (openVideoRecorderBtn) {
+    openVideoRecorderBtn.addEventListener("click", () => {
+      if (noteModalVoice) {
+        if (!confirm("You already have a voice note attached. Attaching a video will replace your voice note. Proceed?")) return;
+        noteModalVoice = null;
+      }
+      if (noteVideoPanel) noteVideoPanel.style.display = "block";
+      updateNoteAttachmentStatus();
+    });
+  }
+
+  if (closeVideoPanelBtn) {
+    closeVideoPanelBtn.addEventListener("click", () => {
+      stopNoteVideoCapture();
+      if (noteVideoPanel) noteVideoPanel.style.display = "none";
+    });
+  }
+
+  if (startNoteVideoRecBtn) {
+    startNoteVideoRecBtn.addEventListener("click", async () => {
+      try {
+        noteModalVideoStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+          audio: true
+        });
+        if (noteVideoPreview) {
+          noteVideoPreview.srcObject = noteModalVideoStream;
+          noteVideoPreview.style.display = "block";
+          noteVideoPreview.muted = true;
+          noteVideoPreview.play();
+        }
+
+        noteModalVideoChunks = [];
+        noteModalVideoRecorder = new MediaRecorder(noteModalVideoStream);
+        noteModalVideoRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) noteModalVideoChunks.push(e.data);
+        };
+        noteModalVideoRecorder.onstop = () => {
+          const blob = new Blob(noteModalVideoChunks, { type: "video/webm" });
+          noteModalVideo = URL.createObjectURL(blob);
+          noteModalVoice = null; // Video and voice are mutually exclusive
+          if (noteVideoPreview) {
+            noteVideoPreview.srcObject = null;
+            noteVideoPreview.src = noteModalVideo;
+            noteVideoPreview.muted = false;
+            noteVideoPreview.controls = true;
+          }
+          stopNoteVideoCapture();
+          updateNoteAttachmentStatus();
+        };
+
+        noteModalVideoRecorder.start();
+        if (startNoteVideoRecBtn) startNoteVideoRecBtn.style.display = "none";
+        if (stopNoteVideoRecBtn) stopNoteVideoRecBtn.style.display = "inline-flex";
+        if (noteVideoRecIndicator) noteVideoRecIndicator.style.display = "inline-flex";
+      } catch (err) {
+        alert("Camera or microphone permission is required to record a video.");
+      }
+    });
+  }
+
+  if (stopNoteVideoRecBtn) {
+    stopNoteVideoRecBtn.addEventListener("click", () => {
+      if (noteModalVideoRecorder && noteModalVideoRecorder.state !== "inactive") {
+        noteModalVideoRecorder.stop();
+      }
+      if (stopNoteVideoRecBtn) stopNoteVideoRecBtn.style.display = "none";
+      if (startNoteVideoRecBtn) startNoteVideoRecBtn.style.display = "inline-flex";
+      if (noteVideoRecIndicator) noteVideoRecIndicator.style.display = "none";
+    });
+  }
+
+  if (noteVideoFileInput) {
+    noteVideoFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      noteModalVideo = URL.createObjectURL(file);
+      noteModalVoice = null;
+      if (noteVideoPreview) {
+        noteVideoPreview.srcObject = null;
+        noteVideoPreview.src = noteModalVideo;
+        noteVideoPreview.style.display = "block";
+        noteVideoPreview.controls = true;
+      }
+      updateNoteAttachmentStatus();
+      noteVideoFileInput.value = "";
+    });
+  }
+
+  // Voice Section toggles and recording
+  const openVoiceRecorderBtn = document.getElementById("openVoiceRecorderBtn");
+  const noteVoicePanel = document.getElementById("noteVoicePanel");
+  const closeVoicePanelBtn = document.getElementById("closeVoicePanelBtn");
+  const startNoteVoiceRecBtn = document.getElementById("startNoteVoiceRecBtn");
+  const stopNoteVoiceRecBtn = document.getElementById("stopNoteVoiceRecBtn");
+  const noteVoiceFileInput = document.getElementById("noteVoiceFileInput");
+  const noteVoicePreview = document.getElementById("noteVoicePreview");
+  const noteVoiceRecIndicator = document.getElementById("noteVoiceRecIndicator");
+
+  if (openVoiceRecorderBtn) {
+    openVoiceRecorderBtn.addEventListener("click", () => {
+      if (noteModalVideo) {
+        if (!confirm("You already have a video attached. Attaching a voice note will replace your video. Proceed?")) return;
+        noteModalVideo = null;
+      }
+      if (noteVoicePanel) noteVoicePanel.style.display = "block";
+      updateNoteAttachmentStatus();
+    });
+  }
+
+  if (closeVoicePanelBtn) {
+    closeVoicePanelBtn.addEventListener("click", () => {
+      stopNoteVoiceCapture();
+      if (noteVoicePanel) noteVoicePanel.style.display = "none";
+    });
+  }
+
+  if (startNoteVoiceRecBtn) {
+    startNoteVoiceRecBtn.addEventListener("click", async () => {
+      try {
+        noteModalVoiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        noteModalVoiceChunks = [];
+        noteModalVoiceRecorder = new MediaRecorder(noteModalVoiceStream);
+        noteModalVoiceRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) noteModalVoiceChunks.push(e.data);
+        };
+        noteModalVoiceRecorder.onstop = () => {
+          const blob = new Blob(noteModalVoiceChunks, { type: "audio/webm" });
+          noteModalVoice = URL.createObjectURL(blob);
+          noteModalVideo = null; // Mutually exclusive
+          if (noteVoicePreview) {
+            noteVoicePreview.src = noteModalVoice;
+            noteVoicePreview.style.display = "block";
+          }
+          stopNoteVoiceCapture();
+          updateNoteAttachmentStatus();
+        };
+
+        noteModalVoiceRecorder.start();
+        if (startNoteVoiceRecBtn) startNoteVoiceRecBtn.style.display = "none";
+        if (stopNoteVoiceRecBtn) stopNoteVoiceRecBtn.style.display = "inline-flex";
+        if (noteVoiceRecIndicator) noteVoiceRecIndicator.style.display = "inline-flex";
+      } catch (err) {
+        alert("Microphone permission is required to record a voice note.");
+      }
+    });
+  }
+
+  if (stopNoteVoiceRecBtn) {
+    stopNoteVoiceRecBtn.addEventListener("click", () => {
+      if (noteModalVoiceRecorder && noteModalVoiceRecorder.state !== "inactive") {
+        noteModalVoiceRecorder.stop();
+      }
+      if (stopNoteVoiceRecBtn) stopNoteVoiceRecBtn.style.display = "none";
+      if (startNoteVoiceRecBtn) startNoteVoiceRecBtn.style.display = "inline-flex";
+      if (noteVoiceRecIndicator) noteVoiceRecIndicator.style.display = "none";
+    });
+  }
+
+  if (noteVoiceFileInput) {
+    noteVoiceFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      noteModalVoice = URL.createObjectURL(file);
+      noteModalVideo = null;
+      if (noteVoicePreview) {
+        noteVoicePreview.src = noteModalVoice;
+        noteVoicePreview.style.display = "block";
+      }
+      updateNoteAttachmentStatus();
+      noteVoiceFileInput.value = "";
+    });
+  }
+
+  // Unified Form Submit (Enforces: author, message, combinations)
+  const loveNoteSubmissionForm = document.getElementById("loveNoteSubmissionForm");
+  if (loveNoteSubmissionForm) {
+    loveNoteSubmissionForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const author = wishAuthorName ? wishAuthorName.value.trim() : "Friend";
-      const role = wishAuthorRole ? wishAuthorRole.value.trim() : "Loved One 💕";
-      const message = wishMessageText ? wishMessageText.value.trim() : "";
+      const authorInput = document.getElementById("wishAuthorName");
+      const roleInput = document.getElementById("wishAuthorRole");
+      const messageInput = document.getElementById("wishMessageText");
 
-      if (!author || !message) return;
+      const author = authorInput ? authorInput.value.trim() : "A Loving Friend";
+      const role = (roleInput && roleInput.value.trim()) || "Loved One 💕";
+      const message = messageInput ? messageInput.value.trim() : "";
 
-      const initials = author.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "❤️";
+      if (!author || !message) {
+        alert("Please provide your name and a heartfelt message!");
+        return;
+      }
 
-      const newWish = {
+      const initials = author.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "💌";
+
+      let noteType = "text";
+      if (noteModalVideo) noteType = "video";
+      else if (noteModalVoice) noteType = "audio";
+      else if (noteModalPhotos.length > 0) noteType = "photos";
+
+      const newNote = {
         id: "wish-" + Date.now(),
         author: author,
         role: role,
         avatar: initials,
         message: message,
-        sticker: selectedSticker,
+        sticker: noteModalSticker,
+        photos: [...noteModalPhotos],
+        videoUrl: noteModalVideo,
+        audioUrl: noteModalVoice,
         date: "Just now",
         likes: 1,
         likedByUser: true,
-        type: "text"
+        type: noteType
       };
 
-      guestbookMessages.unshift(newWish);
+      guestbookMessages.unshift(newNote);
       saveGuestbookMessages();
 
-      // Reset form
-      textWishForm.reset();
+      // Reset form and attachments
+      loveNoteSubmissionForm.reset();
+      resetNoteModalAttachments();
       closeSignGuestbook();
 
-      // Refresh gallery
+      // Re-render both views
+      renderLoveNotes();
       renderGuestbookGallery(currentGuestbookFilter);
 
-      // Micro celebration confetti burst
+      // Celebration burst
       startConfettiAnimation();
     });
   }
 
-  // Modal Video Recording
-  if (modalRecStartBtn) modalRecStartBtn.addEventListener("click", handleModalRecordStart);
-  if (modalRecStopBtn) modalRecStopBtn.addEventListener("click", handleModalRecordStop);
-  if (modalPostVideoWishBtn) modalPostVideoWishBtn.addEventListener("click", handleModalPostVideo);
+  // Initial status check
+  updateNoteAttachmentStatus();
 }
 
-// Modal Camera functions
-async function startModalCamera() {
-  try {
-    modalMediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
-      audio: true
-    });
-    if (modalVideoPreview) {
-      modalVideoPreview.srcObject = modalMediaStream;
-      modalVideoPreview.style.display = "block";
-      modalVideoPreview.muted = true;
-      modalVideoPreview.play();
+function stopNoteVideoCapture() {
+  if (noteModalVideoStream) {
+    noteModalVideoStream.getTracks().forEach(t => t.stop());
+    noteModalVideoStream = null;
+  }
+}
+
+function stopNoteVoiceCapture() {
+  if (noteModalVoiceStream) {
+    noteModalVoiceStream.getTracks().forEach(t => t.stop());
+    noteModalVoiceStream = null;
+  }
+}
+
+function resetNoteModalAttachments() {
+  noteModalPhotos = [];
+  noteModalVideo = null;
+  noteModalVoice = null;
+  stopNoteVideoCapture();
+  stopNoteVoiceCapture();
+
+  const noteVideoPanel = document.getElementById("noteVideoPanel");
+  const noteVoicePanel = document.getElementById("noteVoicePanel");
+  const noteVideoPreview = document.getElementById("noteVideoPreview");
+  const noteVoicePreview = document.getElementById("noteVoicePreview");
+
+  if (noteVideoPanel) noteVideoPanel.style.display = "none";
+  if (noteVoicePanel) noteVoicePanel.style.display = "none";
+  if (noteVideoPreview) {
+    noteVideoPreview.srcObject = null;
+    noteVideoPreview.src = "";
+    noteVideoPreview.style.display = "none";
+  }
+  if (noteVoicePreview) {
+    noteVoicePreview.src = "";
+    noteVoicePreview.style.display = "none";
+  }
+
+  updateNoteAttachmentStatus();
+}
+
+// Enforces exact combinations:
+// 1. Up to 3 photos (0 video, 0 voice)
+// 2. Up to 2 photos + 1 short video (0 voice)
+// 3. Up to 2 photos + 1 short voice (0 video)
+function updateNoteAttachmentStatus() {
+  const statusPhotosTag = document.getElementById("statusPhotosTag");
+  const statusVideoTag = document.getElementById("statusVideoTag");
+  const statusVoiceTag = document.getElementById("statusVoiceTag");
+  const previewsContainer = document.getElementById("noteAttachedPreviews");
+  const addPhotosLabel = document.getElementById("addPhotosLabel");
+
+  const hasVideoOrVoice = Boolean(noteModalVideo || noteModalVoice);
+  const maxPhotos = hasVideoOrVoice ? 2 : 3;
+
+  // Trim photos if currently exceeds limit
+  if (noteModalPhotos.length > maxPhotos) {
+    noteModalPhotos = noteModalPhotos.slice(0, maxPhotos);
+  }
+
+  if (statusPhotosTag) {
+    statusPhotosTag.textContent = `📸 Photos: ${noteModalPhotos.length}/${maxPhotos}`;
+    statusPhotosTag.classList.toggle("active-attached", noteModalPhotos.length > 0);
+  }
+
+  if (statusVideoTag) {
+    statusVideoTag.textContent = noteModalVideo ? "🎥 Video: 1 attached ✓" : "🎥 Video: None";
+    statusVideoTag.classList.toggle("active-attached", Boolean(noteModalVideo));
+  }
+
+  if (statusVoiceTag) {
+    statusVoiceTag.textContent = noteModalVoice ? "🎙️ Voice: 1 attached ✓" : "🎙️ Voice: None";
+    statusVoiceTag.classList.toggle("active-attached", Boolean(noteModalVoice));
+  }
+
+  if (addPhotosLabel) {
+    if (noteModalPhotos.length >= maxPhotos) {
+      addPhotosLabel.style.opacity = "0.45";
+      addPhotosLabel.style.pointerEvents = "none";
+    } else {
+      addPhotosLabel.style.opacity = "1";
+      addPhotosLabel.style.pointerEvents = "auto";
     }
-    return true;
-  } catch (err) {
-    alert("Camera & microphone permissions are required to record a video wish!");
-    return false;
+  }
+
+  // Render previews with removal buttons
+  if (previewsContainer) {
+    previewsContainer.innerHTML = "";
+
+    // Photos previews
+    noteModalPhotos.forEach((src, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "note-preview-chip";
+      chip.innerHTML = `
+        <img src="${src}" alt="Attached preview ${idx + 1}" />
+        <span>Photo ${idx + 1}</span>
+        <button type="button" class="remove-chip-btn" data-photo-idx="${idx}">&times;</button>
+      `;
+      chip.querySelector(".remove-chip-btn").addEventListener("click", () => {
+        noteModalPhotos.splice(idx, 1);
+        updateNoteAttachmentStatus();
+      });
+      previewsContainer.appendChild(chip);
+    });
+
+    // Video preview chip
+    if (noteModalVideo) {
+      const chip = document.createElement("div");
+      chip.className = "note-preview-chip";
+      chip.innerHTML = `
+        <span>🎥 Video Attached</span>
+        <button type="button" class="remove-chip-btn" id="removeVideoChipBtn">&times;</button>
+      `;
+      chip.querySelector("#removeVideoChipBtn").addEventListener("click", () => {
+        noteModalVideo = null;
+        const noteVideoPreview = document.getElementById("noteVideoPreview");
+        if (noteVideoPreview) noteVideoPreview.src = "";
+        updateNoteAttachmentStatus();
+      });
+      previewsContainer.appendChild(chip);
+    }
+
+    // Voice preview chip
+    if (noteModalVoice) {
+      const chip = document.createElement("div");
+      chip.className = "note-preview-chip";
+      chip.innerHTML = `
+        <span>🎙️ Voice Note Attached</span>
+        <button type="button" class="remove-chip-btn" id="removeVoiceChipBtn">&times;</button>
+      `;
+      chip.querySelector("#removeVoiceChipBtn").addEventListener("click", () => {
+        noteModalVoice = null;
+        const noteVoicePreview = document.getElementById("noteVoicePreview");
+        if (noteVoicePreview) noteVoicePreview.src = "";
+        updateNoteAttachmentStatus();
+      });
+      previewsContainer.appendChild(chip);
+    }
   }
 }
 
-function stopModalCamera() {
-  if (modalMediaStream) {
-    modalMediaStream.getTracks().forEach(t => t.stop());
-    modalMediaStream = null;
-  }
-  if (modalVideoPreview) {
-    modalVideoPreview.srcObject = null;
-    modalVideoPreview.style.display = "none";
-  }
-  if (modalRecStopBtn) modalRecStopBtn.style.display = "none";
-  if (modalRecStartBtn) modalRecStartBtn.style.display = "inline-flex";
-  if (modalRecIndicator) modalRecIndicator.style.display = "none";
-}
-
-async function handleModalRecordStart() {
-  const ok = await startModalCamera();
-  if (!ok) return;
-
-  modalRecordedChunks = [];
-  try {
-    modalMediaRecorder = new MediaRecorder(modalMediaStream);
-    modalMediaRecorder.ondataavailable = (e) => {
-      if (e.data && e.data.size > 0) modalRecordedChunks.push(e.data);
-    };
-    modalMediaRecorder.onstop = () => {
-      const blob = new Blob(modalRecordedChunks, { type: "video/webm" });
-      modalRecordedBlobUrl = URL.createObjectURL(blob);
-      if (modalVideoPreview) {
-        modalVideoPreview.srcObject = null;
-        modalVideoPreview.src = modalRecordedBlobUrl;
-        modalVideoPreview.muted = false;
-        modalVideoPreview.controls = true;
-        modalVideoPreview.play();
+// Admin Love Notes Tab Management
+function setupAdminLoveNotes() {
+  const resetBtn = document.getElementById("adminResetLoveNotesBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (confirm("Reset love notes and wishes to the default messages?")) {
+        guestbookMessages = [...defaultGuestbookMessages];
+        saveGuestbookMessages();
+        renderLoveNotes();
+        renderGuestbookGallery(currentGuestbookFilter);
+        renderAdminLoveNotesList();
       }
-      if (modalPostVideoWishBtn) modalPostVideoWishBtn.style.display = "block";
-      if (modalMediaStream) {
-        modalMediaStream.getTracks().forEach(t => t.stop());
-        modalMediaStream = null;
+    });
+  }
+}
+
+function renderAdminLoveNotesList() {
+  const container = document.getElementById("adminLoveNotesList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (guestbookMessages.length === 0) {
+    container.innerHTML = `<p style="color: var(--color-text-secondary); font-size: 0.85rem; padding: 0.8rem;">No love notes currently registered.</p>`;
+    return;
+  }
+
+  guestbookMessages.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "admin-note-item-row";
+
+    let mediaBadge = "";
+    if (item.videoUrl) mediaBadge += `<span class="note-media-badge">🎥 Video</span>`;
+    if (item.audioUrl) mediaBadge += `<span class="note-media-badge">🎙️ Voice</span>`;
+    if (item.photos && item.photos.length > 0) mediaBadge += `<span class="note-media-badge">📸 ${item.photos.length} Photo(s)</span>`;
+
+    row.innerHTML = `
+      <div class="note-item-main">
+        <div class="note-item-header">
+          <strong>${escapeHtml(item.author)}</strong>
+          <span>${escapeHtml(item.sticker || '💖')}</span>
+          <span style="font-size: 0.75rem; color: var(--color-text-secondary);">${escapeHtml(item.role || '')}</span>
+          ${mediaBadge}
+        </div>
+        <div class="note-item-snippet">"${escapeHtml((item.message || '').slice(0, 75))}${(item.message || '').length > 75 ? '...' : ''}"</div>
+      </div>
+      <div class="note-item-actions">
+        <button type="button" class="admin-danger-btn delete-note-btn" data-index="${index}">🗑️ Delete</button>
+      </div>
+    `;
+
+    row.querySelector(".delete-note-btn").addEventListener("click", () => {
+      if (confirm(`Delete love note from ${item.author}?`)) {
+        guestbookMessages.splice(index, 1);
+        saveGuestbookMessages();
+        renderLoveNotes();
+        renderGuestbookGallery(currentGuestbookFilter);
+        renderAdminLoveNotesList();
       }
-    };
+    });
 
-    modalMediaRecorder.start();
-    if (modalRecStartBtn) modalRecStartBtn.style.display = "none";
-    if (modalRecStopBtn) modalRecStopBtn.style.display = "inline-flex";
-    if (modalRecIndicator) modalRecIndicator.style.display = "inline-flex";
-  } catch (err) {
-    alert("Video recording is not supported in this browser.");
-  }
+    container.appendChild(row);
+  });
 }
 
-function handleModalRecordStop() {
-  if (modalMediaRecorder && modalMediaRecorder.state !== "inactive") {
-    modalMediaRecorder.stop();
-  }
-  if (modalRecStopBtn) modalRecStopBtn.style.display = "none";
-  if (modalRecStartBtn) modalRecStartBtn.style.display = "inline-flex";
-  if (modalRecIndicator) modalRecIndicator.style.display = "none";
-}
-
-function handleModalPostVideo() {
-  if (!modalRecordedBlobUrl) return;
-  const author = (modalVideoAuthorName && modalVideoAuthorName.value.trim()) || "A Loving Friend";
-  const role = (modalVideoAuthorRole && modalVideoAuthorRole.value.trim()) || "Friend 💕";
-  const initials = author.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "🎥";
-
-  const newWish = {
-    id: "wish-" + Date.now(),
-    author: author,
-    role: role,
-    avatar: initials,
-    videoUrl: modalRecordedBlobUrl,
-    message: "Recorded a video wish for your special day! 🎥❤️",
-    sticker: "🎉",
-    date: "Just now",
-    likes: 1,
-    likedByUser: true,
-    type: "video"
-  };
-
-  guestbookMessages.unshift(newWish);
-  saveGuestbookMessages();
-
-  // Reset
-  if (modalVideoAuthorName) modalVideoAuthorName.value = "";
-  if (modalVideoAuthorRole) modalVideoAuthorRole.value = "";
-  if (modalPostVideoWishBtn) modalPostVideoWishBtn.style.display = "none";
-  modalRecordedBlobUrl = null;
-  closeSignGuestbook();
-
-  renderGuestbookGallery(currentGuestbookFilter);
-  startConfettiAnimation();
+function setupGuestbookModal() {
+  // Legacy alias, full functionality handled in setupLoveNotesModal
 }
 
 function escapeHtml(str) {
@@ -1652,25 +2725,443 @@ function startConfettiAnimation() {
 }
 
 // ============================================================================
-// MEMORIES REEL & POLAROIDS
+// MULTI-PAGE CHAPTER SYSTEM (Chapter 1, Chapter 2, Chapter 3)
 // ============================================================================
+
+let currentActiveChapter = 1;
+
+function initChapterSystem() {
+  if (chapterBtn1) chapterBtn1.addEventListener("click", () => showChapter(1));
+  if (chapterBtn2) chapterBtn2.addEventListener("click", () => showChapter(2));
+  if (chapterBtn3) chapterBtn3.addEventListener("click", () => showChapter(3));
+
+  // Turn to Next / Previous Chapter buttons (connecting both page continue banners & headers)
+  if (goToPage2Btn) {
+    goToPage2Btn.addEventListener("click", () => showChapter(2));
+  }
+  if (goToPage3Btn) {
+    goToPage3Btn.addEventListener("click", () => showChapter(3));
+  }
+  if (backToPage1Btn) {
+    backToPage1Btn.addEventListener("click", () => showChapter(1));
+  }
+  if (backToPage2Btn) {
+    backToPage2Btn.addEventListener("click", () => showChapter(2));
+  }
+  if (backToPage1From3Btn) {
+    backToPage1From3Btn.addEventListener("click", () => showChapter(1));
+  }
+  if (openSignLoveNoteFromChapterBtn) {
+    openSignLoveNoteFromChapterBtn.addEventListener("click", () => openSignGuestbook());
+  }
+}
+
+function showChapter(chapterNum, autoScroll = true) {
+  currentActiveChapter = chapterNum;
+
+  const page1 = document.getElementById("pageChapter1");
+  const page2 = document.getElementById("pageChapter2");
+  const page3 = document.getElementById("pageChapter3");
+
+  const btn1 = document.getElementById("chapterBtn1");
+  const btn2 = document.getElementById("chapterBtn2");
+  const btn3 = document.getElementById("chapterBtn3");
+
+  if (page1) page1.style.display = (chapterNum === 1) ? "block" : "none";
+  if (page2) page2.style.display = (chapterNum === 2) ? "block" : "none";
+  if (page3) page3.style.display = (chapterNum === 3) ? "block" : "none";
+
+  if (btn1) btn1.classList.toggle("active", chapterNum === 1);
+  if (btn2) btn2.classList.toggle("active", chapterNum === 2);
+  if (btn3) btn3.classList.toggle("active", chapterNum === 3);
+
+  if (chapterNum === 2) {
+    renderMemoriesScrapbook();
+    setTimeout(() => {
+      initHighlightedMemoriesObserver();
+    }, 200);
+  } else if (chapterNum === 3) {
+    renderLoveNotes();
+  }
+
+  // Smooth scroll without interfering with normal user scrolling
+  if (autoScroll) {
+    let targetEl = null;
+    if (chapterNum === 1) targetEl = document.getElementById("celebrationScreen");
+    else if (chapterNum === 2) targetEl = page2;
+    else if (chapterNum === 3) targetEl = page3;
+
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+}
+
+// ============================================================================
+// CHAPTER 2 — SCRAPBOOK MEMORIES & 3D SPOTLIGHT ENGINE
+// ============================================================================
+
+const MEMORIES_STORAGE_KEY = "birthday_scrapbook_memories_v2";
+let activeMemories = [];
+
+let activeSpotlightElement = null;
+let isSpotlightLocked = false;
+let memoriesObserver = null;
+
+function initScrapbookMemories() {
+  try {
+    const saved = localStorage.getItem(MEMORIES_STORAGE_KEY);
+    if (saved) {
+      activeMemories = JSON.parse(saved);
+    } else {
+      activeMemories = [...defaultMemories];
+      saveActiveMemories();
+    }
+  } catch {
+    activeMemories = [...defaultMemories];
+  }
+
+  renderMemoriesScrapbook();
+  renderMemories(); // Legacy grid support
+  setupAdminMemories();
+  initHighlightedMemoriesObserver();
+}
+
+function saveActiveMemories() {
+  try {
+    localStorage.setItem(MEMORIES_STORAGE_KEY, JSON.stringify(activeMemories));
+  } catch (err) {
+    console.warn("Could not persist scrapbook memories to localStorage:", err);
+  }
+}
+
+function renderMemoriesScrapbook() {
+  const scrapbook = document.getElementById("memoriesScrapbookContainer") || document.getElementById("memoriesScrapbook");
+  if (!scrapbook) return;
+
+  scrapbook.innerHTML = "";
+
+  activeMemories.forEach((item, index) => {
+    const card = document.createElement("div");
+    const styleClass = item.style ? `style-${item.style}` : "style-tape";
+    const sizeClass = item.size ? `size-${item.size}` : "size-normal";
+    const tiltClass = item.tilt ? `tilt-${item.tilt}` : (index % 2 === 0 ? "tilt-left" : "tilt-right");
+    const highlightClass = item.isHighlight ? "is-highlight-memory" : "";
+
+    card.className = `memory-card ${styleClass} ${sizeClass} ${tiltClass} ${highlightClass}`.trim();
+    card.id = `memCard_${item.id || index}`;
+    card.setAttribute("data-index", String(index));
+    if (item.isHighlight) {
+      card.setAttribute("data-is-highlight", "true");
+    }
+
+    // Title is strictly OPTIONAL — only rendered if title text exists!
+    const hasTitle = Boolean(item.title && item.title.trim().length > 0);
+    const titleHtml = hasTitle ? `<h4 class="memory-card-title">${escapeHtml(item.title.trim())}</h4>` : "";
+    const dateHtml = item.date ? `<span class="memory-card-date">${escapeHtml(item.date)}</span>` : "";
+    const captionHtml = item.caption ? `<p class="memory-card-caption">${escapeHtml(item.caption)}</p>` : "";
+    const highlightBadge = item.isHighlight ? `<span class="memory-highlight-badge">⭐ Highlight</span>` : "";
+
+    let mediaHtml = "";
+    if (item.type === "video") {
+      mediaHtml = `
+        <div class="memory-video-wrap">
+          <video class="memory-video" src="${item.mediaUrl}" controls playsinline preload="metadata"></video>
+        </div>
+      `;
+    } else {
+      const src = item.mediaUrl || item.image;
+      mediaHtml = `
+        <div class="memory-img-wrap">
+          <img src="${src}" alt="${escapeHtml(item.title || 'Scrapbook photo')}" loading="lazy" />
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      ${highlightBadge}
+      ${mediaHtml}
+      <div class="memory-content-box">
+        ${titleHtml}
+        ${captionHtml}
+        ${dateHtml}
+      </div>
+    `;
+
+    // Click photo to open lightbox
+    if (item.type !== "video") {
+      const imgWrap = card.querySelector(".memory-img-wrap");
+      if (imgWrap) {
+        imgWrap.addEventListener("click", () => {
+          openLightbox(item.mediaUrl || item.image, `${item.title ? item.title + ' — ' : ''}${item.caption || ''}`);
+        });
+      }
+    }
+
+    scrapbook.appendChild(card);
+  });
+}
+
+// 3D Spotlight Scroll Effect:
+// - Highlighted memories activate INDIVIDUALLY and SEQUENTIALLY based on scrolling.
+// - NEVER shows multiple highlighted memories floating forward simultaneously.
+// - Grows slightly larger, floats forward in 3D, subtle glow, surrounding memories dim.
+// - Stays active for ~3 seconds before smoothly returning to normal.
+// - Does not interfere with normal scrolling.
+function initHighlightedMemoriesObserver() {
+  if (memoriesObserver) {
+    memoriesObserver.disconnect();
+    memoriesObserver = null;
+  }
+
+  const highlightCards = document.querySelectorAll('.memories-scrapbook .memory-card[data-is-highlight="true"], #memoriesScrapbook .memory-card[data-is-highlight="true"], #memoriesScrapbookContainer .memory-card[data-is-highlight="true"]');
+  if (!highlightCards || highlightCards.length === 0) return;
+
+  if ('IntersectionObserver' in window) {
+    memoriesObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !isSpotlightLocked && !activeSpotlightElement) {
+          triggerSequentialSpotlight(entry.target);
+          break; // Strictly one card at a time
+        }
+      }
+    }, {
+      root: null,
+      rootMargin: "-15% 0px -15% 0px", // triggers when entering central viewport zone
+      threshold: 0.35
+    });
+
+    highlightCards.forEach(card => memoriesObserver.observe(card));
+  }
+}
+
+function triggerSequentialSpotlight(cardEl) {
+  if (isSpotlightLocked || activeSpotlightElement) return;
+  if (cardEl.dataset.recentlySpotlighted === "true") return;
+
+  isSpotlightLocked = true;
+  activeSpotlightElement = cardEl;
+  cardEl.dataset.recentlySpotlighted = "true";
+
+  const scrapbook = document.getElementById("memoriesScrapbookContainer") || document.getElementById("memoriesScrapbook");
+  if (scrapbook) scrapbook.classList.add("has-active-spotlight");
+  cardEl.classList.add("is-spotlight-active");
+
+  // Stays active for ~3 seconds before smoothly returning to normal
+  setTimeout(() => {
+    cardEl.classList.remove("is-spotlight-active");
+    if (scrapbook) scrapbook.classList.remove("has-active-spotlight");
+    activeSpotlightElement = null;
+
+    // Cooldown of 800ms before another highlighted memory can activate
+    setTimeout(() => {
+      isSpotlightLocked = false;
+    }, 800);
+
+    // Reset cooldown for this specific memory after 15 seconds
+    setTimeout(() => {
+      delete cardEl.dataset.recentlySpotlighted;
+    }, 15000);
+  }, 3000);
+}
+
+// Legacy Polaroid Reel Support
 function renderMemories() {
   const container = document.getElementById("memoriesGrid");
   if (!container) return;
 
   container.innerHTML = "";
-  defaultMemories.forEach((item, index) => {
+  activeMemories.forEach((item, index) => {
     const card = document.createElement("div");
     card.className = "polaroid-card";
+    const src = item.mediaUrl || item.image;
     card.innerHTML = `
       <div class="polaroid-img-wrap">
-        <img src="${item.image}" alt="${item.title}" loading="lazy" />
+        <img src="${src}" alt="${escapeHtml(item.title || 'Memory')}" loading="lazy" />
       </div>
-      <div class="polaroid-caption">${item.caption}</div>
-      <div class="polaroid-date">${item.date}</div>
+      <div class="polaroid-caption">${escapeHtml(item.caption || '')}</div>
+      <div class="polaroid-date">${escapeHtml(item.date || '')}</div>
     `;
-    card.addEventListener("click", () => openLightbox(item.image, `${item.title} — ${item.caption}`));
+    card.addEventListener("click", () => openLightbox(src, `${item.title ? item.title + ' — ' : ''}${item.caption || ''}`));
     container.appendChild(card);
+  });
+}
+
+// Admin Memories Tab Management (Reordering, Highlighting, Adding, Deleting)
+function setupAdminMemories() {
+  const resetBtn = document.getElementById("adminResetMemoriesBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (confirm("Reset memories to default list?")) {
+        activeMemories = [...defaultMemories];
+        saveActiveMemories();
+        renderMemoriesScrapbook();
+        renderMemories();
+        renderAdminMemoriesList();
+        initHighlightedMemoriesObserver();
+      }
+    });
+  }
+
+  const addPhotoBtn = document.getElementById("adminAddMemoryPhotoBtn");
+  if (addPhotoBtn) {
+    addPhotoBtn.addEventListener("click", () => {
+      const url = prompt("Enter photo image URL:");
+      if (!url || !url.trim()) return;
+      const title = prompt("Optional Title (press OK to leave blank):") || "";
+      const caption = prompt("Caption:") || "";
+      const date = prompt("Date or year:", "Special Day") || "";
+      const isHighlight = confirm("Highlight this memory with 3D spotlight?");
+
+      const newMem = {
+        id: "mem-" + Date.now(),
+        type: "photo",
+        title: title.trim(),
+        caption: caption.trim(),
+        date: date.trim(),
+        image: url.trim(),
+        mediaUrl: url.trim(),
+        isHighlight: Boolean(isHighlight),
+        style: "tape",
+        tilt: "slight",
+        size: "normal"
+      };
+
+      activeMemories.push(newMem);
+      saveActiveMemories();
+      renderMemoriesScrapbook();
+      renderMemories();
+      renderAdminMemoriesList();
+      initHighlightedMemoriesObserver();
+    });
+  }
+
+  const addVideoBtn = document.getElementById("adminAddMemoryVideoBtn");
+  if (addVideoBtn) {
+    addVideoBtn.addEventListener("click", () => {
+      const url = prompt("Enter short video MP4/WebM URL:");
+      if (!url || !url.trim()) return;
+      const title = prompt("Optional Title (press OK to leave blank):") || "";
+      const caption = prompt("Caption:") || "";
+      const date = prompt("Date or year:", "Special Day") || "";
+      const isHighlight = confirm("Highlight this video with 3D spotlight?");
+
+      const newMem = {
+        id: "mem-" + Date.now(),
+        type: "video",
+        title: title.trim(),
+        caption: caption.trim(),
+        date: date.trim(),
+        mediaUrl: url.trim(),
+        image: "",
+        isHighlight: Boolean(isHighlight),
+        style: "tape",
+        tilt: "slight",
+        size: "normal"
+      };
+
+      activeMemories.push(newMem);
+      saveActiveMemories();
+      renderMemoriesScrapbook();
+      renderMemories();
+      renderAdminMemoriesList();
+      initHighlightedMemoriesObserver();
+    });
+  }
+}
+
+function renderAdminMemoriesList() {
+  const container = document.getElementById("adminMemoriesList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (activeMemories.length === 0) {
+    container.innerHTML = `<p style="color: var(--color-text-secondary); font-size: 0.85rem; padding: 0.8rem;">No memories currently added.</p>`;
+    return;
+  }
+
+  activeMemories.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "admin-memory-item-row";
+
+    const displayTitle = item.title && item.title.trim().length > 0 ? item.title : "(No title)";
+    const typeIcon = item.type === "video" ? "🎥 Video" : "📸 Photo";
+
+    row.innerHTML = `
+      <div class="memory-item-left">
+        <span class="memory-item-type">${typeIcon}</span>
+        <strong>${escapeHtml(displayTitle)}</strong>
+        <span style="font-size: 0.75rem; color: var(--color-text-secondary);">${escapeHtml(item.caption ? item.caption.slice(0, 30) + '...' : '')}</span>
+      </div>
+      <div class="memory-item-actions">
+        <label class="memory-highlight-toggle">
+          <input type="checkbox" class="toggle-highlight-checkbox" ${item.isHighlight ? 'checked' : ''} />
+          <span>⭐ Spotlight</span>
+        </label>
+        <button type="button" class="admin-icon-btn move-up-btn" ${index === 0 ? 'disabled' : ''} title="Move earlier in story">▲</button>
+        <button type="button" class="admin-icon-btn move-down-btn" ${index === activeMemories.length - 1 ? 'disabled' : ''} title="Move later in story">▼</button>
+        <button type="button" class="admin-danger-btn delete-mem-btn" title="Delete memory">🗑️</button>
+      </div>
+    `;
+
+    // Toggle highlight
+    const cb = row.querySelector(".toggle-highlight-checkbox");
+    if (cb) {
+      cb.addEventListener("change", (e) => {
+        item.isHighlight = e.target.checked;
+        saveActiveMemories();
+        renderMemoriesScrapbook();
+        initHighlightedMemoriesObserver();
+      });
+    }
+
+    // Move Up
+    const upBtn = row.querySelector(".move-up-btn");
+    if (upBtn && index > 0) {
+      upBtn.addEventListener("click", () => {
+        const temp = activeMemories[index];
+        activeMemories[index] = activeMemories[index - 1];
+        activeMemories[index - 1] = temp;
+        saveActiveMemories();
+        renderMemoriesScrapbook();
+        renderMemories();
+        renderAdminMemoriesList();
+        initHighlightedMemoriesObserver();
+      });
+    }
+
+    // Move Down
+    const downBtn = row.querySelector(".move-down-btn");
+    if (downBtn && index < activeMemories.length - 1) {
+      downBtn.addEventListener("click", () => {
+        const temp = activeMemories[index];
+        activeMemories[index] = activeMemories[index + 1];
+        activeMemories[index + 1] = temp;
+        saveActiveMemories();
+        renderMemoriesScrapbook();
+        renderMemories();
+        renderAdminMemoriesList();
+        initHighlightedMemoriesObserver();
+      });
+    }
+
+    // Delete
+    const delBtn = row.querySelector(".delete-mem-btn");
+    if (delBtn) {
+      delBtn.addEventListener("click", () => {
+        if (confirm(`Remove memory "${displayTitle}"?`)) {
+          activeMemories.splice(index, 1);
+          saveActiveMemories();
+          renderMemoriesScrapbook();
+          renderMemories();
+          renderAdminMemoriesList();
+          initHighlightedMemoriesObserver();
+        }
+      });
+    }
+
+    container.appendChild(row);
   });
 }
 
@@ -1817,6 +3308,32 @@ function setupEventListeners() {
     celebrateMoreBtn.addEventListener("click", () => startConfettiAnimation());
   }
 
+  // Show Me button / Photo Sticker on Opening Screen
+  if (showMeBtn) {
+    showMeBtn.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  }
+  const showMeStickerContainer = document.getElementById("showMeStickerContainer");
+  if (showMeStickerContainer) {
+    showMeStickerContainer.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  }
+  const stickerWrappers = document.querySelectorAll(".photo-sticker-wrapper");
+  stickerWrappers.forEach(w => {
+    w.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  });
+
+  // Skip Reveal button on 10s Photo Reveal
+  if (skipRevealBtn) {
+    skipRevealBtn.addEventListener("click", () => {
+      completePhotoRevealToMainExperience();
+    });
+  }
+
   // Expose key handlers to window for backwards compatibility
   window.startConfettiAnimation = startConfettiAnimation;
   window.toggleMusic = toggleMusic;
@@ -1893,40 +3410,40 @@ function setupEventListeners() {
       }
       if (devMessageInput && devMessageInput.value) {
         currentMessage = devMessageInput.value.trim();
-        saveBirthdayContentToSupabase(currentMessage, currentBgImage, backgroundMusic);
       }
-      if (devBgInput) {
+      if (devBgInput && devBgInput.value) {
         currentBgImage = devBgInput.value.trim();
+      }
+      if (devMusicInput && devMusicInput.value) {
+        currentMusicUrl = devMusicInput.value.trim();
+        if (bgAudio) bgAudio.src = currentMusicUrl;
       }
       if (devOpacityInput) {
         currentOverlayOpacity = parseFloat(devOpacityInput.value);
       }
+      if (devRevealThirdTitleInput && devRevealThirdTitleInput.value) {
+        burstConfig.revealThirdTitle = devRevealThirdTitleInput.value.trim();
+        saveBurstSettings();
+      }
+
+      // Persist latest configuration to Supabase birthday_content table
+      saveBirthdayContentToSupabase(currentMessage, currentBgImage, currentMusicUrl);
 
       setupDynamicContent();
       setupBackground();
       
-      // Reset view to countdown if celebration was active
-      if (countdownScreen) countdownScreen.classList.remove("hidden");
-      if (celebrationScreen) celebrationScreen.classList.remove("active");
-      if (guestbookSection) guestbookSection.classList.remove("active");
-      isCelebrationActive = false;
-
-      startCountdown();
+      // Reset view to opening screen
+      initOpeningScreen();
 
       if (devModal) devModal.classList.remove("active");
     });
   }
 
-  // Quick Test 10s button
-  if (test10sBtn) {
-    test10sBtn.addEventListener("click", () => {
-      targetDate = new Date(Date.now() + 10000);
-      if (countdownScreen) countdownScreen.classList.remove("hidden");
-      if (celebrationScreen) celebrationScreen.classList.remove("active");
-      if (guestbookSection) guestbookSection.classList.remove("active");
-      isCelebrationActive = false;
-      startCountdown();
+  // Quick Test Reveal Sequence (3-2-1 -> 10s Photo Reveal -> Celebration)
+  if (testRevealSequenceBtn) {
+    testRevealSequenceBtn.addEventListener("click", () => {
       if (devModal) devModal.classList.remove("active");
+      startRevealSequence();
     });
   }
 
@@ -1961,21 +3478,16 @@ function setupEventListeners() {
     });
   }
 
-  // Reset Countdown
-  if (resetCountdownBtn) {
-    resetCountdownBtn.addEventListener("click", () => {
-      targetDate = new Date(birthdayDate);
+  // Reset Experience to Opening Screen
+  if (resetExperienceBtn) {
+    resetExperienceBtn.addEventListener("click", () => {
       currentName = birthdayName;
       currentMessage = birthdayMessage;
       currentBgImage = backgroundImage;
       currentOverlayOpacity = overlayOpacity;
       setupDynamicContent();
       setupBackground();
-      if (countdownScreen) countdownScreen.classList.remove("hidden");
-      if (celebrationScreen) celebrationScreen.classList.remove("active");
-      if (guestbookSection) guestbookSection.classList.remove("active");
-      isCelebrationActive = false;
-      startCountdown();
+      resetToOpeningScreen();
       if (devModal) devModal.classList.remove("active");
     });
   }
@@ -2003,6 +3515,109 @@ const loopMusic = ${loopMusic};`;
   }
 
   // ============================================================================
+  // ADMIN AUTHENTICATION CONTROLS
+  // ============================================================================
+  if (toggleAdminLoginBtn && adminLoginForm) {
+    toggleAdminLoginBtn.addEventListener("click", () => {
+      const isHidden = adminLoginForm.style.display === "none";
+      adminLoginForm.style.display = isHidden ? "block" : "none";
+      if (isHidden && adminPasswordInput) {
+        adminPasswordInput.focus();
+      }
+    });
+  }
+
+  if (adminCancelLoginBtn && adminLoginForm) {
+    adminCancelLoginBtn.addEventListener("click", () => {
+      adminLoginForm.style.display = "none";
+    });
+  }
+
+  if (adminSignInBtn) {
+    adminSignInBtn.addEventListener("click", async () => {
+      const email = adminEmailInput ? adminEmailInput.value.trim() : "";
+      const password = adminPasswordInput ? adminPasswordInput.value : "";
+      if (!email || !password) {
+        showStorageStatus("adminAuthStatus", "Please enter both admin email and password.", "error", 4000);
+        return;
+      }
+
+      showStorageStatus("adminAuthStatus", "Authenticating with Supabase...", "loading", 0);
+      const client = getSupabaseClient();
+      if (!client || !client.auth) {
+        showStorageStatus("adminAuthStatus", "Supabase client not available. Check network connection.", "error", 4000);
+        return;
+      }
+
+      try {
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) {
+          showStorageStatus("adminAuthStatus", `Sign in failed: ${error.message}`, "error", 6000);
+        } else if (data?.session) {
+          updateAdminUI(data.session);
+          showStorageStatus("adminAuthStatus", "Admin authenticated successfully! Online modifications enabled. ❤️", "success", 4000);
+        }
+      } catch (err) {
+        showStorageStatus("adminAuthStatus", `Sign in error: ${err.message}`, "error", 5000);
+      }
+    });
+  }
+
+  if (adminMagicLinkBtn) {
+    adminMagicLinkBtn.addEventListener("click", async () => {
+      const email = adminEmailInput ? adminEmailInput.value.trim() : "";
+      if (!email) {
+        showStorageStatus("adminAuthStatus", "Please enter admin email to receive magic sign-in link.", "error", 4000);
+        return;
+      }
+
+      showStorageStatus("adminAuthStatus", "Sending magic sign-in link...", "loading", 0);
+      const client = getSupabaseClient();
+      if (!client || !client.auth) {
+        showStorageStatus("adminAuthStatus", "Supabase client not available.", "error", 4000);
+        return;
+      }
+
+      try {
+        const { error } = await client.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: window.location.href
+          }
+        });
+        if (error) {
+          showStorageStatus("adminAuthStatus", `Magic link error: ${error.message}`, "error", 6000);
+        } else {
+          showStorageStatus("adminAuthStatus", `Magic link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
+        }
+      } catch (err) {
+        showStorageStatus("adminAuthStatus", `Magic link error: ${err.message}`, "error", 5000);
+      }
+    });
+  }
+
+  if (adminSignOutBtn) {
+    adminSignOutBtn.addEventListener("click", async () => {
+      const client = getSupabaseClient();
+      if (client && client.auth) {
+        await client.auth.signOut().catch(() => {});
+      }
+      updateAdminUI(null);
+      showStorageStatus("adminAuthStatus", "Signed out of admin mode. Site is now in visitor read-only mode.", "loading", 3500);
+    });
+  }
+
+  // Allow pressing Enter on password field to submit
+  if (adminPasswordInput && adminSignInBtn) {
+    adminPasswordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        adminSignInBtn.click();
+      }
+    });
+  }
+
+  // ============================================================================
   // WIRE UP PHOTO BURST & CUSTOMIZE CELEBRATION CONTROLS
   // ============================================================================
 
@@ -2023,13 +3638,37 @@ const loopMusic = ${loopMusic};`;
             p.classList.remove("active");
           }
         });
+
+        if (targetTabId === "tabMemoriesAdmin") {
+          renderAdminMemoriesList();
+        } else if (targetTabId === "tabLoveNotesAdmin") {
+          renderAdminLoveNotesList();
+        }
       });
     });
   }
 
   // Photo Upload Actions
   if (addPhotosBtn && photoFileInput) {
-    addPhotosBtn.addEventListener("click", () => photoFileInput.click());
+    addPhotosBtn.addEventListener("click", () => {
+      if (!isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to upload photos to Supabase Storage.");
+        return;
+      }
+      photoFileInput.click();
+    });
+  }
+
+  if (syncSupabasePhotosBtn) {
+    syncSupabasePhotosBtn.addEventListener("click", async () => {
+      showStorageStatus("photoUploadStatus", "Checking Supabase Storage (photos/)...", "loading", 0);
+      const loaded = await loadBirthdayPhotosFromSupabase();
+      if (loaded) {
+        showStorageStatus("photoUploadStatus", `Synced ${currentPhotos.length} photo(s) from Supabase ❤️`, "success", 4500);
+      } else {
+        showStorageStatus("photoUploadStatus", "No remote photos found in Supabase Storage. Current photos active.", "loading", 3500);
+      }
+    });
   }
 
   if (photoFileInput) {
@@ -2049,6 +3688,11 @@ const loopMusic = ${loopMusic};`;
 
   if (clearAllPhotosBtn) {
     clearAllPhotosBtn.addEventListener("click", () => {
+      const hasRemote = currentPhotos.some(p => p.fromSupabase);
+      if (hasRemote && !isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to delete online celebration photos.");
+        return;
+      }
       if (confirm("Are you sure you want to clear all uploaded celebration photos?")) {
         clearAllPhotos();
       }
@@ -2160,19 +3804,59 @@ const loopMusic = ${loopMusic};`;
 
   // Background Customization Listeners
   if (uploadBgBtn && bgFileInput) {
-    uploadBgBtn.addEventListener("click", () => bgFileInput.click());
+    uploadBgBtn.addEventListener("click", () => {
+      if (!isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to upload background images to Supabase Storage.");
+        return;
+      }
+      bgFileInput.click();
+    });
   }
 
   if (bgFileInput) {
-    bgFileInput.addEventListener("change", (e) => {
+    bgFileInput.addEventListener("change", async (e) => {
       if (e.target.files && e.target.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          currentBgImage = event.target.result;
-          if (devBgInput) devBgInput.value = "Custom Uploaded Photo";
-          setupBackground();
-        };
-        reader.readAsDataURL(e.target.files[0]);
+        const file = e.target.files[0];
+        showStorageStatus(
+          "bgUploadStatus",
+          "Uploading background image to Supabase Storage (backgrounds/)...",
+          "loading",
+          0
+        );
+
+        try {
+          const uploadRes = await uploadToSupabaseStorage("backgrounds", file);
+          if (uploadRes.success) {
+            currentBgImage = uploadRes.publicUrl;
+            if (devBgInput) devBgInput.value = currentBgImage;
+            setupBackground();
+            // Save public URL to birthday_content table
+            await saveBirthdayContentToSupabase(currentMessage, currentBgImage, currentMusicUrl);
+            showStorageStatus("bgUploadStatus", "Saved successfully ❤️", "success", 5000);
+          } else {
+            // Local fallback preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              currentBgImage = event.target.result;
+              if (devBgInput) devBgInput.value = "Custom Uploaded Photo (Local)";
+              setupBackground();
+            };
+            reader.readAsDataURL(file);
+
+            const isRLS = uploadRes.error && uploadRes.error.toLowerCase().includes("row-level security");
+            showStorageStatus(
+              "bgUploadStatus",
+              isRLS
+                ? "Applied locally! (Note: Enable INSERT policy on 'Birthday-assets' in Supabase to sync online)"
+                : `Upload notice: ${uploadRes.error || "applied locally"}`,
+              isRLS ? "error" : "loading",
+              7000
+            );
+          }
+        } catch (err) {
+          console.error("Background upload error:", err);
+          showStorageStatus("bgUploadStatus", "Failed to upload to Supabase, check network.", "error", 5000);
+        }
       }
     });
   }
@@ -2187,18 +3871,59 @@ const loopMusic = ${loopMusic};`;
 
   // Music Customization Listeners
   if (uploadAudioBtn && audioFileInput) {
-    uploadAudioBtn.addEventListener("click", () => audioFileInput.click());
+    uploadAudioBtn.addEventListener("click", () => {
+      if (!isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to upload music to Supabase Storage.");
+        return;
+      }
+      audioFileInput.click();
+    });
   }
 
   if (audioFileInput) {
-    audioFileInput.addEventListener("change", (e) => {
+    audioFileInput.addEventListener("change", async (e) => {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         if (uploadedAudioName) uploadedAudioName.textContent = file.name;
-        const objectUrl = URL.createObjectURL(file);
-        if (bgAudio) {
-          bgAudio.src = objectUrl;
-          playMusic();
+        showStorageStatus(
+          "musicUploadStatus",
+          "Uploading audio file to Supabase Storage (music/)...",
+          "loading",
+          0
+        );
+
+        try {
+          const uploadRes = await uploadToSupabaseStorage("music", file);
+          if (uploadRes.success) {
+            currentMusicUrl = uploadRes.publicUrl;
+            if (devMusicInput) devMusicInput.value = currentMusicUrl;
+            if (bgAudio) {
+              bgAudio.src = currentMusicUrl;
+              playMusic();
+            }
+            // Save public URL to birthday_content table
+            await saveBirthdayContentToSupabase(currentMessage, currentBgImage, currentMusicUrl);
+            showStorageStatus("musicUploadStatus", "Saved successfully ❤️", "success", 5000);
+          } else {
+            // Local blob preview fallback
+            const objectUrl = URL.createObjectURL(file);
+            if (bgAudio) {
+              bgAudio.src = objectUrl;
+              playMusic();
+            }
+            const isRLS = uploadRes.error && uploadRes.error.toLowerCase().includes("row-level security");
+            showStorageStatus(
+              "musicUploadStatus",
+              isRLS
+                ? "Playing locally! (Note: Enable INSERT policy on 'Birthday-assets' in Supabase to sync online)"
+                : `Upload notice: ${uploadRes.error || "playing locally"}`,
+              isRLS ? "error" : "loading",
+              7000
+            );
+          }
+        } catch (err) {
+          console.error("Music upload error:", err);
+          showStorageStatus("musicUploadStatus", "Failed to upload to Supabase, check network.", "error", 5000);
         }
       }
     });
@@ -2375,6 +4100,7 @@ function syncInputsWithBurstConfig() {
   if (confettiAmountSelect) confettiAmountSelect.value = burstConfig.confettiAmount;
   if (confettiSpeedSelect) confettiSpeedSelect.value = burstConfig.confettiSpeed;
   if (devHeadlineInput) devHeadlineInput.value = burstConfig.headline;
+  if (devRevealThirdTitleInput) devRevealThirdTitleInput.value = burstConfig.revealThirdTitle || "MY EVERYTHING ❤️";
   if (bgGradientPresetSelect) bgGradientPresetSelect.value = burstConfig.gradientPreset;
   if (colorPinkIntensity) colorPinkIntensity.value = burstConfig.colorPinkIntensity;
   if (colorBlueIntensity) colorBlueIntensity.value = burstConfig.colorBlueIntensity;
@@ -2433,29 +4159,91 @@ function renderPhotoThumbnails() {
   });
 }
 
-// Photo file processing
+// Photo file processing with Supabase Storage upload
 async function handlePhotoFiles(files) {
-  for (const file of files) {
-    if (!file.type.startsWith("image/")) continue;
+  if (!isCurrentUserAdmin()) {
+    openAdminLoginForm("🔒 Admin sign-in required to upload photos to Supabase Storage.");
+    return;
+  }
+
+  const validFiles = Array.from(files).filter(f => f.type && f.type.startsWith("image/"));
+  if (validFiles.length === 0) return;
+
+  showStorageStatus(
+    "photoUploadStatus",
+    `Uploading ${validFiles.length} photo(s) to Supabase Storage (photos/)...`,
+    "loading",
+    0
+  );
+
+  let successCount = 0;
+  let rlsNotice = false;
+
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
+    showStorageStatus(
+      "photoUploadStatus",
+      `Uploading photo ${i + 1} of ${validFiles.length} to photos/...`,
+      "loading",
+      0
+    );
 
     try {
-      const dataUrl = await readFileAsOptimizedDataURL(file);
+      // 1. Upload to Supabase Storage bucket 'Birthday-assets' under photos/
+      const uploadRes = await uploadToSupabaseStorage("photos", file);
+      
+      let photoSrc = "";
+      let photoName = file.name;
+      let isRemote = false;
+
+      if (uploadRes.success) {
+        photoSrc = uploadRes.publicUrl;
+        photoName = uploadRes.fileName || file.name;
+        isRemote = true;
+        successCount++;
+      } else {
+        if (uploadRes.error && uploadRes.error.toLowerCase().includes("row-level security")) {
+          rlsNotice = true;
+        }
+        // Fallback to local optimized DataURL preview if upload failed so user experience is smooth
+        photoSrc = await readFileAsOptimizedDataURL(file);
+      }
+
       const newPhoto = {
         id: "photo-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
-        name: file.name,
-        src: dataUrl,
-        caption: file.name.replace(/\.[^/.]+$/, ""),
-        timestamp: Date.now()
+        name: photoName,
+        src: photoSrc,
+        caption: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
+        timestamp: Date.now(),
+        fromSupabase: isRemote
       };
 
       currentPhotos.push(newPhoto);
       await savePhotoRecord(newPhoto);
     } catch (err) {
-      console.error("Failed reading photo file:", err);
+      console.error("Failed processing photo file:", err);
     }
   }
 
   renderPhotoThumbnails();
+
+  if (successCount > 0) {
+    showStorageStatus(
+      "photoUploadStatus",
+      `Saved successfully ❤️ (${successCount} photo${successCount > 1 ? "s" : ""} in Supabase Storage)`,
+      "success",
+      5000
+    );
+  } else if (rlsNotice) {
+    showStorageStatus(
+      "photoUploadStatus",
+      "Saved locally! (Note: Enable INSERT policy on bucket 'Birthday-assets' in Supabase Storage for online sync)",
+      "error",
+      8000
+    );
+  } else {
+    showStorageStatus("photoUploadStatus", "Saved locally in browser cache ❤️", "success", 4000);
+  }
 }
 
 function readFileAsOptimizedDataURL(file) {
@@ -2512,8 +4300,24 @@ async function savePhotoRecord(photo) {
 }
 
 async function deletePhoto(id) {
+  const target = currentPhotos.find(p => p.id === id);
+  if (target && target.fromSupabase && !isCurrentUserAdmin()) {
+    openAdminLoginForm("🔒 Admin sign-in required to delete online celebration photos.");
+    return;
+  }
+
   currentPhotos = currentPhotos.filter(p => p.id !== id);
   renderPhotoThumbnails();
+
+  // If photo was stored in Supabase Storage, attempt remote deletion as well
+  if (target && target.name && target.fromSupabase && isCurrentUserAdmin()) {
+    try {
+      const client = getSupabaseClient();
+      if (client && client.storage) {
+        client.storage.from(SUPABASE_STORAGE_BUCKET).remove([`photos/${target.name}`]).catch(() => {});
+      }
+    } catch (_) {}
+  }
 
   const db = await openPhotoDB();
   if (db) {
@@ -2763,35 +4567,31 @@ function triggerPhotoBurst() {
 // ============================================================================
 function showHeroPinnedPhotos() {
   if (!heroPhotosPinnedContainer || !heroPhotosPinnedCards) return;
-  if (!currentPhotos || currentPhotos.length === 0) return;
+
+  // Pick top 3 hero photos (from currentPhotos or fallback)
+  const threePhotos = getThreeHeroPhotos();
+  if (!threePhotos || threePhotos.length === 0) return;
 
   // Reset container state
   heroPhotosPinnedContainer.classList.remove("settled");
   heroPhotosPinnedContainer.style.display = "block";
-
-  // Pick top 3 hero photos
-  const heroList = [
-    currentPhotos[0],
-    currentPhotos[1] || currentPhotos[0],
-    currentPhotos[2] || currentPhotos[0]
-  ];
 
   heroPhotosPinnedCards.innerHTML = "";
 
   const roles = ["hero-left", "hero-center", "hero-right"];
   const badges = ["✨ My Favorite Smile", "❤️ The One I Adore ✨", "🥰 Forever With You"];
 
-  heroList.forEach((photo, idx) => {
+  threePhotos.forEach((photoUrl, idx) => {
     const card = document.createElement("div");
     card.className = `hero-pinned-card ${roles[idx]}`;
     card.innerHTML = `
-      <img src="${photo.src}" class="hero-pinned-img" alt="${photo.name || 'Hero Photo'}" />
+      <img src="${photoUrl}" class="hero-pinned-img" alt="Hero Photo" />
       <span class="hero-pinned-badge">${badges[idx]}</span>
     `;
 
     // Click opens Lightbox
     card.addEventListener("click", () => {
-      openLightbox(photo.src, photo.caption || photo.name || "Hero Birthday Moment");
+      openLightbox(photoUrl, badges[idx]);
     });
 
     heroPhotosPinnedCards.appendChild(card);

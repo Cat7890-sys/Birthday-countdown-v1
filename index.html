@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <title>Happy Birthday, My Love ❤️ | A Surprise For You</title>
-  <meta name="description" content="A romantic birthday surprise countdown made with love for October 5th." />
+  <title>Birthday Countdown & Celebration | A Surprise For You ❤️</title>
+  <meta name="description" content="A personal and romantic birthday reveal experience created with love, featuring an intimate opening screen, 3-2-1 reveal countdown, 10-second photo hover surprise, glowing pink and blue aesthetic, background music, and memory vault." />
   
   <!-- OpenGraph / Social Sharing (WhatsApp, iMessage, Instagram, QR Codes) -->
-  <meta property="og:title" content="A Surprise For You, My Love ❤️" />
-  <meta property="og:description" content="I made this little surprise just for you... Counting down to October 5th." />
+  <meta property="og:title" content="Birthday Countdown & Celebration | A Surprise For You ❤️" />
+  <meta property="og:description" content="A personal and romantic birthday reveal experience created with love, featuring an intimate opening screen, 3-2-1 reveal countdown, 10-second photo hover surprise, glowing pink and blue aesthetic, background music, and memory vault." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="images/background.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -71,159 +71,178 @@
       </div>
     </header>
 
-    <!-- HERO STAGE / MAIN COUNTDOWN CARD -->
-    <main class="hero-stage">
-      <div class="countdown-card">
-        
-        <!-- 1. COUNTDOWN SCREEN (Active before zero) -->
-        <section id="countdownScreen" class="countdown-screen">
-          <span class="sub-eyebrow" id="countdownEyebrow">Something I Made Just For You ❤️</span>
-          <h1 class="main-title" id="countdownMainTitle">Your Special Day Is Almost Here...</h1>
-          
-          <div class="target-pill">
-            <span class="dot"></span>
-            <span>Counting down every moment for you, <strong id="heroPersonName">JOY</strong> &bull; <span id="targetDateDisplay">October 5</span></span>
-          </div>
-
-          <!-- Subtle Romantic Countdown Status Note -->
-          <div class="romantic-countdown-note" id="romanticCountdownNote">
-            <span class="romantic-sparkle">✨</span>
-            <span id="romanticSubtleMsg" class="romantic-countdown-msg">Counting down to your day...</span>
-            <span class="romantic-sparkle">✨</span>
-          </div>
-
-          <!-- LARGE COUNTDOWN TIMER -->
-          <div class="timer-container" role="timer" aria-label="Countdown Timer">
-            <div class="timer-box" id="daysBox">
-              <span class="timer-num" id="days">00</span>
-              <span class="timer-label">Days</span>
-            </div>
-            <div class="timer-box" id="hoursBox">
-              <span class="timer-num" id="hours">00</span>
-              <span class="timer-label">Hours</span>
-            </div>
-            <div class="timer-box" id="minutesBox">
-              <span class="timer-num" id="minutes">00</span>
-              <span class="timer-label">Minutes</span>
-            </div>
-            <div class="timer-box" id="secondsBox">
-              <span class="timer-num" id="seconds">00</span>
-              <span class="timer-label">Seconds</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- 2. CELEBRATION SCREEN (Revealed when countdown reaches zero) -->
-        <section id="celebrationScreen" class="celebration-screen">
-          <span class="celebration-eyebrow" id="celebrationEyebrow">Happy Birthday, My Love ❤️</span>
-          <h1 class="celebration-title" id="celebrationTitle">Happy Birthday, My Love ❤️</h1>
-          <p class="celebration-surprise-intro" id="celebrationSurpriseIntro">I made this little surprise just for you.</p>
-          
-          <div class="celebration-card-inner">
-            <p class="celebration-message" id="celebrationMsg">
-              Happy Birthday to the most wonderful person in my life. Thank you for filling every day with warmth, laughter, and so much happiness. Being with you is my favorite thing in the world, and I wanted to make this little surprise just to remind you how deeply loved and cherished you are. Here's to you, all our sweetest memories, and all the adventures still ahead of us. I love you endlessly! ❤️✨
-            </p>
-          </div>
-
-          <!-- Pinned 3 Main Hero Photos (Pastes on screen for 5s after burst, then settles smoothly) -->
-          <div id="heroPhotosPinnedContainer" class="hero-photos-pinned-container" style="display: none;">
-            <div class="hero-pinned-header">
-              <span class="hero-pinned-tag">✨ Our Cherished Memories Together ✨</span>
-              <div class="hero-timer-bar">
-                <div id="heroTimerProgress" class="hero-timer-progress"></div>
-              </div>
-            </div>
-            <div id="heroPhotosPinnedCards" class="hero-photos-pinned-cards">
-              <!-- Dynamically populated with top 3 hero photos -->
-            </div>
-          </div>
-
-          <div class="action-btn-row">
-            <button id="replayBurstBtn" class="primary-btn pulse-glow">
-              <span>💥 Replay Photo Burst</span>
-            </button>
-            <button id="celebrateMoreBtn" class="secondary-btn">
-              <span>🎊 Celebrate More Confetti</span>
-            </button>
-          </div>
-        </section>
-
+    <!-- CHAPTER NAVIGATION BAR -->
+    <nav class="chapter-nav-bar" id="chapterNavBar" aria-label="Birthday Chapters Navigation">
+      <div class="chapter-nav-container">
+        <button type="button" class="chapter-pill-btn active" id="navChapterBtn1" data-page="1" aria-label="Chapter 1: Main Celebration">
+          <span class="chapter-pill-num">1</span>
+          <span class="chapter-pill-label">Celebration</span>
+        </button>
+        <span class="chapter-nav-divider" aria-hidden="true"></span>
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn2" data-page="2" aria-label="Chapter 2: Our Memories">
+          <span class="chapter-pill-num">2</span>
+          <span class="chapter-pill-label">Our Memories ❤️</span>
+        </button>
+        <span class="chapter-nav-divider" aria-hidden="true"></span>
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn3" data-page="3" aria-label="Chapter 3: Birthday Love Notes">
+          <span class="chapter-pill-num">3</span>
+          <span class="chapter-pill-label">Love Notes 💌</span>
+        </button>
       </div>
+    </nav>
 
-      <!-- 3. LAST-DAY FEATURE: NOSTALGIC MEMORIES & FRIEND VIDEO MESSAGES -->
-      <!-- Displayed on the last day of the countdown / celebration -->
-      <section id="lastDaySection" class="last-day-section">
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">
-              <span>🎁 Our Special Vault</span>
-              <span class="badge">Unlocked for your special day!</span>
+    <!-- MULTI-PAGE BIRTHDAY EXPERIENCE CONTAINER -->
+    <main class="birthday-pages-container" id="birthdayPagesContainer">
+
+      <!-- ===================================================================
+           PAGE 1 — MAIN BIRTHDAY EXPERIENCE
+           =================================================================== -->
+      <section id="pageChapter1" class="experience-page active" data-chapter="1">
+        <div class="countdown-card" id="page1CountdownCard">
+          
+          <!-- 1. OPENING SCREEN (Immediately active on link / QR open) -->
+          <section id="openingScreen" class="opening-screen active">
+            <div class="opening-badge-pill">
+              <span class="opening-sparkle">✨</span>
+              <span id="openingEyebrow">A Special Surprise</span>
+              <span class="opening-sparkle">✨</span>
             </div>
-            <div class="sub-tabs">
-              <button id="tabMemories" class="tab-btn active">📸 Our Favorite Memories</button>
-              <button id="tabVideos" class="tab-btn">💌 Sweet Messages</button>
+
+            <h1 class="opening-message" id="openingMessage">
+              I made something Just for you, <span class="recipient-highlight" id="openingPersonName">Sarah</span> ❤️
+            </h1>
+
+            <!-- Physical / Photo-Sticker SHOW ME button with animated finger tap -->
+            <div class="opening-action-wrapper">
+              <div class="photo-sticker-btn-wrapper">
+                <button id="showMeBtn" class="photo-sticker-btn pulse-glow" aria-label="Tap this picture to open the surprise">
+                  <div class="sticker-washi-tape sticker-tape-left" aria-hidden="true"></div>
+                  <div class="sticker-washi-tape sticker-tape-right" aria-hidden="true"></div>
+                  <div class="sticker-card-frame">
+                    <img id="showMeStickerImg" src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&auto=format&fit=crop&q=80" alt="Birthday surprise sticker" class="sticker-photo-img" />
+                    <div class="sticker-photo-sheen" aria-hidden="true"></div>
+                    <div class="sticker-tap-badge">
+                      <span class="tap-badge-dot"></span>
+                      <span class="tap-badge-text">TAP TO OPEN ✨</span>
+                    </div>
+                  </div>
+                </button>
+                <div class="sticker-finger-guide" aria-hidden="true">
+                  <span class="finger-emoji">👆</span>
+                  <span class="finger-label">Tap this picture</span>
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
 
-          <!-- View A: Memories Photo Reel -->
-          <div id="memoriesView" class="memories-grid">
-            <!-- Populated dynamically by script.js -->
-          </div>
+          <!-- 2. 3 -> 2 -> 1 COUNTDOWN REVEAL ANIMATION (Triggered on photo sticker tap) -->
+          <section id="revealCountdownStage" class="reveal-countdown-stage" style="display: none;">
+            <div class="reveal-counter-ring">
+              <span class="reveal-countdown-number" id="revealCountdownNum">3</span>
+            </div>
+            <p class="reveal-countdown-sub" id="revealCountdownSub">Getting your surprise ready...</p>
+          </section>
 
-          <!-- View B: Friend Video Message Recording Booth -->
-          <div id="videoBoothView" class="video-booth-box" style="display: none;">
-            <div class="recorder-container">
-              <p style="font-size: 0.9rem; color: #f1f5f9; margin-bottom: 0.75rem;">
-                Leave a short, heartfelt video wish directly from your camera to make her day unforgettable!
+          <!-- 3. CELEBRATION SCREEN (Main Birthday Experience) -->
+          <section id="celebrationScreen" class="celebration-screen">
+            <span class="celebration-eyebrow" id="celebrationEyebrow">Happy Birthday, My Love ❤️</span>
+            <h1 class="celebration-title" id="celebrationTitle">Happy Birthday, My Love ❤️</h1>
+            <p class="celebration-surprise-intro" id="celebrationSurpriseIntro">I made this little surprise just for you.</p>
+            
+            <div class="celebration-card-inner">
+              <p class="celebration-message" id="celebrationMsg">
+                Happy Birthday to the most wonderful person in my life. Thank you for filling every day with warmth, laughter, and so much happiness. Being with you is my favorite thing in the world, and I wanted to make this little surprise just to remind you how deeply loved and cherished you are. Here's to you, all our sweetest memories, and all the adventures still ahead of us. I love you endlessly! ❤️✨
               </p>
-              
-              <div id="recordingIndicator" class="recording-indicator" style="display: none;">
-                <span>●</span> Recording in progress...
-              </div>
-
-              <video id="videoPreview" class="video-preview" playsinline></video>
-
-              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 0.5rem;">
-                <button id="recordVideoBtn" class="primary-btn">
-                  <span>🎥 Start Video Message</span>
-                </button>
-                <button id="stopVideoBtn" class="primary-btn" style="display: none; background: #ff0055;">
-                  <span>⏹️ Stop Recording</span>
-                </button>
-                <button id="saveVideoBtn" class="primary-btn" style="display: none; background: #00d2ff; color: #080a18;">
-                  <span>💾 Save to Board</span>
-                </button>
-              </div>
-
-              <input 
-                type="text" 
-                id="authorNameInput" 
-                class="form-input" 
-                placeholder="Your Name (e.g., Alex & Maya)" 
-                style="max-width: 320px; text-align: center; margin-top: 0.5rem;" 
-              />
             </div>
 
-            <!-- List of recorded messages -->
-            <div id="recordedList" class="recorded-messages-grid"></div>
+            <!-- Pinned 3 Main Hero Photos (Pastes on screen for 5s after burst, then settles smoothly) -->
+            <div id="heroPhotosPinnedContainer" class="hero-photos-pinned-container" style="display: none;">
+              <div class="hero-pinned-header">
+                <span class="hero-pinned-tag">✨ Our Cherished Memories Together ✨</span>
+                <div class="hero-timer-bar">
+                  <div id="heroTimerProgress" class="hero-timer-progress"></div>
+                </div>
+              </div>
+              <div id="heroPhotosPinnedCards" class="hero-photos-pinned-cards">
+                <!-- Dynamically populated with top 3 hero photos -->
+              </div>
+            </div>
+
+            <div class="action-btn-row">
+              <button id="replayBurstBtn" class="primary-btn pulse-glow">
+                <span>💥 Replay Photo Burst</span>
+              </button>
+              <button id="celebrateMoreBtn" class="secondary-btn">
+                <span>🎊 Celebrate More Confetti</span>
+              </button>
+            </div>
+
+            <!-- Subtle Page 1 Continue Banner -->
+            <div class="page-continue-banner" id="page1ContinueBanner">
+              <button type="button" class="continue-page-btn" id="goToPage2Btn">
+                <span class="continue-text-title">Explore Our Memories ❤️</span>
+                <span class="continue-arrow">Tap to continue →</span>
+              </button>
+            </div>
+          </section>
+
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 2 — MEMORIES ("OUR MEMORIES ❤️")
+           =================================================================== -->
+      <section id="pageChapter2" class="experience-page" data-chapter="2" style="display: none;">
+        <div class="page-chapter-card">
+          <div class="chapter-card-header">
+            <div class="chapter-back-nav">
+              <button type="button" class="chapter-back-btn" id="backToPage1Btn">
+                <span>← Celebration</span>
+              </button>
+            </div>
+            <div class="chapter-header-center">
+              <span class="chapter-tag-pill">CHAPTER 2</span>
+              <h2 class="chapter-title">OUR MEMORIES ❤️</h2>
+              <p class="chapter-subtitle">A visual scrapbook of every smile, road trip, and sweet adventure we've shared</p>
+            </div>
+          </div>
+
+          <!-- Scrapbook Gallery Container with photo/video cards and scroll-triggered 3D spotlights -->
+          <div id="memoriesScrapbookContainer" class="memories-scrapbook">
+            <!-- Dynamically populated scrapbook cards by script.js -->
+          </div>
+
+          <!-- Page 2 Continue Banner -->
+          <div class="page-continue-banner" id="page2ContinueBanner">
+            <button type="button" class="continue-page-btn" id="goToPage3Btn">
+              <span class="continue-text-title">Read Birthday Love Notes & Wishes 💌</span>
+              <span class="continue-arrow">Tap to continue →</span>
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- 4. GUESTBOOK FEATURE: DISPLAYED AFTER COUNTDOWN ENDS -->
-      <section id="guestbookSection" class="guestbook-section">
-        <div class="guestbook-card">
-          <div class="guestbook-header">
-            <div>
-              <div class="section-title">
-                <span>📖 Birthday Love Notes & Wishes</span>
-                <span class="badge">For Sarah ❤️</span>
-              </div>
-              <p class="guestbook-subtitle">Heartfelt notes, sweet blessings & video wishes for your special day</p>
+      <!-- ===================================================================
+           PAGE 3 — BIRTHDAY LOVE NOTES & WISHES
+           =================================================================== -->
+      <section id="pageChapter3" class="experience-page" data-chapter="3" style="display: none;">
+        <div class="page-chapter-card">
+          <div class="chapter-card-header">
+            <div class="chapter-back-nav">
+              <button type="button" class="chapter-back-btn" id="backToPage2Btn">
+                <span>← Our Memories</span>
+              </button>
             </div>
-            <button id="openSignGuestbookBtn" class="primary-btn">
-              <span>✍️ Leave A Sweet Note</span>
-            </button>
+            <div class="chapter-header-center">
+              <span class="chapter-tag-pill">CHAPTER 3</span>
+              <h2 class="chapter-title">Birthday Love Notes & Wishes ❤️</h2>
+              <p class="chapter-subtitle">Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you</p>
+            </div>
+            <div class="chapter-header-action">
+              <button id="openSignGuestbookBtn" class="primary-btn">
+                <span>✍️ Leave A Sweet Note</span>
+              </button>
+            </div>
           </div>
 
           <!-- Filter Tabs -->
@@ -231,16 +250,26 @@
             <div class="guestbook-tabs" id="guestbookFilterTabs">
               <button class="guestbook-tab-btn active" data-filter="all">✨ All Wishes (<span id="guestbookCount">0</span>)</button>
               <button class="guestbook-tab-btn" data-filter="text">💌 Notes</button>
+              <button class="guestbook-tab-btn" data-filter="photo">📸 With Photos</button>
               <button class="guestbook-tab-btn" data-filter="video">🎥 Videos</button>
+              <button class="guestbook-tab-btn" data-filter="audio">🎙️ Voice Notes</button>
             </div>
           </div>
 
-          <!-- Gallery Grid -->
-          <div id="guestbookGallery" class="guestbook-gallery">
-            <!-- Dynamically populated by script.js -->
+          <!-- Love Notes & Wishes Letters Grid -->
+          <div id="loveNotesCardsGrid" class="love-notes-cards-grid">
+            <!-- Dynamically populated message cards with photos, videos, or voice notes by script.js -->
+          </div>
+
+          <!-- Return to Celebration Banner -->
+          <div class="page-continue-banner" id="page3ContinueBanner">
+            <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn">
+              <span>← Back to Celebration</span>
+            </button>
           </div>
         </div>
       </section>
+
     </main>
 
     <!-- FOOTER -->
@@ -248,6 +277,42 @@
       <span>Made with all my love, just for you ❤️</span>
     </footer>
 
+  </div>
+
+  <!-- 10-SECOND CINEMATIC THREE-PHOTO HOVERING REVEAL OVERLAY -->
+  <div id="tenSecondPhotoReveal" class="ten-second-photo-reveal" style="display: none;">
+    <!-- Strongly blurred background glow effect based on photos/background and pink/blue/purple atmosphere -->
+    <div class="photo-reveal-backdrop" id="photoRevealBackdrop">
+      <div class="backdrop-mesh-glow"></div>
+      <div class="backdrop-light-orb orb-ambient-pink"></div>
+      <div class="backdrop-light-orb orb-ambient-blue"></div>
+      <div class="backdrop-light-orb orb-ambient-purple"></div>
+    </div>
+
+    <!-- Foreground Stage with 3 Floating Hovering Photos -->
+    <div class="photo-reveal-stage">
+      <div class="photo-reveal-header">
+        <span class="photo-reveal-tag">✨ A Few Of My Favorite Moments With You ✨</span>
+        <div class="reveal-timer-wrapper">
+          <div class="reveal-timer-bar">
+            <div id="revealTimerProgress" class="reveal-timer-progress"></div>
+          </div>
+          <span id="revealCountdownSeconds" class="reveal-seconds-pill">10s</span>
+        </div>
+      </div>
+
+      <!-- THREE PROMINENT FLOATING HOVERING PHOTOS -->
+      <div id="threeFloatingPhotosStage" class="three-floating-photos-stage">
+        <!-- Dynamically injected with 3 floating cards: Left, Center, Right -->
+      </div>
+
+      <!-- Graceful action to explore celebration anytime -->
+      <div class="photo-reveal-footer">
+        <button id="skipRevealBtn" class="skip-reveal-btn" type="button" aria-label="Skip to Celebration">
+          <span>Explore Main Surprise →</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- FULLSCREEN PHOTO BURST OVERLAY (Viewport canvas for flying, rotating celebration photos) -->
@@ -270,10 +335,59 @@
         <button id="closeDevModal" class="close-btn" aria-label="Close Customization">&times;</button>
       </div>
 
+      <!-- ADMIN AUTHENTICATION & ACCESS CONTROL BAR -->
+      <div id="adminAuthBanner" class="admin-auth-banner">
+        <div class="admin-auth-header-row">
+          <div class="admin-status-pill" id="adminStatusPill">
+            <span class="admin-status-dot"></span>
+            <span id="adminStatusLabel">Visitor Mode (Public Read-Only)</span>
+          </div>
+          <div class="admin-auth-actions">
+            <button type="button" id="toggleAdminLoginBtn" class="admin-toggle-btn">
+              <span>🔑 Admin Login</span>
+            </button>
+            <button type="button" id="adminSignOutBtn" class="admin-signout-btn" style="display: none;">
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Collapsible Admin Sign-in Form -->
+        <div id="adminLoginForm" class="admin-login-form" style="display: none;">
+          <div class="admin-login-note">
+            <span>🔒 <strong>Protected Admin Area:</strong> Sign in with your admin credentials to upload, replace, or delete celebration assets in Supabase Storage. Public visitors can only view content.</span>
+          </div>
+          <div class="admin-login-fields">
+            <div class="admin-input-group">
+              <label for="adminEmailInput">Admin Email</label>
+              <input type="email" id="adminEmailInput" class="form-input" placeholder="admin@example.com" value="matimbangobeni78@gmail.com" />
+            </div>
+            <div class="admin-input-group">
+              <label for="adminPasswordInput">Password</label>
+              <input type="password" id="adminPasswordInput" class="form-input" placeholder="Enter admin password" />
+            </div>
+          </div>
+          <div class="admin-btn-row">
+            <button type="button" id="adminSignInBtn" class="primary-btn" style="padding: 0.55rem 1.25rem; font-size: 0.85rem;">
+              <span>🔑 Sign In</span>
+            </button>
+            <button type="button" id="adminMagicLinkBtn" class="secondary-btn" style="padding: 0.55rem 1.25rem; font-size: 0.85rem;" title="Send one-click sign in link to your email">
+              <span>✉️ Magic Link</span>
+            </button>
+            <button type="button" id="adminCancelLoginBtn" class="secondary-btn" style="padding: 0.55rem 1rem; font-size: 0.85rem;">
+              <span>Cancel</span>
+            </button>
+          </div>
+          <div id="adminAuthStatus" class="storage-upload-status" style="display: none;"></div>
+        </div>
+      </div>
+
       <!-- Navigation Tabs -->
       <div class="customize-nav-tabs" id="customizeNavTabs">
         <button type="button" class="customize-tab-btn active" data-tab="tabPhotos">📸 Photos (<span id="panelPhotoCount">0</span>)</button>
-        <button type="button" class="customize-tab-btn" data-tab="tabBurst">💥 Photo Burst & FX</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabMemoriesAdmin">🎞️ Memories (<span id="panelMemoriesCount">0</span>)</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabLoveNotesAdmin">💌 Love Notes (<span id="panelLoveNotesCount">0</span>)</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabBurst">💥 Burst & FX</button>
         <button type="button" class="customize-tab-btn" data-tab="tabBackground">🖼️ Background</button>
         <button type="button" class="customize-tab-btn" data-tab="tabMusic">🎵 Music</button>
         <button type="button" class="customize-tab-btn" data-tab="tabText">✍️ Text</button>
@@ -294,10 +408,13 @@
             <div class="pane-actions-row">
               <input type="file" id="photoFileInput" multiple accept="image/jpeg,image/png,image/webp,image/jpg" style="display: none;" />
               <button type="button" id="addPhotosBtn" class="primary-btn">
-                <span>+ Add Photos</span>
+                <span>+ Upload Photos (Supabase)</span>
+              </button>
+              <button type="button" id="syncSupabasePhotosBtn" class="secondary-btn" title="Refresh celebration photos from Supabase Storage">
+                <span>☁️ Sync Online Photos</span>
               </button>
               <button type="button" id="loadSamplePhotosBtn" class="secondary-btn">
-                <span>🌸 Load Sample Photos</span>
+                <span>🌸 Load Samples</span>
               </button>
               <button type="button" id="clearAllPhotosBtn" class="secondary-btn danger-btn">
                 <span>🗑️ Clear All</span>
@@ -305,13 +422,16 @@
             </div>
           </div>
 
+          <!-- Photo Upload Progress / Status -->
+          <div id="photoUploadStatus" class="storage-upload-status" style="display: none;"></div>
+
           <!-- Thumbnail Gallery Grid -->
           <div id="photoThumbnailsGrid" class="photo-thumbnails-grid">
             <!-- Dynamically rendered by script.js -->
           </div>
 
           <div class="dev-info-box" style="margin-top: 1rem;">
-            💡 <strong>Static Hosting & Browser Storage:</strong> Uploaded photos are stored locally in your browser cache via IndexedDB for instant preview. For the final GitHub Pages deployment, you can also place images in the <code>images/</code> folder (e.g., <code>images/photo1.jpg</code>).
+            ☁️ <strong>Supabase Persistent Storage:</strong> Selected photos are uploaded to the <code>Birthday-assets</code> bucket under <code>photos/</code>. Their public URLs are saved so they persist across refreshes, browser reloads, and other devices for the grand photo burst celebration!
           </div>
         </div>
 
@@ -441,17 +561,19 @@
           <p class="pane-subheading">Customize the personal photo backdrop, overlay tint, and gradient mesh</p>
 
           <div class="form-group">
-            <label>Upload Background Photo</label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <label>Upload Background Photo to Supabase Storage (backgrounds/)</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
               <input type="file" id="bgFileInput" accept="image/*" style="display: none;" />
               <button type="button" id="uploadBgBtn" class="primary-btn">
-                <span>📁 Upload Image File</span>
+                <span>📁 Upload to Supabase (backgrounds/)</span>
               </button>
             </div>
+            <!-- Background Upload Status -->
+            <div id="bgUploadStatus" class="storage-upload-status" style="display: none;"></div>
           </div>
 
           <div class="form-group">
-            <label for="devBgInput">Background Image Path or URL</label>
+            <label for="devBgInput">Background Image Path or URL (Saved to Database)</label>
             <input type="text" id="devBgInput" class="form-input" placeholder="images/background.jpg" />
           </div>
 
@@ -481,16 +603,20 @@
           <p class="pane-subheading">Configure your background soundtrack (MP3, WAV, OGG)</p>
 
           <div class="form-group">
-            <label>Upload Custom Music File</label>
-            <input type="file" id="audioFileInput" accept="audio/*" style="display: none;" />
-            <button type="button" id="uploadAudioBtn" class="primary-btn">
-              <span>🎵 Select Audio File</span>
-            </button>
-            <span id="uploadedAudioName" style="margin-left: 0.5rem; font-size: 0.85rem; color: var(--color-blue-baby);"></span>
+            <label>Upload Custom Music File to Supabase Storage (music/)</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <input type="file" id="audioFileInput" accept="audio/*" style="display: none;" />
+              <button type="button" id="uploadAudioBtn" class="primary-btn">
+                <span>🎵 Upload to Supabase (music/)</span>
+              </button>
+              <span id="uploadedAudioName" style="margin-left: 0.5rem; font-size: 0.85rem; color: var(--color-blue-baby);"></span>
+            </div>
+            <!-- Music Upload Status -->
+            <div id="musicUploadStatus" class="storage-upload-status" style="display: none;"></div>
           </div>
 
           <div class="form-group">
-            <label for="devMusicInput">Audio File Path / URL</label>
+            <label for="devMusicInput">Audio File Path / URL (Saved to Database)</label>
             <input type="text" id="devMusicInput" class="form-input" value="audio/background-music.mp3" />
           </div>
 
@@ -533,6 +659,14 @@
           </div>
 
           <div class="form-group">
+            <label for="devRevealThirdTitleInput">3rd Reveal Photo Title (Main Focal Photo)</label>
+            <input type="text" id="devRevealThirdTitleInput" class="form-input" value="MY EVERYTHING ❤️" placeholder="e.g., MY EVERYTHING ❤️, FOREVER MINE, THE QUEEN" />
+            <small style="color: rgba(255,255,255,0.6); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+              The 10-second reveal introduces Photo 1 ("MY BABY"), Photo 2 ("MY LOVE"), and Photo 3 with this custom title.
+            </small>
+          </div>
+
+          <div class="form-group">
             <label for="devMessageInput">Heartfelt Birthday Message</label>
             <textarea id="devMessageInput" rows="3" class="form-textarea" placeholder="Happy Birthday to the love of my life..."></textarea>
           </div>
@@ -566,11 +700,11 @@
 
           <div class="quick-test-row">
             <button id="testPhotoBurstActionBtn" type="button" class="quick-pill-btn" style="background: rgba(255, 42, 122, 0.3); border-color: var(--color-pink-primary);">💥 Test Photo Burst Now</button>
-            <button id="testZeroBtn" type="button" class="quick-pill-btn">🎉 Test Zero / Celebration</button>
-            <button id="test10sBtn" type="button" class="quick-pill-btn">⚡ Test 10s Countdown</button>
+            <button id="testRevealSequenceBtn" type="button" class="quick-pill-btn">✨ Play Full Reveal (3-2-1 & 10s Reveal)</button>
+            <button id="testZeroBtn" type="button" class="quick-pill-btn">🎉 Jump to Main Celebration</button>
             <button id="testLastDayBtn" type="button" class="quick-pill-btn">🎁 Unlock Vault Now</button>
             <button id="testGuestbookBtn" type="button" class="quick-pill-btn">📖 Test Guestbook</button>
-            <button id="resetCountdownBtn" type="button" class="quick-pill-btn">↺ Reset to Original</button>
+            <button id="resetExperienceBtn" type="button" class="quick-pill-btn">↺ Back to Opening Screen</button>
           </div>
 
           <div style="margin-top: 1.25rem;">
@@ -581,6 +715,91 @@
 
           <div class="dev-info-box">
             🚀 <strong>Ready for GitHub Pages:</strong> This site uses 100% vanilla HTML, CSS, and JS with zero dependencies or server backend. Simply push <code>index.html</code>, <code>style.css</code>, <code>script.js</code>, and the <code>images/</code> folder to your GitHub repo and enable GitHub Pages in Settings &gt; Pages!
+          </div>
+        </div>
+
+        <!-- ================= TAB: MEMORIES ADMIN ================= -->
+        <div id="tabMemoriesAdmin" class="customize-pane">
+          <div class="pane-header-row">
+            <div>
+              <h3 class="pane-heading">Scrapbook Memories Management</h3>
+              <p class="pane-subheading">Manage photos & short videos in Chapter 2. Add titles, mark highlights for 3D spotlights, reorder, or delete.</p>
+            </div>
+            <div class="pane-actions-row">
+              <button type="button" id="adminAddMemoryPhotoBtn" class="primary-btn">
+                <span>+ Add Photo Memory</span>
+              </button>
+              <button type="button" id="adminAddMemoryVideoBtn" class="secondary-btn">
+                <span>+ Add Short Video</span>
+              </button>
+              <button type="button" id="adminResetMemoriesBtn" class="secondary-btn">
+                <span>🔄 Reset Defaults</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Memory Form (Collapsible/Inline) -->
+          <div id="adminNewMemoryForm" class="admin-subform-box" style="display: none;">
+            <h4 id="adminMemoryFormTitle" style="color: #fff; font-size: 0.95rem; margin-bottom: 0.5rem;">New Memory Entry</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label for="adminMemoryType">Type</label>
+                <select id="adminMemoryType" class="form-select">
+                  <option value="photo">Photo</option>
+                  <option value="video">Short Video</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="adminMemoryTitle">Title (Optional - leave empty to omit)</label>
+                <input type="text" id="adminMemoryTitle" class="form-input" placeholder="e.g. My Favorite Day ❤️" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="adminMemoryUrl">Media URL or File Upload</label>
+              <input type="text" id="adminMemoryUrl" class="form-input" placeholder="https://... or upload below" />
+              <input type="file" id="adminMemoryFileInput" accept="image/*,video/*" style="margin-top: 0.4rem; font-size: 0.85rem; color: #cbd5e1;" />
+            </div>
+            <div class="form-group">
+              <label for="adminMemoryCaption">Sweet Caption / Date Note</label>
+              <input type="text" id="adminMemoryCaption" class="form-input" placeholder="e.g. Watching you laugh is my favorite feeling..." />
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #ffd700; font-size: 0.9rem;">
+                <input type="checkbox" id="adminMemoryHighlight" />
+                <span>⭐ Highlighted Memory (Triggers 3-second 3D Spotlight on scroll)</span>
+              </label>
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.75rem;">
+              <button type="button" id="adminCancelMemoryBtn" class="secondary-btn">Cancel</button>
+              <button type="button" id="adminSaveMemoryBtn" class="primary-btn">Save Memory</button>
+            </div>
+          </div>
+
+          <!-- Memories List for Reordering & Highlights -->
+          <div id="adminMemoriesList" class="admin-memories-list">
+            <!-- Populated dynamically with drag/move-up/down, highlight toggle, and delete -->
+          </div>
+        </div>
+
+        <!-- ================= TAB: LOVE NOTES ADMIN ================= -->
+        <div id="tabLoveNotesAdmin" class="customize-pane">
+          <div class="pane-header-row">
+            <div>
+              <h3 class="pane-heading">Love Notes & Wishes Submissions</h3>
+              <p class="pane-subheading">Review guest contributions, hide or approve notes, or delete inappropriate entries.</p>
+            </div>
+            <div class="pane-actions-row">
+              <button type="button" id="adminRefreshNotesBtn" class="secondary-btn">
+                <span>🔄 Refresh</span>
+              </button>
+              <button type="button" id="adminResetNotesBtn" class="secondary-btn">
+                <span>🌸 Reset Default Notes</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="adminLoveNotesList" class="admin-love-notes-list">
+            <!-- Populated dynamically with approve/hide and delete buttons -->
           </div>
         </div>
 
@@ -602,39 +821,47 @@
     </div>
   </div>
 
-  <!-- SIGN GUESTBOOK MODAL -->
+  <!-- SIGN GUESTBOOK / LEAVE A SWEET NOTE MODAL (Enforces exact contribution combinations) -->
   <div id="signGuestbookModal" class="guestbook-modal-overlay">
     <div class="guestbook-modal">
       <div class="dev-modal-header">
         <div class="dev-modal-title">
-          <span>💌 Leave a Birthday Wish</span>
+          <span>💌 Leave a Birthday Love Note</span>
         </div>
-        <button id="closeSignGuestbookBtn" class="close-btn">&times;</button>
+        <button id="closeSignGuestbookBtn" class="close-btn" type="button">&times;</button>
       </div>
 
-      <!-- Mode Switcher: Text vs Video -->
-      <div class="mode-switcher">
-        <button id="modeTextBtn" class="mode-btn active" type="button"><span>📝 Text Message</span></button>
-        <button id="modeVideoBtn" class="mode-btn" type="button"><span>🎥 Record Video</span></button>
+      <!-- Enforced Rules Guidance Banner -->
+      <div class="contribution-rules-banner">
+        <div class="rules-badge">✨ Contribution Options</div>
+        <p class="rules-desc">
+          Attach <strong>up to 3 photos</strong>, OR <strong>up to 2 photos + 1 short video</strong>, OR <strong>up to 2 photos + 1 short voice recording</strong>.
+        </p>
+        <div class="rules-status-bar" id="rulesStatusBar">
+          <span class="status-tag" id="statusPhotosTag">📸 Photos: 0/3</span>
+          <span class="status-tag" id="statusVideoTag">🎥 Video: None</span>
+          <span class="status-tag" id="statusVoiceTag">🎙️ Voice: None</span>
+        </div>
       </div>
 
-      <!-- Form Mode 1: Text Wish -->
-      <form id="textWishForm">
+      <!-- Unified Form enforcing contribution combinations -->
+      <form id="loveNoteSubmissionForm">
         <div class="form-group">
-          <label for="wishAuthorName">Your Name</label>
-          <input type="text" id="wishAuthorName" class="form-input" placeholder="e.g., Jessica, Alex & Maya" required />
+          <label for="wishAuthorName">Your Name / Relationship Tag <span style="color: var(--color-pink-primary)">*</span></label>
+          <input type="text" id="wishAuthorName" class="form-input" placeholder="e.g., ❤️ Mom, Best Friend Jessica, Alex & Maya" required />
         </div>
 
         <div class="form-group">
-          <label for="wishAuthorRole">Your Relationship / Tag (Optional)</label>
-          <input type="text" id="wishAuthorRole" class="form-input" placeholder="e.g., Best Friend, College Roommate, Sister" />
+          <label for="wishAuthorRole">Relationship Subtitle (Optional)</label>
+          <input type="text" id="wishAuthorRole" class="form-input" placeholder="e.g., Childhood Friend, Sister, Your #1 Fan" />
         </div>
 
         <div class="form-group">
-          <label for="wishMessageText">Your Heartfelt Birthday Message</label>
-          <textarea id="wishMessageText" rows="4" class="form-textarea" placeholder="Write something sweet, funny, or memorable..." required></textarea>
+          <label for="wishMessageText">Your Heartfelt Birthday Message <span style="color: var(--color-pink-primary)">*</span></label>
+          <textarea id="wishMessageText" rows="3" class="form-textarea" placeholder="Write something sweet, loving, funny, or memorable..." required></textarea>
         </div>
 
+        <!-- Sticker Selector -->
         <div class="form-group">
           <label>Pick a Celebration Sticker</label>
           <div class="sticker-picker" id="stickerPicker">
@@ -647,43 +874,73 @@
           </div>
         </div>
 
-        <button type="submit" class="primary-btn" style="width: 100%; margin-top: 1rem; justify-content: center;">
-          <span>Post Birthday Wish ✨</span>
+        <!-- Media Attachment Action Row -->
+        <div class="media-attachments-section">
+          <label class="section-sublabel">Media Attachments (Optional)</label>
+          
+          <div class="media-action-buttons">
+            <label class="media-action-btn" id="addPhotosLabel" for="notePhotosInput">
+              <span>📸 Add Photos</span>
+              <input type="file" id="notePhotosInput" multiple accept="image/*" style="display: none;" />
+            </label>
+
+            <button type="button" class="media-action-btn" id="openVideoRecorderBtn">
+              <span>🎥 Add Video</span>
+            </button>
+
+            <button type="button" class="media-action-btn" id="openVoiceRecorderBtn">
+              <span>🎙️ Add Voice Note</span>
+            </button>
+          </div>
+
+          <!-- Video Recording / Upload Panel (Sub-section) -->
+          <div id="noteVideoPanel" class="note-subpanel" style="display: none;">
+            <div class="subpanel-header">
+              <span>🎥 Video Wish</span>
+              <button type="button" id="closeVideoPanelBtn" class="subpanel-close-btn">&times;</button>
+            </div>
+            <video id="noteVideoPreview" class="video-preview" playsinline controls style="display: none;"></video>
+            <div id="noteVideoRecIndicator" class="recording-indicator" style="display: none;">
+              <span>●</span> Recording video...
+            </div>
+            <div class="subpanel-controls">
+              <button type="button" id="startNoteVideoRecBtn" class="secondary-btn"><span>🔴 Record Camera</span></button>
+              <button type="button" id="stopNoteVideoRecBtn" class="secondary-btn" style="display: none; background: #ff0055; color: #fff;"><span>⏹️ Stop</span></button>
+              <label class="secondary-btn" style="cursor: pointer; margin: 0;">
+                <span>📁 Upload Video File</span>
+                <input type="file" id="noteVideoFileInput" accept="video/*" style="display: none;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Voice Recording / Upload Panel (Sub-section) -->
+          <div id="noteVoicePanel" class="note-subpanel" style="display: none;">
+            <div class="subpanel-header">
+              <span>🎙️ Voice Recording Wish</span>
+              <button type="button" id="closeVoicePanelBtn" class="subpanel-close-btn">&times;</button>
+            </div>
+            <audio id="noteVoicePreview" class="voice-audio-preview" controls style="display: none; width: 100%; margin: 0.5rem 0;"></audio>
+            <div id="noteVoiceRecIndicator" class="recording-indicator" style="display: none;">
+              <span>●</span> Recording voice note...
+            </div>
+            <div class="subpanel-controls">
+              <button type="button" id="startNoteVoiceRecBtn" class="secondary-btn"><span>🎤 Record Voice</span></button>
+              <button type="button" id="stopNoteVoiceRecBtn" class="secondary-btn" style="display: none; background: #ff0055; color: #fff;"><span>⏹️ Stop</span></button>
+              <label class="secondary-btn" style="cursor: pointer; margin: 0;">
+                <span>📁 Upload Audio File</span>
+                <input type="file" id="noteVoiceFileInput" accept="audio/*" style="display: none;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Live Attachment Previews with delete controls -->
+          <div id="noteAttachedPreviews" class="attached-previews-container"></div>
+        </div>
+
+        <button type="submit" id="submitLoveNoteBtn" class="primary-btn" style="width: 100%; margin-top: 1.25rem; justify-content: center;">
+          <span>Post Birthday Love Note ✨</span>
         </button>
       </form>
-
-      <!-- Form Mode 2: Video Wish -->
-      <div id="videoWishForm" style="display: none;">
-        <div class="form-group">
-          <label for="modalVideoAuthorName">Your Name</label>
-          <input type="text" id="modalVideoAuthorName" class="form-input" placeholder="e.g., David & Sarah" />
-        </div>
-
-        <div class="form-group">
-          <label for="modalVideoAuthorRole">Your Relationship / Tag</label>
-          <input type="text" id="modalVideoAuthorRole" class="form-input" placeholder="e.g., Childhood Friend" />
-        </div>
-
-        <div class="recorder-container" style="margin-top: 0.75rem;">
-          <div id="modalRecIndicator" class="recording-indicator" style="display: none;">
-            <span>●</span> Recording video message...
-          </div>
-          <video id="modalVideoPreview" class="video-preview" playsinline></video>
-
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 0.5rem;">
-            <button id="modalRecStartBtn" type="button" class="primary-btn">
-              <span>🎥 Start Recording</span>
-            </button>
-            <button id="modalRecStopBtn" type="button" class="primary-btn" style="display: none; background: #ff0055;">
-              <span>⏹️ Stop Recording</span>
-            </button>
-          </div>
-        </div>
-
-        <button id="modalPostVideoWishBtn" type="button" class="primary-btn" style="width: 100%; margin-top: 1rem; justify-content: center; display: none;">
-          <span>Post Video Wish 🎥</span>
-        </button>
-      </div>
     </div>
   </div>
 
