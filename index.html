@@ -36,11 +36,6 @@
   <canvas id="particlesCanvas"></canvas>
   <canvas id="confettiCanvas"></canvas>
 
-  <!-- SUBTLE AUTOPLAY MUSIC PROMPT (Appears on mobile until first tap) -->
-  <button id="autoplayMusicPrompt" class="autoplay-music-pill" aria-label="Tap to play background music">
-    <span>🎵 Tap to play background music</span>
-  </button>
-
   <!-- BACKGROUND AUDIO ELEMENT -->
   <audio id="bgAudio" preload="auto"></audio>
 
@@ -87,6 +82,11 @@
         <button type="button" class="chapter-pill-btn" id="navChapterBtn3" data-page="3" aria-label="Chapter 3: Birthday Love Notes">
           <span class="chapter-pill-num">3</span>
           <span class="chapter-pill-label">Love Notes 💌</span>
+        </button>
+        <span class="chapter-nav-divider" aria-hidden="true"></span>
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn4" data-page="4" aria-label="Chapter 4: The Finale">
+          <span class="chapter-pill-num">4</span>
+          <span class="chapter-pill-label">Finale ✨</span>
         </button>
       </div>
     </nav>
@@ -261,11 +261,93 @@
             <!-- Dynamically populated message cards with photos, videos, or voice notes by script.js -->
           </div>
 
-          <!-- Return to Celebration Banner -->
+          <!-- Continue to Finale or Back to Celebration Banner -->
           <div class="page-continue-banner" id="page3ContinueBanner">
-            <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn">
+            <button type="button" class="continue-page-btn primary-finale-btn" id="goToFinaleBtn">
+              <span class="continue-text-title">Experience The Finale Scene ✨</span>
+              <span class="continue-arrow">A final message just for you →</span>
+            </button>
+            <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn" style="margin-top: 0.75rem;">
               <span>← Back to Celebration</span>
             </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 4 / FINALE — THE BIRTHDAY EXPERIENCE FINALE
+           =================================================================== -->
+      <section id="pageChapter4" class="experience-page finale-page" data-chapter="4" style="display: none;">
+        <div class="finale-atmosphere-wrap">
+          <!-- Floating Romantic Backdrop Glows -->
+          <div class="finale-glow-radial finale-glow-top"></div>
+          <div class="finale-glow-radial finale-glow-bottom"></div>
+
+          <!-- Main Cinematic Finale Card -->
+          <div class="finale-card-stage">
+            <!-- Subtle chapter back control -->
+            <div class="finale-back-nav">
+              <button type="button" class="finale-back-btn" id="backToPage3FromFinaleBtn" aria-label="Back to Love Notes">
+                <span>← Back to Love Notes</span>
+              </button>
+            </div>
+
+            <div class="finale-content-center">
+              <!-- Top Title & Subtitle (Positioned cleanly above the 3D Canvas) -->
+              <div class="finale-header-group">
+                <div class="finale-sparkle-pill">
+                  <span class="sparkle-icon">✨</span>
+                  <span>My Endless Birthday Wish For You</span>
+                  <span class="sparkle-icon">✨</span>
+                </div>
+                <div class="finale-title-block">
+                  <h1 class="finale-title-text" id="finaleMainTitle">I LOVE YOU</h1>
+                  <span class="finale-infinity-badge">∞ ALWAYS & FOREVER ∞</span>
+                </div>
+              </div>
+
+              <!-- Interactive Flat Glowing Particle-Burst Heart Centerpiece -->
+              <div class="finale-3d-heart-container" id="finale3DHeartContainer">
+                <div class="finale-heart-halo"></div>
+                <canvas id="finaleCanvas" class="finale-3d-canvas" aria-label="Interactive Glowing Heart"></canvas>
+                <!-- Subtle touch/drag interaction hint badge -->
+                <div class="finale-interactive-hint" id="finaleInteractiveHint">
+                  <span class="hint-icon">✦</span>
+                  <span class="hint-text">Drag or swipe to tilt • Tap to pulse</span>
+                  <span class="hint-icon">✦</span>
+                </div>
+              </div>
+
+              <!-- Emotional Closing Passage (Positioned cleanly below the 3D Canvas) -->
+              <div class="finale-quote-box">
+                <p class="finale-quote-text" id="finaleClosingQuote">
+                  "No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love."
+                </p>
+                <div class="finale-author-signature">
+                  <span class="finale-sig-line"></span>
+                  <span class="finale-sig-name" id="finaleAuthorName">Forever Yours ❤️</span>
+                  <span class="finale-sig-line"></span>
+                </div>
+              </div>
+
+              <!-- Interactive Actions & Replay Experience Button -->
+              <div class="finale-action-bar">
+                <button type="button" class="replay-experience-btn" id="replayExperienceBtn" aria-label="Replay Birthday Experience">
+                  <span class="replay-icon">↺</span>
+                  <span class="replay-label">REPLAY EXPERIENCE</span>
+                </button>
+              </div>
+
+              <div class="finale-mini-options">
+                <button type="button" class="finale-ghost-btn" id="finaleBackToMemoriesBtn">
+                  <span>Explore Scrapbook Memories</span>
+                </button>
+                <span class="finale-dot-sep">•</span>
+                <button type="button" class="finale-ghost-btn" id="finaleBackToNotesBtn">
+                  <span>Read Love Notes Again</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -954,6 +1036,9 @@
 
   <!-- Supabase JS Client for GitHub Pages persistent online storage -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Three.js (WebGL 3D Engine for Interactive Finale Centerpiece) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <!-- Core Script -->
   <script type="module" src="script.js"></script>

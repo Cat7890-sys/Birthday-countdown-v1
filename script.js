@@ -671,6 +671,20 @@ async function loadBirthdayContentFromSupabase() {
         }
       }
 
+      // Update finale title, quote, and author if specified in Supabase
+      if (row.finale_title && typeof row.finale_title === "string" && row.finale_title.trim() !== "") {
+        const titleEl = document.getElementById("finaleMainTitle");
+        if (titleEl) titleEl.textContent = row.finale_title.trim();
+      }
+      if (row.finale_quote && typeof row.finale_quote === "string" && row.finale_quote.trim() !== "") {
+        const quoteEl = document.getElementById("finaleClosingQuote");
+        if (quoteEl) quoteEl.textContent = row.finale_quote.trim();
+      }
+      if (row.finale_author && typeof row.finale_author === "string" && row.finale_author.trim() !== "") {
+        const authorEl = document.getElementById("finaleAuthorName");
+        if (authorEl) authorEl.textContent = row.finale_author.trim();
+      }
+
       setupDynamicContent();
       console.log("[Supabase] Successfully loaded latest online birthday content:", row);
     } else {
@@ -685,7 +699,7 @@ async function loadBirthdayContentFromSupabase() {
  * Save updated birthday content to Supabase so it persists across refreshes and devices.
  * Protected: requires an active admin session to update the remote database.
  */
-async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) {
+async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, extraPayload = {}) {
   if (!isCurrentUserAdmin()) {
     console.log("[Supabase] Visitor mode: remote database update skipped (admin login required to persist online).");
     return false;
@@ -695,7 +709,8 @@ async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl) 
     birthday_message: (newMessage || currentMessage || "").trim(),
     background_url: (newBgUrl || currentBgImage || "").trim(),
     music_url: (newMusicUrl || currentMusicUrl || "").trim(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    ...extraPayload
   };
 
   // 1. Try official SDK (automatically passes authenticated JWT)
@@ -983,18 +998,25 @@ let recordedBlobUrl = null;
 const pageChapter1 = document.getElementById("pageChapter1");
 const pageChapter2 = document.getElementById("pageChapter2");
 const pageChapter3 = document.getElementById("pageChapter3");
+const pageChapter4 = document.getElementById("pageChapter4");
 const chapterNavBar = document.getElementById("chapterNavBar");
-const chapterBtn1 = document.getElementById("chapterBtn1");
-const chapterBtn2 = document.getElementById("chapterBtn2");
-const chapterBtn3 = document.getElementById("chapterBtn3");
+const chapterBtn1 = document.getElementById("chapterBtn1") || document.getElementById("navChapterBtn1");
+const chapterBtn2 = document.getElementById("chapterBtn2") || document.getElementById("navChapterBtn2");
+const chapterBtn3 = document.getElementById("chapterBtn3") || document.getElementById("navChapterBtn3");
+const chapterBtn4 = document.getElementById("chapterBtn4") || document.getElementById("navChapterBtn4");
 
 // Tap to continue chapter banner buttons (matches both HTML IDs and legacy IDs)
 const goToPage2Btn = document.getElementById("goToPage2Btn") || document.getElementById("turnToChapter2Btn");
 const goToPage3Btn = document.getElementById("goToPage3Btn") || document.getElementById("turnToChapter3Btn");
+const goToFinaleBtn = document.getElementById("goToFinaleBtn");
 const backToPage1Btn = document.getElementById("backToPage1Btn") || document.getElementById("backToChapter1Btn");
 const backToPage2Btn = document.getElementById("backToPage2Btn") || document.getElementById("backToChapter2Btn");
 const backToPage1From3Btn = document.getElementById("backToPage1From3Btn") || document.getElementById("backToChapter1From3Btn");
+const backToPage3FromFinaleBtn = document.getElementById("backToPage3FromFinaleBtn");
 const openSignLoveNoteFromChapterBtn = document.getElementById("openSignLoveNoteFromChapterBtn");
+const replayExperienceBtn = document.getElementById("replayExperienceBtn");
+const finaleBackToMemoriesBtn = document.getElementById("finaleBackToMemoriesBtn");
+const finaleBackToNotesBtn = document.getElementById("finaleBackToNotesBtn");
 
 // ============================================================================
 // INITIALIZATION
@@ -1154,9 +1176,20 @@ function startRevealSequence() {
     tenSecondPhotoReveal.style.display = "none";
   }
 
-  // Attempt to play music smoothly on user interaction
-  if (!isMusicPlaying && !userExplicitlyPaused) {
-    playMusic();
+  // Prime audio playback state directly on user interaction (SHOW ME tap)
+  // to authorize media playback under strict browser autoplay policies
+  if (bgAudio) {
+    // If audio is paused, calling play() then immediate pause (or keeping suspended context primed)
+    // primes the HTML5 audio element for instant playback when countdown finishes.
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx && !audioContext) {
+        audioContext = new AudioCtx();
+      }
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    } catch (e) {}
   }
 
   // Show 3 -> 2 -> 1 Reveal stage
@@ -1188,7 +1221,7 @@ function startRevealSequence() {
         revealCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
       }
     } else {
-      // Reached 0: Immediately transition to birthday reveal & 10s photo hover
+      // Reached 0: Countdown finishes!
       clearInterval(revealCountdownTimer);
       revealCountdownTimer = null;
 
@@ -1196,6 +1229,12 @@ function startRevealSequence() {
         revealCountdownStage.style.display = "none";
       }
 
+      // STEP 8: Birthday music starts immediately
+      if (!userExplicitlyPaused) {
+        playMusic();
+      }
+
+      // STEP 9: The 3D sequential photo reveal begins
       triggerBirthdayRevealWithPhotoHover();
     }
   }, 1000);
@@ -1477,39 +1516,13 @@ function initBackgroundMusic() {
     }
   });
 
-  // Attempt initial playback respecting modern browser autoplay policies
-  const playPromise = bgAudio.play();
-  if (playPromise !== undefined) {
-    playPromise
-      .then(() => {
-        // Autoplay succeeded!
-        isMusicPlaying = true;
-        updateMusicUI(true);
-        hideAutoplayPrompt();
-      })
-      .catch(() => {
-        // Autoplay blocked by mobile browser - show subtle "Tap to play music 🎵" prompt
-        isMusicPlaying = false;
-        updateMusicUI(false);
-        showAutoplayPrompt();
-
-        // Listen for first touch/click anywhere on page to begin playback naturally
-        const onFirstUserTap = () => {
-          if (!userExplicitlyPaused && !isMusicPlaying) {
-            playMusic();
-          }
-          window.removeEventListener("click", onFirstUserTap);
-          window.removeEventListener("touchstart", onFirstUserTap);
-        };
-        window.addEventListener("click", onFirstUserTap, { once: true });
-        window.addEventListener("touchstart", onFirstUserTap, { once: true });
-      });
-  }
+  // Prepare audio element with user-configured volume and looping
+  isMusicPlaying = false;
+  updateMusicUI(false);
 }
 
 function playMusic() {
   userExplicitlyPaused = false;
-  hideAutoplayPrompt();
 
   if (bgAudio) {
     const playPromise = bgAudio.play();
@@ -1589,15 +1602,11 @@ function updateMusicUI(playing) {
 }
 
 function showAutoplayPrompt() {
-  if (autoplayMusicPrompt && !userExplicitlyPaused) {
-    autoplayMusicPrompt.classList.remove("hidden");
-  }
+  // Autoplay prompt removed per specification: music starts directly after countdown
 }
 
 function hideAutoplayPrompt() {
-  if (autoplayMusicPrompt) {
-    autoplayMusicPrompt.classList.add("hidden");
-  }
+  // Autoplay prompt removed
 }
 
 // Gentle pentatonic chime sequence (synthesizer fallback)
@@ -2725,7 +2734,7 @@ function startConfettiAnimation() {
 }
 
 // ============================================================================
-// MULTI-PAGE CHAPTER SYSTEM (Chapter 1, Chapter 2, Chapter 3)
+// MULTI-PAGE CHAPTER SYSTEM (Chapter 1, Chapter 2, Chapter 3, Chapter 4 Finale)
 // ============================================================================
 
 let currentActiveChapter = 1;
@@ -2734,6 +2743,7 @@ function initChapterSystem() {
   if (chapterBtn1) chapterBtn1.addEventListener("click", () => showChapter(1));
   if (chapterBtn2) chapterBtn2.addEventListener("click", () => showChapter(2));
   if (chapterBtn3) chapterBtn3.addEventListener("click", () => showChapter(3));
+  if (chapterBtn4) chapterBtn4.addEventListener("click", () => showChapter(4));
 
   // Turn to Next / Previous Chapter buttons (connecting both page continue banners & headers)
   if (goToPage2Btn) {
@@ -2741,6 +2751,9 @@ function initChapterSystem() {
   }
   if (goToPage3Btn) {
     goToPage3Btn.addEventListener("click", () => showChapter(3));
+  }
+  if (goToFinaleBtn) {
+    goToFinaleBtn.addEventListener("click", () => showChapter(4));
   }
   if (backToPage1Btn) {
     backToPage1Btn.addEventListener("click", () => showChapter(1));
@@ -2751,8 +2764,33 @@ function initChapterSystem() {
   if (backToPage1From3Btn) {
     backToPage1From3Btn.addEventListener("click", () => showChapter(1));
   }
+  if (backToPage3FromFinaleBtn) {
+    backToPage3FromFinaleBtn.addEventListener("click", () => showChapter(3));
+  }
   if (openSignLoveNoteFromChapterBtn) {
     openSignLoveNoteFromChapterBtn.addEventListener("click", () => openSignGuestbook());
+  }
+
+  // Replay Experience & auxiliary Finale buttons
+  if (replayExperienceBtn) {
+    replayExperienceBtn.addEventListener("click", () => {
+      // Return to chapter 1 and trigger celebration joyously
+      showChapter(1);
+      setTimeout(() => {
+        const celebrationSection = document.getElementById("celebrationScreen");
+        if (celebrationSection) {
+          celebrationSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        triggerCelebration();
+      }, 350);
+    });
+  }
+
+  if (finaleBackToMemoriesBtn) {
+    finaleBackToMemoriesBtn.addEventListener("click", () => showChapter(2));
+  }
+  if (finaleBackToNotesBtn) {
+    finaleBackToNotesBtn.addEventListener("click", () => showChapter(3));
   }
 }
 
@@ -2762,18 +2800,26 @@ function showChapter(chapterNum, autoScroll = true) {
   const page1 = document.getElementById("pageChapter1");
   const page2 = document.getElementById("pageChapter2");
   const page3 = document.getElementById("pageChapter3");
+  const page4 = document.getElementById("pageChapter4");
 
-  const btn1 = document.getElementById("chapterBtn1");
-  const btn2 = document.getElementById("chapterBtn2");
-  const btn3 = document.getElementById("chapterBtn3");
+  const btn1 = document.getElementById("chapterBtn1") || document.getElementById("navChapterBtn1");
+  const btn2 = document.getElementById("chapterBtn2") || document.getElementById("navChapterBtn2");
+  const btn3 = document.getElementById("chapterBtn3") || document.getElementById("navChapterBtn3");
+  const btn4 = document.getElementById("chapterBtn4") || document.getElementById("navChapterBtn4");
 
   if (page1) page1.style.display = (chapterNum === 1) ? "block" : "none";
   if (page2) page2.style.display = (chapterNum === 2) ? "block" : "none";
   if (page3) page3.style.display = (chapterNum === 3) ? "block" : "none";
+  if (page4) page4.style.display = (chapterNum === 4) ? "block" : "none";
 
   if (btn1) btn1.classList.toggle("active", chapterNum === 1);
   if (btn2) btn2.classList.toggle("active", chapterNum === 2);
   if (btn3) btn3.classList.toggle("active", chapterNum === 3);
+  if (btn4) btn4.classList.toggle("active", chapterNum === 4);
+
+  if (chapterNum !== 4 && typeof disposeFinaleThreeScene === "function") {
+    disposeFinaleThreeScene();
+  }
 
   if (chapterNum === 2) {
     renderMemoriesScrapbook();
@@ -2782,6 +2828,8 @@ function showChapter(chapterNum, autoScroll = true) {
     }, 200);
   } else if (chapterNum === 3) {
     renderLoveNotes();
+  } else if (chapterNum === 4) {
+    initFinaleScene();
   }
 
   // Smooth scroll without interfering with normal user scrolling
@@ -2790,6 +2838,7 @@ function showChapter(chapterNum, autoScroll = true) {
     if (chapterNum === 1) targetEl = document.getElementById("celebrationScreen");
     else if (chapterNum === 2) targetEl = page2;
     else if (chapterNum === 3) targetEl = page3;
+    else if (chapterNum === 4) targetEl = page4;
 
     if (targetEl) {
       targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -4614,9 +4663,560 @@ function showHeroPinnedPhotos() {
   }, 5000);
 }
 
-// Expose Supabase helpers for inspection or external script triggers
+// ============================================================================
+// CHAPTER 4 — THE BIRTHDAY EXPERIENCE FINALE: 2D/2.5D FLAT GLOWING PARTICLE-BURST HEART
+// ============================================================================
+
+let finaleCanvasEl = null;
+let finaleCtx = null;
+let finaleAnimId = null;
+let finaleResizeObserver = null;
+
+// Interaction & Parallax State
+let finaleTiltX = 0; // -1 to 1 horizontal tilt
+let finaleTiltY = 0; // -1 to 1 vertical tilt
+let finaleTargetTiltX = 0;
+let finaleTargetTiltY = 0;
+let finaleTiltVelX = 0;
+let finaleTiltVelY = 0;
+let finaleIsDragging = false;
+let finaleDragStart = { x: 0, y: 0 };
+let finalePrevPointer = { x: 0, y: 0 };
+let finaleTotalDragDistance = 0;
+let finaleLastInteractionTime = Date.now();
+let finaleTapPulseProgress = 0; // 0 to 1 bump for tap reaction
+
+// Particle Simulation Arrays
+let finaleParticles = [];
+let finaleTrails = [];
+let finaleStars = [];
+let finaleConstellationLines = [];
+let finaleCenterBurstTime = 0;
+
+function disposeFinaleThreeScene() {
+  if (finaleAnimId) {
+    cancelAnimationFrame(finaleAnimId);
+    finaleAnimId = null;
+  }
+  if (finaleResizeObserver) {
+    finaleResizeObserver.disconnect();
+    finaleResizeObserver = null;
+  }
+  window.removeEventListener("resize", finaleOnWindowResize);
+  finaleParticles = [];
+  finaleTrails = [];
+  finaleStars = [];
+  finaleConstellationLines = [];
+  if (finaleCtx && finaleCanvasEl) {
+    finaleCtx.clearRect(0, 0, finaleCanvasEl.width, finaleCanvasEl.height);
+  }
+}
+
+function finaleOnWindowResize() {
+  if (!finaleCanvasEl) return;
+  const container = document.getElementById("finale3DHeartContainer");
+  if (!container) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = container.clientWidth || 540;
+  const h = container.clientHeight || 400;
+  finaleCanvasEl.width = w * dpr;
+  finaleCanvasEl.height = h * dpr;
+  finaleCanvasEl.style.width = `${w}px`;
+  finaleCanvasEl.style.height = `${h}px`;
+  if (finaleCtx) {
+    finaleCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+}
+
+function initFinaleScene() {
+  const canvas = document.getElementById("finaleCanvas");
+  const container = document.getElementById("finale3DHeartContainer");
+  if (!canvas || !container) return;
+
+  // Clean up any existing instances
+  disposeFinaleThreeScene();
+
+  finaleCanvasEl = canvas;
+  finaleCtx = canvas.getContext("2d", { alpha: true });
+  if (!finaleCtx) return;
+
+  // Setup HiDPI Canvas
+  finaleOnWindowResize();
+  window.addEventListener("resize", finaleOnWindowResize, { passive: true });
+
+  const containerW = container.clientWidth || 540;
+  const containerH = container.clientHeight || 400;
+  const heartCenterX = containerW / 2;
+  const heartCenterY = containerH * 0.48;
+
+  // 1. GENERATE BACKGROUND TWINKLING STARFIELD
+  const starCount = 140;
+  finaleStars = [];
+  for (let i = 0; i < starCount; i++) {
+    finaleStars.push({
+      x: Math.random() * containerW,
+      y: Math.random() * containerH,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.7 + 0.2,
+      twinkleSpeed: Math.random() * 0.03 + 0.01,
+      phase: Math.random() * Math.PI * 2,
+      depthLayer: Math.random() * 0.3 + 0.05, // deep background parallax
+      color: Math.random() > 0.4 ? "rgba(0, 240, 255," : "rgba(255, 140, 200,"
+    });
+  }
+
+  // 2. GENERATE FLAT HEART PARTICLE POSITIONS (Parametric Heart Curve Fireworks Burst)
+  // Parametric heart formula:
+  // x = 16 * sin^3(t)
+  // y = -(13*cos(t) - 5*cos(2t) - 2*cos(3t) - cos(4t)) (inverted for screen coordinates)
+  const isMobile = window.innerWidth < 640;
+  const heartScale = isMobile ? 8.2 : 11.2;
+  const particleCount = isMobile ? 950 : 1600;
+  finaleParticles = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    const t = Math.random() * Math.PI * 2;
+    // Base parametric coordinates
+    const rawX = 16 * Math.pow(Math.sin(t), 3);
+    const rawY = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+    // Fill distribution: heavy concentration near perimeter outline (fireworks shell),
+    // with soft interior dusting
+    const fillBias = Math.random();
+    const r = fillBias > 0.35 ? 1.0 - Math.pow(Math.random(), 3.5) * 0.22 : Math.pow(Math.random(), 0.5);
+
+    // Target coordinates on flat heart silhouette
+    const targetX = heartCenterX + rawX * heartScale * r + (Math.random() - 0.5) * 6;
+    const targetY = heartCenterY + (rawY * heartScale * r) + (Math.random() - 0.5) * 6;
+
+    // Outward burst trajectory from center point
+    const angleFromCenter = Math.atan2(targetY - heartCenterY, targetX - heartCenterX);
+    const burstSpeed = Math.random() * 4.5 + 2.5;
+
+    // Depth layer for 2.5D parallax tilt (0.7 to 1.35)
+    // Deeper particles shift differently on tilt
+    const depthLayer = 0.75 + (r * 0.35) + ((Math.random() - 0.5) * 0.4);
+
+    // Color gradient across height (y): Cyan-blue at core/bottom (#00f0ff, #00b4d8),
+    // radiant magenta/pink (#ff2a7a, #ff70a6) towards upper curved lobes
+    const normHeight = 1 - (targetY - (heartCenterY - 16 * heartScale)) / (32 * heartScale);
+    let rCol = 0, gCol = 240, bCol = 255; // default electric cyan
+    if (normHeight > 0.45) {
+      // blend to radiant magenta-pink
+      const blend = Math.min((normHeight - 0.45) / 0.5, 1.0);
+      rCol = Math.round(0 + 255 * blend);
+      gCol = Math.round(240 - 198 * blend);
+      bCol = Math.round(255 - 133 * blend);
+    }
+
+    finaleParticles.push({
+      targetX: targetX,
+      targetY: targetY,
+      // Fireworks burst initial position at central origin
+      currentX: heartCenterX + (Math.random() - 0.5) * 12,
+      currentY: heartCenterY + (Math.random() - 0.5) * 12,
+      velX: Math.cos(angleFromCenter) * burstSpeed,
+      velY: Math.sin(angleFromCenter) * burstSpeed,
+      burstProgress: 0, // 0 to 1 as it bursts outward and settles
+      burstDelay: Math.random() * 25, // staggered burst frames
+      size: Math.random() * 2.2 + 1.2,
+      glowRadius: Math.random() * 7 + 4,
+      r: rCol,
+      g: gCol,
+      b: bCol,
+      baseAlpha: Math.random() * 0.45 + 0.55,
+      alpha: 0,
+      twinkleSpeed: Math.random() * 0.05 + 0.02,
+      twinklePhase: Math.random() * Math.PI * 2,
+      depthLayer: depthLayer,
+      // Wispy trail emitter probability (from lower heart edges/taper)
+      isTrailEmitter: (rawY > 4 && r > 0.75 && Math.random() < 0.18)
+    });
+  }
+
+  // 3. PRE-COMPUTE CONSTELLATION WEB THREADS
+  // Connect select pairs of nearby particles
+  finaleConstellationLines = [];
+  const subsetCount = Math.min(finaleParticles.length, 280);
+  const maxDistSq = (isMobile ? 26 : 34) * (isMobile ? 26 : 34);
+
+  for (let i = 0; i < subsetCount; i++) {
+    for (let j = i + 1; j < subsetCount; j++) {
+      const dx = finaleParticles[i].targetX - finaleParticles[j].targetX;
+      const dy = finaleParticles[i].targetY - finaleParticles[j].targetY;
+      const distSq = dx * dx + dy * dy;
+      if (distSq < maxDistSq) {
+        finaleConstellationLines.push({
+          pA: finaleParticles[i],
+          pB: finaleParticles[j],
+          maxDist: Math.sqrt(maxDistSq)
+        });
+        if (finaleConstellationLines.length >= 240) break;
+      }
+    }
+    if (finaleConstellationLines.length >= 240) break;
+  }
+
+  // 4. INTERACTION LISTENERS (Drag-to-tilt, touch swipe, inertia, auto-drift)
+  const hintEl = document.getElementById("finaleInteractiveHint");
+
+  function hideHint() {
+    if (hintEl) {
+      hintEl.style.opacity = "0";
+      hintEl.style.pointerEvents = "none";
+    }
+  }
+
+  function onPointerDown(clientX, clientY) {
+    finaleIsDragging = true;
+    finaleDragStart.x = clientX;
+    finaleDragStart.y = clientY;
+    finalePrevPointer.x = clientX;
+    finalePrevPointer.y = clientY;
+    finaleTotalDragDistance = 0;
+    finaleTiltVelX = 0;
+    finaleTiltVelY = 0;
+    finaleLastInteractionTime = Date.now();
+  }
+
+  function onPointerMove(clientX, clientY) {
+    if (!finaleIsDragging) return;
+
+    const dx = clientX - finalePrevPointer.x;
+    const dy = clientY - finalePrevPointer.y;
+    finaleTotalDragDistance += Math.abs(dx) + Math.abs(dy);
+
+    if (finaleTotalDragDistance > 6) {
+      hideHint();
+    }
+
+    // Direct sensitivity
+    const sensitivity = 0.005;
+    finaleTargetTiltX = Math.max(-1.0, Math.min(1.0, finaleTargetTiltX + dx * sensitivity));
+    finaleTargetTiltY = Math.max(-1.0, Math.min(1.0, finaleTargetTiltY + dy * sensitivity));
+
+    finaleTiltVelX = dx * sensitivity;
+    finaleTiltVelY = dy * sensitivity;
+
+    finalePrevPointer.x = clientX;
+    finalePrevPointer.y = clientY;
+    finaleLastInteractionTime = Date.now();
+  }
+
+  function onPointerUp() {
+    if (!finaleIsDragging) return;
+    finaleIsDragging = false;
+
+    // Tap to pulse if tap without dragging
+    if (finaleTotalDragDistance < 8) {
+      triggerHeartPulse();
+    }
+    finaleLastInteractionTime = Date.now();
+  }
+
+  function triggerHeartPulse() {
+    finaleTapPulseProgress = 1.0;
+    // Spawn a burst of shooting spark trails on tap
+    for (let i = 0; i < 20; i++) {
+      spawnTapSpark(heartCenterX, heartCenterY);
+    }
+    if (navigator.vibrate) {
+      try { navigator.vibrate(30); } catch (e) {}
+    }
+  }
+
+  function spawnTapSpark(cx, cy) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 5 + 2.5;
+    finaleTrails.push({
+      x: cx + (Math.random() - 0.5) * 40,
+      y: cy + (Math.random() - 0.5) * 40,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed + 1.2,
+      length: Math.random() * 12 + 6,
+      alpha: 1.0,
+      decay: Math.random() * 0.035 + 0.02,
+      r: Math.random() > 0.5 ? 0 : 255,
+      g: Math.random() > 0.5 ? 240 : 100,
+      b: 255,
+      depthLayer: 1.0
+    });
+  }
+
+  // Mouse event attachments
+  container.addEventListener("mousedown", (e) => {
+    onPointerDown(e.clientX, e.clientY);
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (finaleIsDragging) {
+      onPointerMove(e.clientX, e.clientY);
+    }
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (finaleIsDragging) {
+      onPointerUp();
+    }
+  });
+
+  // Touch event attachments with non-hijacking vertical scroll
+  container.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+
+  container.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 1 && finaleIsDragging) {
+      const deltaX = Math.abs(e.touches[0].clientX - finalePrevPointer.x);
+      const deltaY = Math.abs(e.touches[0].clientY - finalePrevPointer.y);
+      if (deltaX > deltaY || finaleTotalDragDistance > 12) {
+        if (e.cancelable) e.preventDefault();
+      }
+      onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
+  container.addEventListener("touchend", (e) => {
+    if (e.touches.length === 0) {
+      onPointerUp();
+    }
+  }, { passive: true });
+
+  // 5. ANIMATION & RENDER LOOP
+  let startTime = performance.now();
+  let frameCount = 0;
+
+  function render2DFinale(currentTime) {
+    if (currentActiveChapter !== 4) {
+      disposeFinaleThreeScene();
+      return;
+    }
+
+    finaleAnimId = requestAnimationFrame(render2DFinale);
+    frameCount++;
+
+    const elapsedSec = (currentTime - startTime) / 1000;
+    const ctx = finaleCtx;
+    const w = container.clientWidth || 540;
+    const h = container.clientHeight || 400;
+    const curHeartX = w / 2;
+    const curHeartY = h * 0.48;
+
+    // Reset transform & clear
+    ctx.clearRect(0, 0, w, h);
+
+    // Ambient radial glow behind the heart
+    const radialGlow = ctx.createRadialGradient(curHeartX, curHeartY, 20, curHeartX, curHeartY, w * 0.55);
+    radialGlow.addColorStop(0, "rgba(0, 210, 255, 0.16)");
+    radialGlow.addColorStop(0.45, "rgba(255, 42, 122, 0.08)");
+    radialGlow.addColorStop(1, "rgba(3, 10, 25, 0)");
+    ctx.fillStyle = radialGlow;
+    ctx.fillRect(0, 0, w, h);
+
+    // Heartbeat Pulse Logic:
+    // Subtle double-beat (lub-dub) scale oscillation on a ~1.15s cycle
+    const cycleTime = (elapsedSec % 1.15) / 1.15;
+    let heartbeatScale = 1.0;
+    if (cycleTime < 0.16) {
+      // First pulse (lub)
+      heartbeatScale = 1.0 + 0.065 * Math.sin((cycleTime / 0.16) * Math.PI);
+    } else if (cycleTime > 0.22 && cycleTime < 0.38) {
+      // Second pulse (dub)
+      heartbeatScale = 1.0 + 0.042 * Math.sin(((cycleTime - 0.22) / 0.16) * Math.PI);
+    }
+
+    // Additive tap pulse bump
+    if (finaleTapPulseProgress > 0) {
+      heartbeatScale += finaleTapPulseProgress * 0.14;
+      finaleTapPulseProgress = Math.max(0, finaleTapPulseProgress - 0.032);
+    }
+
+    // Interactivity: Tilt Parallax & Inertia
+    if (finaleIsDragging) {
+      finaleTiltX += (finaleTargetTiltX - finaleTiltX) * 0.18;
+      finaleTiltY += (finaleTargetTiltY - finaleTiltY) * 0.18;
+    } else {
+      // Apply momentum decay
+      finaleTargetTiltX += finaleTiltVelX;
+      finaleTargetTiltY += finaleTiltVelY;
+      finaleTiltVelX *= 0.93;
+      finaleTiltVelY *= 0.93;
+
+      // Soft spring back towards equilibrium
+      finaleTargetTiltX *= 0.985;
+      finaleTargetTiltY *= 0.985;
+
+      finaleTiltX += (finaleTargetTiltX - finaleTiltX) * 0.12;
+      finaleTiltY += (finaleTargetTiltY - finaleTiltY) * 0.12;
+
+      // Auto-drift after 2.2s of inactivity
+      const idleTime = Date.now() - finaleLastInteractionTime;
+      if (idleTime > 2200) {
+        const driftFactor = Math.min((idleTime - 2200) / 2000, 1.0);
+        finaleTiltX += Math.sin(elapsedSec * 1.2) * 0.003 * driftFactor;
+        finaleTiltY += Math.cos(elapsedSec * 0.9) * 0.002 * driftFactor;
+      }
+    }
+
+    // 1. DRAW BACKGROUND STARFIELD
+    ctx.save();
+    for (let s of finaleStars) {
+      s.phase += s.twinkleSpeed;
+      const curAlpha = s.alpha * (0.6 + 0.4 * Math.sin(s.phase));
+      const starParallaxX = s.x + finaleTiltX * 18 * s.depthLayer;
+      const starParallaxY = s.y + finaleTiltY * 18 * s.depthLayer;
+
+      ctx.fillStyle = s.color + curAlpha + ")";
+      ctx.beginPath();
+      ctx.arc(starParallaxX, starParallaxY, s.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 2. UPDATE & DRAW PARTICLES
+    ctx.save();
+    // Additive blending for fireworks & starlight glow
+    ctx.globalCompositeOperation = "lighter";
+
+    const settledParticles = [];
+
+    for (let i = 0; i < finaleParticles.length; i++) {
+      const p = finaleParticles[i];
+
+      // Staggered fireworks burst from center
+      if (p.burstProgress < 1.0) {
+        if (frameCount > p.burstDelay) {
+          p.burstProgress += 0.024;
+          if (p.burstProgress >= 1.0) {
+            p.burstProgress = 1.0;
+          }
+          // Smooth easeOutCubic curve into heart silhouette
+          const tEase = 1 - Math.pow(1 - p.burstProgress, 3);
+          p.currentX = curHeartX + (p.targetX - curHeartX) * tEase;
+          p.currentY = curHeartY + (p.targetY - curHeartY) * tEase;
+          p.alpha = p.baseAlpha * Math.min(p.burstProgress * 1.5, 1.0);
+        }
+      } else {
+        // Settled into silhouette: animate subtle idle breathing & heartbeat scale
+        p.alpha = p.baseAlpha * (0.8 + 0.2 * Math.sin(p.twinklePhase + elapsedSec * 3));
+        p.twinklePhase += p.twinkleSpeed;
+      }
+
+      // Parallax shift based on depth layer and user tilt
+      const depthOffset = (p.depthLayer - 1.0) * 35;
+      const offsetX = finaleTiltX * depthOffset;
+      const offsetY = finaleTiltY * depthOffset;
+
+      // Heartbeat pulse applied radially from heart center
+      const dxFromCenter = (p.targetX - curHeartX);
+      const dyFromCenter = (p.targetY - curHeartY);
+      const pulsedX = curHeartX + dxFromCenter * heartbeatScale + offsetX;
+      const pulsedY = curHeartY + dyFromCenter * heartbeatScale + offsetY;
+
+      // Draw particle dot with soft glowing aura
+      const drawSize = p.size * (heartbeatScale > 1.02 ? 1.15 : 1.0);
+
+      // Core bright dot
+      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha})`;
+      ctx.beginPath();
+      ctx.arc(pulsedX, pulsedY, drawSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Soft luminous outer halo
+      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.28})`;
+      ctx.beginPath();
+      ctx.arc(pulsedX, pulsedY, drawSize + p.glowRadius * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      p.renderedX = pulsedX;
+      p.renderedY = pulsedY;
+
+      if (p.burstProgress >= 0.95) {
+        settledParticles.push(p);
+
+        // Emit falling wispy comet-like trails from lower edges of heart
+        if (p.isTrailEmitter && Math.random() < 0.04) {
+          finaleTrails.push({
+            x: pulsedX + (Math.random() - 0.5) * 4,
+            y: pulsedY + Math.random() * 2,
+            vx: (Math.random() - 0.5) * 0.8 + (finaleTiltX * 0.6),
+            vy: Math.random() * 1.6 + 0.8,
+            length: Math.random() * 14 + 8,
+            alpha: Math.random() * 0.55 + 0.35,
+            decay: Math.random() * 0.018 + 0.008,
+            r: p.r,
+            g: p.g,
+            b: p.b,
+            depthLayer: p.depthLayer
+          });
+        }
+      }
+    }
+
+    // 3. DRAW FAINT CONSTELLATION WEB THREADS
+    ctx.lineWidth = 0.75;
+    for (let line of finaleConstellationLines) {
+      if (line.pA.renderedX && line.pB.renderedX && line.pA.burstProgress > 0.8 && line.pB.burstProgress > 0.8) {
+        const dx = line.pA.renderedX - line.pB.renderedX;
+        const dy = line.pA.renderedY - line.pB.renderedY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < line.maxDist * 1.25) {
+          const lineAlpha = (1 - dist / (line.maxDist * 1.25)) * 0.22;
+          ctx.strokeStyle = `rgba(0, 240, 255, ${lineAlpha})`;
+          ctx.beginPath();
+          ctx.moveTo(line.pA.renderedX, line.pA.renderedY);
+          ctx.lineTo(line.pB.renderedX, line.pB.renderedY);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // 4. UPDATE & DRAW WISPY COMET-LIKE FALLING TRAILS
+    for (let i = finaleTrails.length - 1; i >= 0; i--) {
+      const trail = finaleTrails[i];
+      trail.x += trail.vx;
+      trail.y += trail.vy;
+      trail.vy += 0.04; // subtle gravity acceleration
+      trail.alpha -= trail.decay;
+
+      if (trail.alpha <= 0.01 || trail.y > h + 30) {
+        finaleTrails.splice(i, 1);
+        continue;
+      }
+
+      // Draw wispy streak
+      const grad = ctx.createLinearGradient(trail.x, trail.y, trail.x - trail.vx * 3, trail.y - trail.length);
+      grad.addColorStop(0, `rgba(${trail.r}, ${trail.g}, ${trail.b}, ${trail.alpha})`);
+      grad.addColorStop(1, `rgba(${trail.r}, ${trail.g}, ${trail.b}, 0)`);
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(trail.x, trail.y);
+      ctx.lineTo(trail.x - trail.vx * 2, trail.y - trail.length);
+      ctx.stroke();
+
+      // Spark tip dot
+      ctx.fillStyle = `rgba(255, 255, 255, ${trail.alpha * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(trail.x, trail.y, 0.9, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  // Kick off animation loop
+  finaleAnimId = requestAnimationFrame(render2DFinale);
+}
+
+// Expose Supabase helpers and Chapter 4 Finale methods to window
 if (typeof window !== "undefined") {
   window.loadBirthdayContentFromSupabase = loadBirthdayContentFromSupabase;
   window.saveBirthdayContentToSupabase = saveBirthdayContentToSupabase;
+  window.initFinaleScene = initFinaleScene;
+  window.disposeFinaleThreeScene = disposeFinaleThreeScene;
 }
 

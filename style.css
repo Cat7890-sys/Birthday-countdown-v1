@@ -4014,3 +4014,390 @@ body {
   background: #000;
 }
 
+/* ==========================================================================
+   PAGE 4 — THE BIRTHDAY EXPERIENCE FINALE (CINEMATIC SCENE)
+   ========================================================================== */
+.primary-finale-btn {
+  background: linear-gradient(135deg, rgba(255, 42, 122, 0.9) 0%, rgba(0, 210, 255, 0.85) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(255, 42, 122, 0.35), 0 0 25px rgba(0, 210, 255, 0.25) !important;
+  color: #ffffff !important;
+  padding: 1.1rem 1.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.primary-finale-btn:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  box-shadow: 0 15px 40px rgba(255, 42, 122, 0.5), 0 0 35px rgba(0, 210, 255, 0.4) !important;
+}
+
+.finale-page {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.finale-atmosphere-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 32px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #07132a 0%, #030814 100%);
+  border: 1px solid rgba(0, 210, 255, 0.22);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7), 0 0 60px rgba(0, 150, 255, 0.15);
+}
+
+.finale-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.finale-glow-radial {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.finale-glow-top {
+  top: -100px;
+  right: -50px;
+  background: radial-gradient(circle, rgba(0, 210, 255, 0.6) 0%, transparent 70%);
+}
+
+.finale-glow-bottom {
+  bottom: -100px;
+  left: -50px;
+  background: radial-gradient(circle, rgba(255, 42, 122, 0.5) 0%, transparent 70%);
+}
+
+.finale-card-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.finale-back-nav {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+.finale-back-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.finale-back-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  transform: translateX(-2px);
+}
+
+.finale-content-center {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.finale-header-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  z-index: 3;
+}
+
+.finale-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.finale-sparkle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.15rem;
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: 9999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #7dd3fc;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.finale-sparkle-pill .sparkle-icon {
+  font-size: 0.95rem;
+}
+
+/* 3D Heart Canvas Centerpiece Container */
+.finale-3d-heart-container {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  height: 400px;
+  margin: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.finale-3d-heart-container:active {
+  cursor: grabbing;
+}
+
+.finale-3d-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  border-radius: 24px;
+  outline: none;
+}
+
+.finale-interactive-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(3, 10, 25, 0.72);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  padding: 0.35rem 0.95rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.finale-interactive-hint .hint-icon {
+  color: #38bdf8;
+  font-size: 0.7rem;
+}
+
+.finale-heart-halo {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 42, 122, 0.22) 0%, rgba(0, 210, 255, 0.15) 50%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  animation: finalePulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes finalePulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+.finale-title-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 15%, #ffd1e3 45%, #7dd3fc 85%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 35px rgba(255, 42, 122, 0.45), 0 0 50px rgba(0, 210, 255, 0.3);
+  animation: finaleFloatText 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes finaleFloatText {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-6px); }
+}
+
+.finale-infinity-badge {
+  font-size: 0.88rem;
+  letter-spacing: 0.25em;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.finale-quote-box {
+  background: rgba(14, 25, 50, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  max-width: 600px;
+}
+
+.finale-quote-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.05rem, 2.5vw, 1.22rem);
+  line-height: 1.75;
+  color: #f1f5f9;
+  font-style: italic;
+  margin: 0;
+}
+
+.finale-author-signature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.finale-sig-line {
+  width: 40px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.finale-sig-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #ff7aa2;
+  letter-spacing: 0.05em;
+}
+
+.finale-action-bar {
+  margin-top: 0.5rem;
+}
+
+.replay-experience-btn {
+  background: linear-gradient(135deg, #ff2a7a 0%, #a855f7 50%, #00d2ff 100%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.95rem 2.4rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 12px 35px rgba(255, 42, 122, 0.45), 0 0 30px rgba(0, 210, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.replay-experience-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 18px 50px rgba(255, 42, 122, 0.6), 0 0 45px rgba(0, 210, 255, 0.5);
+}
+
+.replay-experience-btn .replay-icon {
+  font-size: 1.35rem;
+  transition: transform 0.4s ease;
+}
+
+.replay-experience-btn:hover .replay-icon {
+  transform: rotate(-180deg);
+}
+
+.finale-mini-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.finale-ghost-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.86rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+
+.finale-ghost-btn:hover {
+  color: #38bdf8;
+}
+
+.finale-dot-sep {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .finale-atmosphere-wrap {
+    min-height: 85vh;
+    border-radius: 20px;
+  }
+  .finale-3d-heart-container {
+    height: 320px;
+  }
+  .finale-card-stage {
+    padding: 3.5rem 1.25rem 2rem 1.25rem;
+  }
+  .finale-quote-box {
+    padding: 1.25rem 1.25rem;
+  }
+  .replay-experience-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.98rem;
+  }
+}
+
+
