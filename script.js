@@ -281,6 +281,8 @@ const SUPABASE_STORAGE_BUCKET = "Birthday-assets";
 
 let supabaseClient = null;
 let currentSupabaseRowId = 1;
+let isInitialSupabaseLoading = true;
+let currentRevealTitles = ["MY BABY", "MY LOVE", "MY EVERYTHING ❤️"];
 
 // Admin Authentication State
 let currentAdminSession = null;
@@ -509,7 +511,12 @@ async function uploadToSupabaseStorage(folder, file) {
  * Load celebration photos from Supabase Storage (photos/).
  * Queries the Birthday-assets bucket and populates currentPhotos for the celebration burst.
  */
-async function loadBirthdayPhotosFromSupabase() {
+async function loadBirthdayPhotosFromSupabase(force = false) {
+  // If birthday_content.reveal_photos was already loaded from the database and populated, do not overwrite unless forced
+  if (!force && currentPhotos && currentPhotos.length > 0 && currentPhotos.some(p => p.fromSupabase)) {
+    return true;
+  }
+
   const bucket = SUPABASE_STORAGE_BUCKET;
   let fileList = [];
 
@@ -584,21 +591,23 @@ async function loadBirthdayPhotosFromSupabase() {
 
 /**
  * Fetch the latest birthday content from Supabase.
- * Tries the official Supabase SDK first, with a pure fetch REST fallback
- * ensuring 100% compatibility with GitHub Pages.
+ * Targets public.birthday_content row id = 1 as primary source of truth.
+ * Tries the official Supabase SDK first, with a pure fetch REST fallback.
+ * Keeps localStorage as a fallback/cache without wiping out user changes.
  */
 async function loadBirthdayContentFromSupabase() {
+  isInitialSupabaseLoading = true;
   try {
     let row = null;
 
-    // 1. Try official SDK
+    // 1. Try official SDK targeting row id = 1
     const client = getSupabaseClient();
     if (client) {
       try {
         const { data, error } = await client
           .from("birthday_content")
           .select("*")
-          .order("updated_at", { ascending: false })
+          .eq("id", 1)
           .limit(1);
 
         if (!error && Array.isArray(data) && data.length > 0) {
@@ -611,11 +620,11 @@ async function loadBirthdayContentFromSupabase() {
       }
     }
 
-    // 2. Direct REST fallback (pure browser fetch)
+    // 2. Direct REST fallback targeting row id = 1
     if (!row) {
       try {
         const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/birthday_content?select=*&order=updated_at.desc&limit=1`,
+          `${SUPABASE_URL}/rest/v1/birthday_content?id=eq.1&select=*&limit=1`,
           {
             headers: {
               "apikey": SUPABASE_PUBLISHABLE_KEY,
@@ -634,15 +643,48 @@ async function loadBirthdayContentFromSupabase() {
       }
     }
 
-    // 3. Apply retrieved content if found
+    // 3. Additional fallback if row id=1 was not explicitly returned
+    if (!row) {
+      try {
+        const resFallback = await fetch(
+          `${SUPABASE_URL}/rest/v1/birthday_content?select=*&order=updated_at.desc&limit=1`,
+          {
+            headers: {
+              "apikey": SUPABASE_PUBLISHABLE_KEY,
+              "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+            }
+          }
+        );
+        if (resFallback.ok) {
+          const rows = await resFallback.json();
+          if (Array.isArray(rows) && rows.length > 0) {
+            row = rows[0];
+          }
+        }
+      } catch (_) {}
+    }
+
+    // 4. Synchronize all database columns to application state
     if (row) {
-      if (row.id) {
-        currentSupabaseRowId = row.id;
+      currentSupabaseRowId = row.id || 1;
+
+      // Recipient Name
+      if (row.recipient_name && typeof row.recipient_name === "string" && row.recipient_name.trim() !== "") {
+        currentName = row.recipient_name.trim();
+        try {
+          localStorage.setItem("birthday_custom_name_v1", currentName);
+        } catch (_) {}
+        if (devNameInput) {
+          devNameInput.value = currentName;
+        }
       }
 
-      // Update Birthday Message
+      // Birthday Message
       if (row.birthday_message && typeof row.birthday_message === "string" && row.birthday_message.trim() !== "") {
         currentMessage = row.birthday_message.trim();
+        try {
+          localStorage.setItem("birthday_custom_message_v1", currentMessage);
+        } catch (_) {}
         if (celebrationMsg) {
           celebrationMsg.textContent = currentMessage;
         }
@@ -651,18 +693,24 @@ async function loadBirthdayContentFromSupabase() {
         }
       }
 
-      // Update background URL if specified in Supabase
+      // Background URL
       if (row.background_url && typeof row.background_url === "string" && row.background_url.trim() !== "") {
         currentBgImage = row.background_url.trim();
+        try {
+          localStorage.setItem("birthday_bg_image_v1", currentBgImage);
+        } catch (_) {}
         if (devBgInput) {
           devBgInput.value = currentBgImage;
         }
         setupBackground();
       }
 
-      // Update music URL if specified in Supabase
+      // Music URL
       if (row.music_url && typeof row.music_url === "string" && row.music_url.trim() !== "") {
         currentMusicUrl = row.music_url.trim();
+        try {
+          localStorage.setItem("birthday_custom_music_v1", currentMusicUrl);
+        } catch (_) {}
         if (bgAudio) {
           bgAudio.src = currentMusicUrl;
         }
@@ -671,7 +719,85 @@ async function loadBirthdayContentFromSupabase() {
         }
       }
 
-      // Update finale title, quote, and author if specified in Supabase
+      // Reveal Photos (JSONB array)
+      if (Array.isArray(row.reveal_photos) && row.reveal_photos.length > 0) {
+        currentPhotos = row.reveal_photos.map((item, idx) => {
+          if (typeof item === "string") {
+            const filename = item.split("/").pop() || `photo_${idx + 1}.jpg`;
+            return {
+              id: "sb-reveal-" + idx + "-" + filename,
+              name: filename,
+              src: item,
+              caption: `Memory ${idx + 1}`,
+              timestamp: Date.now(),
+              fromSupabase: true
+            };
+          } else if (item && typeof item === "object") {
+            return {
+              id: item.id || ("sb-reveal-" + idx),
+              name: item.name || `photo_${idx + 1}.jpg`,
+              src: item.src || item.url || "",
+              caption: item.caption || `Memory ${idx + 1}`,
+              timestamp: item.timestamp || Date.now(),
+              fromSupabase: true
+            };
+          }
+          return null;
+        }).filter(p => p && p.src);
+
+        try {
+          localStorage.setItem("birthday_burst_photos_v1", JSON.stringify(currentPhotos));
+        } catch (_) {}
+
+        openPhotoDB().then(db => {
+          if (db) seedDefaultPhotosToDB(db, currentPhotos);
+        });
+
+        renderPhotoThumbnails();
+      }
+
+      // Reveal Titles (JSONB array)
+      if (Array.isArray(row.reveal_titles) && row.reveal_titles.length >= 3) {
+        currentRevealTitles = [...row.reveal_titles];
+        if (row.reveal_titles[2] && typeof row.reveal_titles[2] === "string") {
+          burstConfig.revealThirdTitle = row.reveal_titles[2].trim();
+          if (devRevealThirdTitleInput) devRevealThirdTitleInput.value = burstConfig.revealThirdTitle;
+          saveBurstSettings();
+        }
+      } else if (row.reveal_titles && typeof row.reveal_titles === "object") {
+        const t3 = row.reveal_titles.title3 || row.reveal_titles[2];
+        if (t3 && typeof t3 === "string") {
+          burstConfig.revealThirdTitle = t3.trim();
+          currentRevealTitles[2] = burstConfig.revealThirdTitle;
+          if (devRevealThirdTitleInput) devRevealThirdTitleInput.value = burstConfig.revealThirdTitle;
+          saveBurstSettings();
+        }
+      }
+
+      // Memories / Scrapbook (JSONB array)
+      if (Array.isArray(row.memories) && row.memories.length > 0) {
+        activeMemories = row.memories;
+        try {
+          localStorage.setItem(MEMORIES_STORAGE_KEY, JSON.stringify(activeMemories));
+        } catch (_) {}
+        renderMemoriesScrapbook();
+        renderMemories();
+        renderAdminMemoriesList();
+        initHighlightedMemoriesObserver();
+      }
+
+      // Love Notes / Guestbook (JSONB array)
+      if (Array.isArray(row.love_notes) && row.love_notes.length > 0) {
+        guestbookMessages = row.love_notes;
+        try {
+          localStorage.setItem(GUESTBOOK_STORAGE_KEY, JSON.stringify(guestbookMessages));
+        } catch (_) {}
+        renderLoveNotes();
+        renderGuestbookGallery(currentGuestbookFilter);
+        renderAdminLoveNotesList();
+      }
+
+      // Finale configuration
       if (row.finale_title && typeof row.finale_title === "string" && row.finale_title.trim() !== "") {
         const titleEl = document.getElementById("finaleMainTitle");
         if (titleEl) titleEl.textContent = row.finale_title.trim();
@@ -686,56 +812,78 @@ async function loadBirthdayContentFromSupabase() {
       }
 
       setupDynamicContent();
-      console.log("[Supabase] Successfully loaded latest online birthday content:", row);
+      console.log("[Supabase] Successfully loaded and synchronized online birthday content:", row);
     } else {
-      console.log("[Supabase] No remote content found. Using local fallback.");
+      console.log("[Supabase] No remote content found for row id=1. Using local fallback.");
     }
   } catch (err) {
     console.warn("[Supabase] Could not load online content, maintaining local fallback:", err);
+  } finally {
+    isInitialSupabaseLoading = false;
   }
 }
 
 /**
- * Save updated birthday content to Supabase so it persists across refreshes and devices.
- * Protected: requires an active admin session to update the remote database.
+ * Unified persistence function: saves all birthday content to Supabase public.birthday_content row id = 1.
+ * Synchronizes: recipient_name, birthday_message, background_url, music_url,
+ * reveal_photos, reveal_titles, memories, love_notes, and updated_at.
+ * Requires admin authentication to write to remote database, protecting against unauthorized edits.
  */
-async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, extraPayload = {}) {
-  if (!isCurrentUserAdmin()) {
-    console.log("[Supabase] Visitor mode: remote database update skipped (admin login required to persist online).");
+async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = true) {
+  if (requireAdmin && !isCurrentUserAdmin()) {
+    console.log("[Supabase] Visitor mode: remote database update skipped (admin authentication required).");
     return false;
   }
 
+  const revealPhotoUrls = (Array.isArray(currentPhotos) ? currentPhotos : [])
+    .map(p => (typeof p === "string" ? p : (p.src || p.url || "")))
+    .filter(u => Boolean(u) && typeof u === "string" && u.trim() !== "");
+
+  const revealTitles = [
+    currentRevealTitles[0] || "MY BABY",
+    currentRevealTitles[1] || "MY LOVE",
+    (burstConfig.revealThirdTitle || currentRevealTitles[2] || "MY EVERYTHING ❤️").trim()
+  ];
+
   const payload = {
-    birthday_message: (newMessage || currentMessage || "").trim(),
-    background_url: (newBgUrl || currentBgImage || "").trim(),
-    music_url: (newMusicUrl || currentMusicUrl || "").trim(),
+    id: 1,
+    recipient_name: (currentName || "").trim(),
+    birthday_message: (currentMessage || "").trim(),
+    background_url: (currentBgImage || "").trim(),
+    music_url: (currentMusicUrl || "").trim(),
+    reveal_photos: revealPhotoUrls,
+    reveal_titles: revealTitles,
+    memories: Array.isArray(activeMemories) ? activeMemories : [],
+    love_notes: Array.isArray(guestbookMessages) ? guestbookMessages : [],
     updated_at: new Date().toISOString(),
-    ...extraPayload
+    ...overrides
   };
 
-  // 1. Try official SDK (automatically passes authenticated JWT)
+  // 1. Try official SDK
   const client = getSupabaseClient();
   if (client) {
     try {
       const { data, error } = await client
         .from("birthday_content")
         .update(payload)
-        .eq("id", currentSupabaseRowId);
+        .eq("id", 1)
+        .select();
 
-      if (!error) {
-        console.log("[Supabase SDK] Saved online birthday content as authenticated admin:", data);
+      if (!error && Array.isArray(data) && data.length > 0) {
+        console.log("[Supabase SDK] Successfully persisted birthday_content row id=1:", data[0]);
         return true;
+      } else if (error) {
+        console.warn("[Supabase SDK] Update notice:", error.message);
       }
-      console.warn("[Supabase SDK] Update note:", error.message);
     } catch (sdkErr) {
       console.warn("[Supabase SDK] Save error:", sdkErr);
     }
   }
 
-  // 2. Direct REST fallback with admin JWT
+  // 2. Direct REST fallback with authenticated admin JWT
   try {
     const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/birthday_content?id=eq.${currentSupabaseRowId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/birthday_content?id=eq.1`, {
       method: "PATCH",
       headers: {
         "apikey": SUPABASE_PUBLISHABLE_KEY,
@@ -745,16 +893,33 @@ async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, 
       },
       body: JSON.stringify(payload)
     });
+
     if (res.ok) {
-      const data = await res.json();
-      console.log("[Supabase REST] Saved online birthday content as authenticated admin:", data);
-      return true;
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows.length > 0) {
+        console.log("[Supabase REST] Successfully persisted birthday_content row id=1:", rows[0]);
+        return true;
+      }
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      console.warn("[Supabase REST] Update response status:", res.status, errData);
     }
   } catch (restErr) {
-    console.warn("[Supabase REST] Could not save content to Supabase:", restErr);
+    console.warn("[Supabase REST] Network error during save:", restErr);
   }
 
   return false;
+}
+
+/**
+ * Backward compatibility wrapper delegating to saveAllBirthdayContentToSupabase.
+ */
+async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, extraPayload = {}) {
+  const overrides = { ...extraPayload };
+  if (newMessage !== undefined && newMessage !== null) overrides.birthday_message = newMessage;
+  if (newBgUrl !== undefined && newBgUrl !== null) overrides.background_url = newBgUrl;
+  if (newMusicUrl !== undefined && newMusicUrl !== null) overrides.music_url = newMusicUrl;
+  return await saveAllBirthdayContentToSupabase(overrides);
 }
 
 // State
@@ -1296,8 +1461,8 @@ function startTenSecondPhotoReveal() {
 
   // Pick the three prominent photos
   const [photo1, photo2, photo3] = getThreeHeroPhotos();
-  const title1 = "MY BABY";
-  const title2 = "MY LOVE";
+  const title1 = currentRevealTitles[0] || "MY BABY";
+  const title2 = currentRevealTitles[1] || "MY LOVE";
   const title3 = getRevealThirdTitle();
 
   if (threeFloatingPhotosStage) {
@@ -1717,6 +1882,16 @@ function saveGuestbookMessages() {
   } catch (err) {
     console.warn("Could not persist guestbook to localStorage:", err);
   }
+
+  // Persist to Supabase birthday_content.love_notes
+  if (!isInitialSupabaseLoading) {
+    if (isCurrentUserAdmin()) {
+      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages });
+    } else {
+      // Attempt visitor update with anon key (falls back cleanly to localStorage if unauthorized)
+      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages }, false);
+    }
+  }
 }
 
 function renderGuestbookGallery(filter = currentGuestbookFilter) {
@@ -1836,6 +2011,15 @@ function closeSignGuestbook() {
     signGuestbookModal.classList.remove("active");
   }
   stopModalCamera();
+}
+
+function stopModalCamera() {
+  if (typeof stopNoteVideoCapture === "function") {
+    stopNoteVideoCapture();
+  }
+  if (typeof stopNoteVoiceCapture === "function") {
+    stopNoteVoiceCapture();
+  }
 }
 
 // ============================================================================
@@ -2421,7 +2605,7 @@ function updateNoteAttachmentStatus() {
 
 // Admin Love Notes Tab Management
 function setupAdminLoveNotes() {
-  const resetBtn = document.getElementById("adminResetLoveNotesBtn");
+  const resetBtn = document.getElementById("adminResetNotesBtn") || document.getElementById("adminResetLoveNotesBtn");
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
       if (confirm("Reset love notes and wishes to the default messages?")) {
@@ -2431,6 +2615,15 @@ function setupAdminLoveNotes() {
         renderGuestbookGallery(currentGuestbookFilter);
         renderAdminLoveNotesList();
       }
+    });
+  }
+
+  const refreshBtn = document.getElementById("adminRefreshNotesBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      renderLoveNotes();
+      renderGuestbookGallery(currentGuestbookFilter);
+      renderAdminLoveNotesList();
     });
   }
 }
@@ -2881,6 +3074,11 @@ function saveActiveMemories() {
     localStorage.setItem(MEMORIES_STORAGE_KEY, JSON.stringify(activeMemories));
   } catch (err) {
     console.warn("Could not persist scrapbook memories to localStorage:", err);
+  }
+
+  // Persist to Supabase birthday_content.memories
+  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
+    saveAllBirthdayContentToSupabase({ memories: activeMemories });
   }
 }
 
@@ -3450,21 +3648,25 @@ function setupEventListeners() {
 
   // Apply dev changes
   if (applyDevBtn) {
-    applyDevBtn.addEventListener("click", () => {
+    applyDevBtn.addEventListener("click", async () => {
       if (devDateInput && devDateInput.value) {
         targetDate = new Date(devDateInput.value);
       }
       if (devNameInput && devNameInput.value) {
         currentName = devNameInput.value.trim();
+        try { localStorage.setItem("birthday_custom_name_v1", currentName); } catch (_) {}
       }
       if (devMessageInput && devMessageInput.value) {
         currentMessage = devMessageInput.value.trim();
+        try { localStorage.setItem("birthday_custom_message_v1", currentMessage); } catch (_) {}
       }
       if (devBgInput && devBgInput.value) {
         currentBgImage = devBgInput.value.trim();
+        try { localStorage.setItem("birthday_bg_image_v1", currentBgImage); } catch (_) {}
       }
       if (devMusicInput && devMusicInput.value) {
         currentMusicUrl = devMusicInput.value.trim();
+        try { localStorage.setItem("birthday_custom_music_v1", currentMusicUrl); } catch (_) {}
         if (bgAudio) bgAudio.src = currentMusicUrl;
       }
       if (devOpacityInput) {
@@ -3472,11 +3674,12 @@ function setupEventListeners() {
       }
       if (devRevealThirdTitleInput && devRevealThirdTitleInput.value) {
         burstConfig.revealThirdTitle = devRevealThirdTitleInput.value.trim();
+        currentRevealTitles[2] = burstConfig.revealThirdTitle;
         saveBurstSettings();
       }
 
-      // Persist latest configuration to Supabase birthday_content table
-      saveBirthdayContentToSupabase(currentMessage, currentBgImage, currentMusicUrl);
+      // Persist latest configuration to Supabase birthday_content table (row id=1)
+      await saveAllBirthdayContentToSupabase();
 
       setupDynamicContent();
       setupBackground();
@@ -4276,6 +4479,10 @@ async function handlePhotoFiles(files) {
 
   renderPhotoThumbnails();
 
+  if (isCurrentUserAdmin()) {
+    saveAllBirthdayContentToSupabase();
+  }
+
   if (successCount > 0) {
     showStorageStatus(
       "photoUploadStatus",
@@ -4380,6 +4587,10 @@ async function deletePhoto(id) {
   try {
     localStorage.setItem("birthday_burst_photos_v1", JSON.stringify(currentPhotos));
   } catch {}
+
+  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
+    saveAllBirthdayContentToSupabase();
+  }
 }
 
 async function clearAllPhotos() {
@@ -4396,6 +4607,10 @@ async function clearAllPhotos() {
   try {
     localStorage.removeItem("birthday_burst_photos_v1");
   } catch {}
+
+  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
+    saveAllBirthdayContentToSupabase();
+  }
 }
 
 async function loadSamplePhotos() {
@@ -5216,6 +5431,7 @@ function initFinaleScene() {
 if (typeof window !== "undefined") {
   window.loadBirthdayContentFromSupabase = loadBirthdayContentFromSupabase;
   window.saveBirthdayContentToSupabase = saveBirthdayContentToSupabase;
+  window.saveAllBirthdayContentToSupabase = saveAllBirthdayContentToSupabase;
   window.initFinaleScene = initFinaleScene;
   window.disposeFinaleThreeScene = disposeFinaleThreeScene;
 }
