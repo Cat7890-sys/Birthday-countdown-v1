@@ -46,7 +46,7 @@
     <header class="top-nav">
       <div class="brand-badge">
         <span class="heart-icon">💖</span>
-        <span>A Little Surprise From Me To You</span>
+        <span id="topNavBrandText">A Little Surprise From Me To You</span>
       </div>
       <div class="top-actions">
         <!-- Elegant Background Music Control Group -->
@@ -123,13 +123,13 @@
                     <div class="sticker-photo-sheen" aria-hidden="true"></div>
                     <div class="sticker-tap-badge">
                       <span class="tap-badge-dot"></span>
-                      <span class="tap-badge-text">TAP TO OPEN ✨</span>
+                      <span class="tap-badge-text" id="tapBadgeText">TAP TO OPEN ✨</span>
                     </div>
                   </div>
                 </button>
                 <div class="sticker-finger-guide" aria-hidden="true">
                   <span class="finger-emoji">👆</span>
-                  <span class="finger-label">Tap this picture</span>
+                  <span class="finger-label" id="fingerGuideText">Tap this picture</span>
                 </div>
               </div>
             </div>
@@ -158,7 +158,7 @@
             <!-- Pinned 3 Main Hero Photos (Pastes on screen for 5s after burst, then settles smoothly) -->
             <div id="heroPhotosPinnedContainer" class="hero-photos-pinned-container" style="display: none;">
               <div class="hero-pinned-header">
-                <span class="hero-pinned-tag">✨ Our Cherished Memories Together ✨</span>
+                <span class="hero-pinned-tag" id="heroPinnedTag">✨ Our Cherished Memories Together ✨</span>
                 <div class="hero-timer-bar">
                   <div id="heroTimerProgress" class="hero-timer-progress"></div>
                 </div>
@@ -170,18 +170,18 @@
 
             <div class="action-btn-row">
               <button id="replayBurstBtn" class="primary-btn pulse-glow">
-                <span>💥 Replay Photo Burst</span>
+                <span id="replayBurstBtnText">💥 Replay Photo Burst</span>
               </button>
               <button id="celebrateMoreBtn" class="secondary-btn">
-                <span>🎊 Celebrate More Confetti</span>
+                <span id="celebrateMoreBtnText">🎊 Celebrate More Confetti</span>
               </button>
             </div>
 
             <!-- Subtle Page 1 Continue Banner -->
             <div class="page-continue-banner" id="page1ContinueBanner">
               <button type="button" class="continue-page-btn" id="goToPage2Btn">
-                <span class="continue-text-title">Explore Our Memories ❤️</span>
-                <span class="continue-arrow">Tap to continue →</span>
+                <span class="continue-text-title" id="page1ContinueTitle">Explore Our Memories ❤️</span>
+                <span class="continue-arrow" id="page1ContinueArrow">Tap to continue →</span>
               </button>
             </div>
           </section>
@@ -197,13 +197,13 @@
           <div class="chapter-card-header">
             <div class="chapter-back-nav">
               <button type="button" class="chapter-back-btn" id="backToPage1Btn">
-                <span>← Celebration</span>
+                <span id="page2BackBtnText">← Celebration</span>
               </button>
             </div>
             <div class="chapter-header-center">
-              <span class="chapter-tag-pill">CHAPTER 2</span>
-              <h2 class="chapter-title">OUR MEMORIES ❤️</h2>
-              <p class="chapter-subtitle">A visual scrapbook of every smile, road trip, and sweet adventure we've shared</p>
+              <span class="chapter-tag-pill" id="page2Tag">CHAPTER 2</span>
+              <h2 class="chapter-title" id="page2Title">OUR MEMORIES ❤️</h2>
+              <p class="chapter-subtitle" id="page2Subtitle">A visual scrapbook of every smile, road trip, and sweet adventure we've shared</p>
             </div>
           </div>
 
@@ -215,8 +215,8 @@
           <!-- Page 2 Continue Banner -->
           <div class="page-continue-banner" id="page2ContinueBanner">
             <button type="button" class="continue-page-btn" id="goToPage3Btn">
-              <span class="continue-text-title">Read Birthday Love Notes & Wishes 💌</span>
-              <span class="continue-arrow">Tap to continue →</span>
+              <span class="continue-text-title" id="page2ContinueTitle">Read Birthday Love Notes & Wishes 💌</span>
+              <span class="continue-arrow" id="page2ContinueArrow">Tap to continue →</span>
             </button>
           </div>
         </div>
@@ -230,17 +230,17 @@
           <div class="chapter-card-header">
             <div class="chapter-back-nav">
               <button type="button" class="chapter-back-btn" id="backToPage2Btn">
-                <span>← Our Memories</span>
+                <span id="page3BackBtnText">← Our Memories</span>
               </button>
             </div>
             <div class="chapter-header-center">
-              <span class="chapter-tag-pill">CHAPTER 3</span>
-              <h2 class="chapter-title">Birthday Love Notes & Wishes ❤️</h2>
-              <p class="chapter-subtitle">Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you</p>
+              <span class="chapter-tag-pill" id="page3Tag">CHAPTER 3</span>
+              <h2 class="chapter-title" id="page3Title">Birthday Love Notes & Wishes ❤️</h2>
+              <p class="chapter-subtitle" id="page3Subtitle">Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you</p>
             </div>
             <div class="chapter-header-action">
               <button id="openSignGuestbookBtn" class="primary-btn">
-                <span>✍️ Leave A Sweet Note</span>
+                <span id="page3LeaveNoteBtnText">✍️ Leave A Sweet Note</span>
               </button>
             </div>
           </div>
@@ -297,12 +297,12 @@
               <div class="finale-header-group">
                 <div class="finale-sparkle-pill">
                   <span class="sparkle-icon">✨</span>
-                  <span>My Endless Birthday Wish For You</span>
+                  <span id="finaleSparklePillText">My Endless Birthday Wish For You</span>
                   <span class="sparkle-icon">✨</span>
                 </div>
                 <div class="finale-title-block">
                   <h1 class="finale-title-text" id="finaleMainTitle">I LOVE YOU</h1>
-                  <span class="finale-infinity-badge">∞ ALWAYS & FOREVER ∞</span>
+                  <span class="finale-infinity-badge" id="finaleInfinityBadgeText">∞ ALWAYS & FOREVER ∞</span>
                 </div>
               </div>
 
@@ -334,7 +334,7 @@
               <div class="finale-action-bar">
                 <button type="button" class="replay-experience-btn" id="replayExperienceBtn" aria-label="Replay Birthday Experience">
                   <span class="replay-icon">↺</span>
-                  <span class="replay-label">REPLAY EXPERIENCE</span>
+                  <span class="replay-label" id="finaleReplayBtnText">REPLAY EXPERIENCE</span>
                 </button>
               </div>
 
@@ -355,8 +355,8 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="footer-row">
-      <span>Made with all my love, just for you ❤️</span>
+    <footer class="footer-row" id="siteFooter">
+      <span id="siteFooterText">Made with all my love, just for you ❤️</span>
     </footer>
 
   </div>
@@ -466,22 +466,326 @@
 
       <!-- Navigation Tabs -->
       <div class="customize-nav-tabs" id="customizeNavTabs">
-        <button type="button" class="customize-tab-btn active" data-tab="tabPhotos">📸 Photos (<span id="panelPhotoCount">0</span>)</button>
+        <button type="button" class="customize-tab-btn active" data-tab="tabText">✍️ Website Text</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabRevealAdmin">🌟 Reveal Photos</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabPhotos">📸 Burst Photos (<span id="panelPhotoCount">0</span>)</button>
         <button type="button" class="customize-tab-btn" data-tab="tabMemoriesAdmin">🎞️ Memories (<span id="panelMemoriesCount">0</span>)</button>
         <button type="button" class="customize-tab-btn" data-tab="tabLoveNotesAdmin">💌 Love Notes (<span id="panelLoveNotesCount">0</span>)</button>
-        <button type="button" class="customize-tab-btn" data-tab="tabBurst">💥 Burst & FX</button>
         <button type="button" class="customize-tab-btn" data-tab="tabBackground">🖼️ Background</button>
         <button type="button" class="customize-tab-btn" data-tab="tabMusic">🎵 Music</button>
-        <button type="button" class="customize-tab-btn" data-tab="tabText">✍️ Text</button>
+        <button type="button" class="customize-tab-btn" data-tab="tabBurst">💥 Burst & FX</button>
         <button type="button" class="customize-tab-btn" data-tab="tabColors">🎨 Colors</button>
         <button type="button" class="customize-tab-btn" data-tab="tabQuickTest">⚡ Test & Export</button>
       </div>
 
       <!-- Tab Content Area -->
       <div class="customize-tab-content">
-        
-        <!-- ================= TAB 1: PHOTOS ================= -->
-        <div id="tabPhotos" class="customize-pane active">
+
+        <!-- ================= TAB: ALL WEBSITE TEXT ================= -->
+        <div id="tabText" class="customize-pane active">
+          <div class="pane-header-row">
+            <div>
+              <h3 class="pane-heading">✍️ Website Text & Content Management</h3>
+              <p class="pane-subheading">Full control to edit every single text element, headline, button, and message across the entire website. Live updates appear immediately.</p>
+            </div>
+          </div>
+
+          <!-- Section 1: Opening Screen & Interactive Sticker -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">1. Opening Screen & Interactive Sticker</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="devNameInput">Birthday Recipient Name</label>
+                <input type="text" id="devNameInput" class="form-input" placeholder="e.g., Sarah" value="Sarah" />
+              </div>
+              <div class="form-group">
+                <label for="devDateInput">Birthday Date & Countdown Target</label>
+                <input type="datetime-local" id="devDateInput" class="form-input" />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textOpeningEyebrow">Opening Eyebrow Pill</label>
+                <input type="text" id="textOpeningEyebrow" class="form-input" value="A Special Surprise" />
+              </div>
+              <div class="form-group">
+                <label for="textOpeningPrefix">Opening Message Prefix</label>
+                <input type="text" id="textOpeningPrefix" class="form-input" value="I made something Just for you," />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textShowMeBtn">SHOW ME / Tap Button Text</label>
+                <input type="text" id="textShowMeBtn" class="form-input" value="TAP TO OPEN ✨" />
+              </div>
+              <div class="form-group">
+                <label for="textFingerGuide">Finger Tap Guide Text</label>
+                <input type="text" id="textFingerGuide" class="form-input" value="Tap this picture" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="textCountdownSub">3-2-1 Countdown Subtitle</label>
+              <input type="text" id="textCountdownSub" class="form-input" value="Getting your surprise ready..." />
+            </div>
+          </div>
+
+          <!-- Section 2: Main Celebration Screen -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">2. Main Celebration Screen (Chapter 1)</h4>
+            <div class="form-group">
+              <label for="devHeadlineInput">Celebration Headline</label>
+              <input type="text" id="devHeadlineInput" class="form-input" value="Happy Birthday, My Love ❤️" />
+            </div>
+            <div class="form-group">
+              <label for="textCelebrationIntro">Celebration Intro Line</label>
+              <input type="text" id="textCelebrationIntro" class="form-input" value="I made this little surprise just for you." />
+            </div>
+            <div class="form-group">
+              <label for="devMessageInput">Heartfelt Birthday Message</label>
+              <textarea id="devMessageInput" rows="4" class="form-textarea" placeholder="Happy Birthday to the most wonderful person in my life..."></textarea>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textHeroPinnedTag">Pinned Memories Header</label>
+                <input type="text" id="textHeroPinnedTag" class="form-input" value="✨ Our Cherished Memories Together ✨" />
+              </div>
+              <div class="form-group">
+                <label for="textReplayBurstBtn">Replay Burst Button</label>
+                <input type="text" id="textReplayBurstBtn" class="form-input" value="💥 Replay Photo Burst" />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textCelebrateMoreBtn">Celebrate More Button</label>
+                <input type="text" id="textCelebrateMoreBtn" class="form-input" value="🎊 Celebrate More Confetti" />
+              </div>
+              <div class="form-group">
+                <label for="textPage1ContinueTitle">Continue to Chapter 2 Title</label>
+                <input type="text" id="textPage1ContinueTitle" class="form-input" value="Explore Our Memories ❤️" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Chapter 2 - Our Memories -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">3. Chapter 2 — Our Memories Scrapbook</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textPage2Tag">Chapter 2 Tag</label>
+                <input type="text" id="textPage2Tag" class="form-input" value="CHAPTER 2" />
+              </div>
+              <div class="form-group">
+                <label for="textPage2BackBtn">Back Navigation Button</label>
+                <input type="text" id="textPage2BackBtn" class="form-input" value="← Celebration" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="textPage2Title">Chapter 2 Section Title</label>
+              <input type="text" id="textPage2Title" class="form-input" value="OUR MEMORIES ❤️" />
+            </div>
+            <div class="form-group">
+              <label for="textPage2Subtitle">Chapter 2 Subtitle</label>
+              <input type="text" id="textPage2Subtitle" class="form-input" value="A visual scrapbook of every smile, road trip, and sweet adventure we've shared" />
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textPage2ContinueTitle">Continue to Chapter 3 Title</label>
+                <input type="text" id="textPage2ContinueTitle" class="form-input" value="Read Birthday Love Notes & Wishes 💌" />
+              </div>
+              <div class="form-group">
+                <label for="textPage2ContinueArrow">Continue Button Subtext</label>
+                <input type="text" id="textPage2ContinueArrow" class="form-input" value="Tap to continue →" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Chapter 3 - Love Notes & Wishes -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">4. Chapter 3 — Love Notes & Wishes</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textPage3Tag">Chapter 3 Tag</label>
+                <input type="text" id="textPage3Tag" class="form-input" value="CHAPTER 3" />
+              </div>
+              <div class="form-group">
+                <label for="textPage3BackBtn">Back Navigation Button</label>
+                <input type="text" id="textPage3BackBtn" class="form-input" value="← Our Memories" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="textPage3Title">Chapter 3 Section Title</label>
+              <input type="text" id="textPage3Title" class="form-input" value="Birthday Love Notes & Wishes ❤️" />
+            </div>
+            <div class="form-group">
+              <label for="textPage3Subtitle">Chapter 3 Subtitle</label>
+              <input type="text" id="textPage3Subtitle" class="form-input" value="Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you" />
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textPage3LeaveNoteBtn">Leave Note Button Text</label>
+                <input type="text" id="textPage3LeaveNoteBtn" class="form-input" value="✍️ Leave A Sweet Note" />
+              </div>
+              <div class="form-group">
+                <label for="textPage3ContinueTitle">Continue to Finale Title</label>
+                <input type="text" id="textPage3ContinueTitle" class="form-input" value="Experience The Finale Scene ✨" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Chapter 4 - The Finale -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">5. Chapter 4 — The Finale Experience</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textFinaleSparklePill">Finale Sparkle Tag</label>
+                <input type="text" id="textFinaleSparklePill" class="form-input" value="My Endless Birthday Wish For You" />
+              </div>
+              <div class="form-group">
+                <label for="textFinaleBackBtn">Back Navigation Button</label>
+                <input type="text" id="textFinaleBackBtn" class="form-input" value="← Back to Love Notes" />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textFinaleMainTitle">Main Finale Center Title</label>
+                <input type="text" id="textFinaleMainTitle" class="form-input" value="I LOVE YOU" />
+              </div>
+              <div class="form-group">
+                <label for="textFinaleInfinityBadge">Infinity Subtitle</label>
+                <input type="text" id="textFinaleInfinityBadge" class="form-input" value="∞ ALWAYS & FOREVER ∞" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="textFinaleInteractiveHint">3D Centerpiece Hint</label>
+              <input type="text" id="textFinaleInteractiveHint" class="form-input" value="Drag or swipe to tilt • Tap to pulse" />
+            </div>
+            <div class="form-group">
+              <label for="textFinaleClosingQuote">Closing Emotional Message</label>
+              <textarea id="textFinaleClosingQuote" rows="3" class="form-textarea">"No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love."</textarea>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textFinaleAuthorName">Signature / Author</label>
+                <input type="text" id="textFinaleAuthorName" class="form-input" value="Forever Yours ❤️" />
+              </div>
+              <div class="form-group">
+                <label for="textFinaleReplayBtn">Replay Experience Button</label>
+                <input type="text" id="textFinaleReplayBtn" class="form-input" value="REPLAY EXPERIENCE" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 6: Header, Navigation & Footer -->
+          <div class="admin-content-section">
+            <h4 class="admin-section-title">6. Navigation & Footer</h4>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="textTopNavBadge">Top Nav Brand Badge</label>
+                <input type="text" id="textTopNavBadge" class="form-input" value="A Little Surprise From Me To You" />
+              </div>
+              <div class="form-group">
+                <label for="textFooter">Footer Love Note</label>
+                <input type="text" id="textFooter" class="form-input" value="Made with all my love, just for you ❤️" />
+              </div>
+            </div>
+            <div class="form-grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+              <div class="form-group">
+                <label for="textNavChapter1">Nav Pill 1</label>
+                <input type="text" id="textNavChapter1" class="form-input" value="Celebration" />
+              </div>
+              <div class="form-group">
+                <label for="textNavChapter2">Nav Pill 2</label>
+                <input type="text" id="textNavChapter2" class="form-input" value="Our Memories ❤️" />
+              </div>
+              <div class="form-group">
+                <label for="textNavChapter3">Nav Pill 3</label>
+                <input type="text" id="textNavChapter3" class="form-input" value="Love Notes 💌" />
+              </div>
+              <div class="form-group">
+                <label for="textNavChapter4">Nav Pill 4</label>
+                <input type="text" id="textNavChapter4" class="form-input" value="Finale ✨" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB: REVEAL PHOTOS & TITLES ================= -->
+        <div id="tabRevealAdmin" class="customize-pane">
+          <div class="pane-header-row">
+            <div>
+              <h3 class="pane-heading">🌟 10-Second 3-Photo Reveal</h3>
+              <p class="pane-subheading">Customize the three sequential photos and their display titles for the dramatic 10-second reveal surprise.</p>
+            </div>
+          </div>
+
+          <div class="admin-reveal-photos-grid">
+            <!-- Photo 1 -->
+            <div class="admin-reveal-card" id="adminRevealCard1">
+              <div class="reveal-card-header">
+                <span class="reveal-card-num">Photo 1</span>
+                <span class="reveal-card-desc">Initial depth layer</span>
+              </div>
+              <div class="admin-reveal-preview">
+                <img id="revealAdminImg1" src="" alt="Photo 1 Preview" />
+              </div>
+              <div class="reveal-card-btns">
+                <button type="button" class="primary-btn" id="changeRevealPhoto1Btn">📷 Change Photo</button>
+                <input type="file" id="revealPhoto1Input" accept="image/*" style="display: none;" />
+                <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto1Btn">❌ Remove</button>
+              </div>
+              <div class="form-group" style="margin-top: 0.75rem;">
+                <label for="revealTitle1Input">Title:</label>
+                <input type="text" id="revealTitle1Input" class="form-input" value="MY BABY" placeholder="e.g., MY BABY" />
+              </div>
+            </div>
+
+            <!-- Photo 2 -->
+            <div class="admin-reveal-card" id="adminRevealCard2">
+              <div class="reveal-card-header">
+                <span class="reveal-card-num">Photo 2</span>
+                <span class="reveal-card-desc">Mid-layer transition</span>
+              </div>
+              <div class="admin-reveal-preview">
+                <img id="revealAdminImg2" src="" alt="Photo 2 Preview" />
+              </div>
+              <div class="reveal-card-btns">
+                <button type="button" class="primary-btn" id="changeRevealPhoto2Btn">📷 Change Photo</button>
+                <input type="file" id="revealPhoto2Input" accept="image/*" style="display: none;" />
+                <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto2Btn">❌ Remove</button>
+              </div>
+              <div class="form-group" style="margin-top: 0.75rem;">
+                <label for="revealTitle2Input">Title:</label>
+                <input type="text" id="revealTitle2Input" class="form-input" value="MY LOVE" placeholder="e.g., MY LOVE" />
+              </div>
+            </div>
+
+            <!-- Photo 3 -->
+            <div class="admin-reveal-card" id="adminRevealCard3">
+              <div class="reveal-card-header">
+                <span class="reveal-card-num">Photo 3</span>
+                <span class="reveal-card-desc">Main focal centerpiece</span>
+              </div>
+              <div class="admin-reveal-preview">
+                <img id="revealAdminImg3" src="" alt="Photo 3 Preview" />
+              </div>
+              <div class="reveal-card-btns">
+                <button type="button" class="primary-btn" id="changeRevealPhoto3Btn">📷 Change Photo</button>
+                <input type="file" id="revealPhoto3Input" accept="image/*" style="display: none;" />
+                <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto3Btn">❌ Remove</button>
+              </div>
+              <div class="form-group" style="margin-top: 0.75rem;">
+                <label for="revealTitle3Input">Title:</label>
+                <input type="text" id="revealTitle3Input" class="form-input" value="MY EVERYTHING ❤️" placeholder="e.g., MY EVERYTHING ❤️" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Reveal Upload Status Feedback -->
+          <div id="revealUploadStatus" class="storage-upload-status" style="display: none; margin-top: 1rem;"></div>
+        </div>
+
+        <!-- ================= TAB: BURST CELEBRATION PHOTOS ================= -->
+        <div id="tabPhotos" class="customize-pane">
           <div class="pane-header-row">
             <div>
               <h3 class="pane-heading">Celebration Photos</h3>
@@ -642,19 +946,29 @@
           <h3 class="pane-heading">Background & Theme Atmosphere</h3>
           <p class="pane-subheading">Customize the personal photo backdrop, overlay tint, and gradient mesh</p>
 
-          <div class="form-group">
-            <label>Upload Background Photo to Supabase Storage (backgrounds/)</label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-              <input type="file" id="bgFileInput" accept="image/*" style="display: none;" />
-              <button type="button" id="uploadBgBtn" class="primary-btn">
-                <span>📁 Upload to Supabase (backgrounds/)</span>
-              </button>
+          <!-- Current Background Card with Direct Change & Remove -->
+          <div class="admin-media-card">
+            <div class="admin-media-preview-box">
+              <img id="adminBgPreviewImg" src="" alt="Current Background Preview" class="admin-preview-thumb" />
             </div>
-            <!-- Background Upload Status -->
-            <div id="bgUploadStatus" class="storage-upload-status" style="display: none;"></div>
+            <div class="admin-media-info">
+              <h4 style="margin: 0 0 0.35rem 0; color: #fff;">Current Background</h4>
+              <p style="margin: 0 0 0.75rem 0; font-size: 0.8rem; color: #94a3b8;">Uploaded to Supabase bucket <code>Birthday-assets/backgrounds/</code></p>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="changeBgBtn" class="primary-btn">
+                  <span>📷 Change Background</span>
+                </button>
+                <input type="file" id="bgFileInput" accept="image/*" style="display: none;" />
+                <button type="button" id="removeBgBtn" class="secondary-btn danger-btn">
+                  <span>❌ Clear Background Photo</span>
+                </button>
+              </div>
+            </div>
           </div>
+          <!-- Background Upload Status -->
+          <div id="bgUploadStatus" class="storage-upload-status" style="display: none; margin-top: 0.75rem;"></div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 1rem;">
             <label for="devBgInput">Background Image Path or URL (Saved to Database)</label>
             <input type="text" id="devBgInput" class="form-input" placeholder="images/background.jpg" />
           </div>
@@ -684,29 +998,33 @@
           <h3 class="pane-heading">Background Music Audio</h3>
           <p class="pane-subheading">Configure your background soundtrack (MP3, WAV, OGG)</p>
 
-          <div class="form-group">
-            <label>Upload Custom Music File to Supabase Storage (music/)</label>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-              <input type="file" id="audioFileInput" accept="audio/*" style="display: none;" />
-              <button type="button" id="uploadAudioBtn" class="primary-btn">
-                <span>🎵 Upload to Supabase (music/)</span>
-              </button>
-              <span id="uploadedAudioName" style="margin-left: 0.5rem; font-size: 0.85rem; color: var(--color-blue-baby);"></span>
+          <!-- Current Music Card with Direct Change & Test -->
+          <div class="admin-media-card">
+            <div class="admin-music-status-box">
+              <span style="font-size: 1.6rem;">🎵</span>
+              <div style="flex: 1;">
+                <h4 id="adminMusicTitle" style="margin: 0 0 0.2rem 0; color: #fff;">Current Background Soundtrack</h4>
+                <p id="adminMusicUrlDisplay" style="margin: 0; font-size: 0.78rem; color: #94a3b8; word-break: break-all;">audio/background-music.mp3</p>
+              </div>
             </div>
-            <!-- Music Upload Status -->
-            <div id="musicUploadStatus" class="storage-upload-status" style="display: none;"></div>
+            <div class="admin-media-info">
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="changeMusicBtn" class="primary-btn">
+                  <span>🎵 Change Music</span>
+                </button>
+                <input type="file" id="audioFileInput" accept="audio/*" style="display: none;" />
+                <button type="button" id="previewMusicBtn2" class="secondary-btn">
+                  <span>▶ Test Audio</span>
+                </button>
+              </div>
+            </div>
           </div>
+          <!-- Music Upload Status -->
+          <div id="musicUploadStatus" class="storage-upload-status" style="display: none; margin-top: 0.75rem;"></div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 1rem;">
             <label for="devMusicInput">Audio File Path / URL (Saved to Database)</label>
             <input type="text" id="devMusicInput" class="form-input" value="audio/background-music.mp3" />
-          </div>
-
-          <div class="form-group">
-            <label>Audio Controls & Preview</label>
-            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-              <button type="button" id="previewMusicBtn" class="quick-pill-btn">▶ Play Preview</button>
-            </div>
           </div>
 
           <div class="form-group">
@@ -720,39 +1038,7 @@
           </div>
         </div>
 
-        <!-- ================= TAB 5: TEXT ================= -->
-        <div id="tabText" class="customize-pane">
-          <h3 class="pane-heading">Birthday Details & Heartfelt Words</h3>
-          <p class="pane-subheading">Personalize the names, dates, and celebratory message</p>
 
-          <div class="form-group">
-            <label for="devDateInput">Birthday Date & Time</label>
-            <input type="datetime-local" id="devDateInput" class="form-input" />
-          </div>
-
-          <div class="form-group">
-            <label for="devNameInput">Birthday Person's Name</label>
-            <input type="text" id="devNameInput" class="form-input" placeholder="e.g., Sarah" />
-          </div>
-
-          <div class="form-group">
-            <label for="devHeadlineInput">Celebration Headline</label>
-            <input type="text" id="devHeadlineInput" class="form-input" value="Happy Birthday, My Love ❤️" />
-          </div>
-
-          <div class="form-group">
-            <label for="devRevealThirdTitleInput">3rd Reveal Photo Title (Main Focal Photo)</label>
-            <input type="text" id="devRevealThirdTitleInput" class="form-input" value="MY EVERYTHING ❤️" placeholder="e.g., MY EVERYTHING ❤️, FOREVER MINE, THE QUEEN" />
-            <small style="color: rgba(255,255,255,0.6); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
-              The 10-second reveal introduces Photo 1 ("MY BABY"), Photo 2 ("MY LOVE"), and Photo 3 with this custom title.
-            </small>
-          </div>
-
-          <div class="form-group">
-            <label for="devMessageInput">Heartfelt Birthday Message</label>
-            <textarea id="devMessageInput" rows="3" class="form-textarea" placeholder="Happy Birthday to the love of my life..."></textarea>
-          </div>
-        </div>
 
         <!-- ================= TAB 6: COLORS ================= -->
         <div id="tabColors" class="customize-pane">
