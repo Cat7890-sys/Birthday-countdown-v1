@@ -283,43 +283,68 @@ let supabaseClient = null;
 let currentSupabaseRowId = 1;
 let isInitialSupabaseLoading = true;
 let currentRevealTitles = ["MY BABY", "MY LOVE", "MY EVERYTHING ❤️"];
+let currentRevealPhotos = ["", "", ""];
 
 // ============================================================================
 // ALL WEBSITE EDITABLE TEXT CONFIGURATION & PERSISTENCE
+// Comprehensive mapping of all 40 website text elements, inputs, and DOM nodes
 // ============================================================================
-const defaultSiteTexts = {
-  openingBadge: "✦ A SPECIAL SURPRISE AWAITS ✦",
-  openingTitle: "Sarah's Birthday Celebration",
-  openingSubtitle: "A magical journey through our sweetest memories, heartfelt wishes, and endless love ❤️",
-  showMeBtnText: "Tap to reveal your surprise ✨",
-  tapBadgeText: "Tap photo to reveal surprise",
-  fingerGuideText: "👇 Tap me to open",
-  topNavBrandText: "✨ Sarah's Birthday ✨",
-  chapter1Eyebrow: "IT'S FINALLY HERE!",
-  chapter1Title: "HAPPY BIRTHDAY, SARAH! 🎉",
-  heroPinnedTag: "✨ Our Cherished Memories Together ✨",
-  replayBurstBtnText: "💥 Replay Photo Burst",
-  celebrateMoreBtnText: "🎊 Celebrate More Confetti",
-  page1ContinueTitle: "Explore Our Memories ❤️",
-  chapter2Tag: "CHAPTER 2",
-  chapter2Title: "OUR MEMORIES ❤️",
-  chapter2Subtitle: "A visual scrapbook of every smile, road trip, and sweet adventure we've shared",
-  page2BackBtnText: "← Celebration",
-  page2ContinueTitle: "Read Birthday Love Notes & Wishes 💌",
-  chapter3Tag: "CHAPTER 3",
-  chapter3Title: "Birthday Love Notes & Wishes ❤️",
-  chapter3Subtitle: "Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you",
-  page3BackBtnText: "← Our Memories",
-  page3LeaveNoteBtnText: "✍️ Leave A Sweet Note",
-  page3ContinueTitle: "Continue to Our Finale ✨",
-  finaleSparklePillText: "My Endless Birthday Wish For You",
-  finaleMainTitle: "I LOVE YOU",
-  finaleInfinityBadgeText: "∞ ALWAYS & FOREVER ∞",
-  finaleClosingQuote: `"No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love."`,
-  finaleAuthorName: "Forever Yours ❤️",
-  finaleReplayBtnText: "REPLAY EXPERIENCE",
-  siteFooterText: "Made with all my love, just for you ❤️"
-};
+const SITE_TEXT_FIELDS = [
+  // 1. Opening & Hero
+  { key: "openingBadge", inputId: "textOpeningEyebrow", domId: "openingEyebrow", default: "✦ A SPECIAL SURPRISE AWAITS ✦" },
+  { key: "openingPrefix", inputId: "textOpeningPrefix", domId: null, default: "I made something Just for you," },
+  { key: "showMeBtnText", inputId: "textShowMeBtn", domId: "tapBadgeText", default: "Tap photo to reveal surprise" },
+  { key: "fingerGuideText", inputId: "textFingerGuide", domId: "fingerGuideText", default: "👇 Tap me to open" },
+  { key: "countdownSub", inputId: "textCountdownSub", domId: "revealCountdownSub", default: "3-2-1 Countdown to celebration" },
+
+  // 2. Celebration (Chapter 1)
+  { key: "celebrationHeadline", inputId: "devHeadlineInput", domId: "celebrationTitle", default: "HAPPY BIRTHDAY, SARAH! 🎉" },
+  { key: "chapter1Eyebrow", inputId: "textCelebrationIntro", domId: "celebrationEyebrow", default: "IT'S FINALLY HERE!" },
+  { key: "celebrationIntro", inputId: "textCelebrationIntro", domId: "celebrationSurpriseIntro", default: "I made this little surprise just for you." },
+  { key: "heroPinnedTag", inputId: "textHeroPinnedTag", domId: "heroPinnedTag", default: "✨ Our Cherished Memories Together ✨" },
+  { key: "replayBurstBtnText", inputId: "textReplayBurstBtn", domId: "replayBurstBtnText", default: "💥 Replay Photo Burst" },
+  { key: "celebrateMoreBtnText", inputId: "textCelebrateMoreBtn", domId: "celebrateMoreBtnText", default: "🎊 Celebrate More Confetti" },
+  { key: "page1ContinueTitle", inputId: "textPage1ContinueTitle", domId: "page1ContinueTitle", default: "Explore Our Memories ❤️" },
+
+  // 3. Chapter 2 - Our Memories
+  { key: "chapter2Tag", inputId: "textPage2Tag", domId: "page2Tag", default: "CHAPTER 2" },
+  { key: "page2BackBtnText", inputId: "textPage2BackBtn", domId: "page2BackBtnText", default: "← Celebration" },
+  { key: "chapter2Title", inputId: "textPage2Title", domId: "page2Title", default: "OUR MEMORIES ❤️" },
+  { key: "chapter2Subtitle", inputId: "textPage2Subtitle", domId: "page2Subtitle", default: "A visual scrapbook of every smile, road trip, and sweet adventure we've shared" },
+  { key: "page2ContinueTitle", inputId: "textPage2ContinueTitle", domId: "page2ContinueTitle", default: "Read Birthday Love Notes & Wishes 💌" },
+  { key: "page2ContinueArrow", inputId: "textPage2ContinueArrow", domId: "page2ContinueArrow", default: "Tap to continue →" },
+
+  // 4. Chapter 3 - Love Notes
+  { key: "chapter3Tag", inputId: "textPage3Tag", domId: "page3Tag", default: "CHAPTER 3" },
+  { key: "page3BackBtnText", inputId: "textPage3BackBtn", domId: "page3BackBtnText", default: "← Our Memories" },
+  { key: "chapter3Title", inputId: "textPage3Title", domId: "page3Title", default: "Birthday Love Notes & Wishes ❤️" },
+  { key: "chapter3Subtitle", inputId: "textPage3Subtitle", domId: "page3Subtitle", default: "Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you" },
+  { key: "page3LeaveNoteBtnText", inputId: "textPage3LeaveNoteBtn", domId: "page3LeaveNoteBtnText", default: "✍️ Leave A Sweet Note" },
+  { key: "page3ContinueTitle", inputId: "textPage3ContinueTitle", domId: "page3ContinueTitle", default: "Continue to Our Finale ✨" },
+
+  // 5. Chapter 4 - Finale
+  { key: "finaleSparklePillText", inputId: "textFinaleSparklePill", domId: "finaleSparklePillText", default: "My Endless Birthday Wish For You" },
+  { key: "finaleBackBtnText", inputId: "textFinaleBackBtn", domId: "finaleBackBtnText", default: "← Back to Love Notes" },
+  { key: "finaleMainTitle", inputId: "textFinaleMainTitle", domId: "finaleMainTitle", default: "I LOVE YOU" },
+  { key: "finaleInfinityBadgeText", inputId: "textFinaleInfinityBadge", domId: "finaleInfinityBadgeText", default: "∞ ALWAYS & FOREVER ∞" },
+  { key: "finaleHintText", inputId: "textFinaleInteractiveHint", domId: "finaleHintText", default: "Drag or swipe to tilt • Tap to pulse" },
+  { key: "finaleClosingQuote", inputId: "textFinaleClosingQuote", domId: "finaleClosingQuote", default: `"No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love."` },
+  { key: "finaleAuthorName", inputId: "textFinaleAuthorName", domId: "finaleAuthorName", default: "Forever Yours ❤️" },
+  { key: "finaleReplayBtnText", inputId: "textFinaleReplayBtn", domId: "finaleReplayBtnText", default: "REPLAY EXPERIENCE" },
+
+  // 6. Navigation & Footer
+  { key: "topNavBrandText", inputId: "textTopNavBadge", domId: "topNavBrandText", default: "✨ Sarah's Birthday ✨" },
+  { key: "siteFooterText", inputId: "textFooter", domId: "siteFooterText", default: "Made with all my love, just for you ❤️" },
+  { key: "navChapter1", inputId: "textNavChapter1", domId: "navChapterLabel1", default: "Celebration" },
+  { key: "navChapter2", inputId: "textNavChapter2", domId: "navChapterLabel2", default: "Our Memories ❤️" },
+  { key: "navChapter3", inputId: "textNavChapter3", domId: "navChapterLabel3", default: "Love Notes 💌" },
+  { key: "navChapter4", inputId: "textNavChapter4", domId: "navChapterLabel4", default: "Finale ✨" }
+];
+
+const defaultSiteTexts = {};
+SITE_TEXT_FIELDS.forEach(f => {
+  defaultSiteTexts[f.key] = f.default;
+});
 
 let currentSiteTexts = { ...defaultSiteTexts };
 
@@ -330,152 +355,172 @@ function initSiteTexts() {
       currentSiteTexts = Object.assign({}, defaultSiteTexts, JSON.parse(saved));
     }
   } catch (_) {}
+  try {
+    const savedRevealPhotos = localStorage.getItem("birthday_reveal_photos_v1");
+    if (savedRevealPhotos) {
+      const parsed = JSON.parse(savedRevealPhotos);
+      if (Array.isArray(parsed) && parsed.length >= 3) {
+        currentRevealPhotos = parsed;
+      }
+    }
+  } catch (_) {}
+  try {
+    const savedRevealTitles = localStorage.getItem("birthday_reveal_titles_v1");
+    if (savedRevealTitles) {
+      const parsed = JSON.parse(savedRevealTitles);
+      if (Array.isArray(parsed) && parsed.length >= 3) {
+        currentRevealTitles = parsed;
+      }
+    }
+  } catch (_) {}
   applySiteTextsToDOM();
 }
 
-function applySiteTextsToDOM() {
-  const mapping = [
-    { id: "openingBadgeText", text: currentSiteTexts.openingBadge },
-    { id: "openingTitleText", text: currentSiteTexts.openingTitle },
-    { id: "openingSubtitleText", text: currentSiteTexts.openingSubtitle },
-    { id: "showMeBtnText", text: currentSiteTexts.showMeBtnText },
-    { id: "tapBadgeText", text: currentSiteTexts.tapBadgeText },
-    { id: "fingerGuideText", text: currentSiteTexts.fingerGuideText },
-    { id: "topNavBrandText", text: currentSiteTexts.topNavBrandText },
-    { id: "celebrationEyebrow", text: currentSiteTexts.chapter1Eyebrow },
-    { id: "celebrationTitle", text: currentSiteTexts.chapter1Title },
-    { id: "heroPinnedTag", text: currentSiteTexts.heroPinnedTag },
-    { id: "replayBurstBtnText", text: currentSiteTexts.replayBurstBtnText },
-    { id: "celebrateMoreBtnText", text: currentSiteTexts.celebrateMoreBtnText },
-    { id: "page1ContinueTitle", text: currentSiteTexts.page1ContinueTitle },
-    { id: "page2Tag", text: currentSiteTexts.chapter2Tag },
-    { id: "page2Title", text: currentSiteTexts.chapter2Title },
-    { id: "page2Subtitle", text: currentSiteTexts.chapter2Subtitle },
-    { id: "page2BackBtnText", text: currentSiteTexts.page2BackBtnText },
-    { id: "page2ContinueTitle", text: currentSiteTexts.page2ContinueTitle },
-    { id: "page3Tag", text: currentSiteTexts.chapter3Tag },
-    { id: "page3Title", text: currentSiteTexts.chapter3Title },
-    { id: "page3Subtitle", text: currentSiteTexts.chapter3Subtitle },
-    { id: "page3BackBtnText", text: currentSiteTexts.page3BackBtnText },
-    { id: "page3LeaveNoteBtnText", text: currentSiteTexts.page3LeaveNoteBtnText },
-    { id: "page3ContinueTitle", text: currentSiteTexts.page3ContinueTitle },
-    { id: "finaleSparklePillText", text: currentSiteTexts.finaleSparklePillText },
-    { id: "finaleMainTitle", text: currentSiteTexts.finaleMainTitle },
-    { id: "finaleInfinityBadgeText", text: currentSiteTexts.finaleInfinityBadgeText },
-    { id: "finaleClosingQuote", text: currentSiteTexts.finaleClosingQuote },
-    { id: "finaleAuthorName", text: currentSiteTexts.finaleAuthorName },
-    { id: "finaleReplayBtnText", text: currentSiteTexts.finaleReplayBtnText },
-    { id: "siteFooterText", text: currentSiteTexts.siteFooterText }
-  ];
-
-  mapping.forEach(m => {
-    const el = document.getElementById(m.id);
-    if (el && m.text !== undefined && m.text !== null) {
-      el.textContent = m.text;
+function readAdminTextInputs() {
+  SITE_TEXT_FIELDS.forEach(item => {
+    const input = document.getElementById(item.inputId);
+    if (input && input.value !== undefined) {
+      currentSiteTexts[item.key] = input.value.trim();
     }
   });
+
+  const nameInput = document.getElementById("devNameInput");
+  if (nameInput && nameInput.value.trim()) {
+    currentName = nameInput.value.trim();
+    try { localStorage.setItem("birthday_custom_name_v1", currentName); } catch (_) {}
+  }
+
+  const msgInput = document.getElementById("devMessageInput");
+  if (msgInput && msgInput.value.trim()) {
+    currentMessage = msgInput.value.trim();
+    try { localStorage.setItem("birthday_custom_message_v1", currentMessage); } catch (_) {}
+  }
+
+  // Also sync headline
+  const headlineInput = document.getElementById("devHeadlineInput");
+  if (headlineInput && headlineInput.value.trim()) {
+    currentSiteTexts.celebrationHeadline = headlineInput.value.trim();
+    burstConfig.headline = currentSiteTexts.celebrationHeadline;
+  }
+}
+
+function populateAdminTextInputs() {
+  SITE_TEXT_FIELDS.forEach(item => {
+    const input = document.getElementById(item.inputId);
+    if (input && document.activeElement !== input) {
+      input.value = currentSiteTexts[item.key] !== undefined ? currentSiteTexts[item.key] : (item.default || "");
+    }
+  });
+
+  const nameInput = document.getElementById("devNameInput");
+  if (nameInput && document.activeElement !== nameInput) {
+    nameInput.value = currentName || "Sarah";
+  }
+
+  const msgInput = document.getElementById("devMessageInput");
+  if (msgInput && document.activeElement !== msgInput) {
+    msgInput.value = currentMessage || "";
+  }
+
+  const headlineInput = document.getElementById("devHeadlineInput");
+  if (headlineInput && document.activeElement !== headlineInput) {
+    headlineInput.value = currentSiteTexts.celebrationHeadline || "HAPPY BIRTHDAY, SARAH! 🎉";
+  }
+}
+
+function applySiteTextsToDOM() {
+  SITE_TEXT_FIELDS.forEach(item => {
+    if (item.domId) {
+      const el = document.getElementById(item.domId);
+      if (el) {
+        const val = currentSiteTexts[item.key];
+        if (val !== undefined && val !== null && val !== "") {
+          el.textContent = val;
+        } else if (item.default) {
+          el.textContent = item.default;
+        }
+      }
+    }
+  });
+
+  // Opening message with prefix and recipient name
+  const openingMsg = document.getElementById("openingMessage");
+  if (openingMsg) {
+    const prefix = currentSiteTexts.openingPrefix || "I made something Just for you,";
+    const nameVal = currentName || "Sarah";
+    openingMsg.innerHTML = `${prefix} <span class="recipient-highlight" id="openingPersonName">${nameVal}</span> ❤️`;
+  }
+
+  // Celebration letter message
+  const celebMsg = document.getElementById("celebrationMsg");
+  if (celebMsg && currentMessage) {
+    celebMsg.textContent = currentMessage;
+  }
+
+  // Celebration main headline
+  const celebTitle = document.getElementById("celebrationTitle");
+  if (celebTitle && currentSiteTexts.celebrationHeadline) {
+    celebTitle.textContent = currentSiteTexts.celebrationHeadline;
+  }
 
   populateAdminTextInputs();
 }
 
-function populateAdminTextInputs() {
-  const fields = [
-    { id: "adminOpeningBadgeText", val: currentSiteTexts.openingBadge },
-    { id: "adminOpeningTitle", val: currentSiteTexts.openingTitle },
-    { id: "adminOpeningSubtitle", val: currentSiteTexts.openingSubtitle },
-    { id: "adminShowMeBtnText", val: currentSiteTexts.showMeBtnText },
-    { id: "adminTapBadgeText", val: currentSiteTexts.tapBadgeText },
-    { id: "adminFingerGuideText", val: currentSiteTexts.fingerGuideText },
-    { id: "adminTopNavBrandText", val: currentSiteTexts.topNavBrandText },
-    { id: "adminChapter1Eyebrow", val: currentSiteTexts.chapter1Eyebrow },
-    { id: "adminChapter1Title", val: currentSiteTexts.chapter1Title },
-    { id: "adminBirthdayMessage", val: currentMessage },
-    { id: "adminHeroPinnedTag", val: currentSiteTexts.heroPinnedTag },
-    { id: "adminReplayBurstBtnText", val: currentSiteTexts.replayBurstBtnText },
-    { id: "adminCelebrateMoreBtnText", val: currentSiteTexts.celebrateMoreBtnText },
-    { id: "adminPage1ContinueTitle", val: currentSiteTexts.page1ContinueTitle },
-    { id: "adminChapter2Tag", val: currentSiteTexts.chapter2Tag },
-    { id: "adminChapter2Title", val: currentSiteTexts.chapter2Title },
-    { id: "adminChapter2Subtitle", val: currentSiteTexts.chapter2Subtitle },
-    { id: "adminPage2BackBtnText", val: currentSiteTexts.page2BackBtnText },
-    { id: "adminPage2ContinueTitle", val: currentSiteTexts.page2ContinueTitle },
-    { id: "adminChapter3Tag", val: currentSiteTexts.chapter3Tag },
-    { id: "adminChapter3Title", val: currentSiteTexts.chapter3Title },
-    { id: "adminChapter3Subtitle", val: currentSiteTexts.chapter3Subtitle },
-    { id: "adminPage3BackBtnText", val: currentSiteTexts.page3BackBtnText },
-    { id: "adminPage3LeaveNoteBtnText", val: currentSiteTexts.page3LeaveNoteBtnText },
-    { id: "adminPage3ContinueTitle", val: currentSiteTexts.page3ContinueTitle },
-    { id: "adminFinaleSparklePillText", val: currentSiteTexts.finaleSparklePillText },
-    { id: "adminFinaleMainTitle", val: currentSiteTexts.finaleMainTitle },
-    { id: "adminFinaleInfinityBadgeText", val: currentSiteTexts.finaleInfinityBadgeText },
-    { id: "adminFinaleClosingQuote", val: currentSiteTexts.finaleClosingQuote },
-    { id: "adminFinaleAuthorName", val: currentSiteTexts.finaleAuthorName },
-    { id: "adminFinaleReplayBtnText", val: currentSiteTexts.finaleReplayBtnText },
-    { id: "adminSiteFooterText", val: currentSiteTexts.siteFooterText }
-  ];
-
-  fields.forEach(f => {
-    const input = document.getElementById(f.id);
-    if (input && (document.activeElement !== input || !input.value)) {
-      input.value = f.val || "";
-    }
-  });
-}
-
 function updateAdminMediaCards() {
-  const bgImg = document.getElementById("adminCurrentBgImg");
+  const bgImg = document.getElementById("adminBgPreviewImg") || document.getElementById("adminCurrentBgImg");
   const bgName = document.getElementById("adminCurrentBgName");
   const bgStatus = document.getElementById("adminCurrentBgStatus");
 
-  if (bgImg && bgName && bgStatus) {
+  if (bgImg) {
     if (currentBgImage && currentBgImage.trim() !== "") {
       bgImg.src = currentBgImage;
       bgImg.style.display = "block";
-      bgName.textContent = currentBgImage.split("/").pop() || "Custom Background Photo";
-      bgStatus.textContent = currentBgImage.includes("supabase.co")
+      if (bgName) bgName.textContent = currentBgImage.split("/").pop() || "Custom Background Photo";
+      if (bgStatus) bgStatus.textContent = currentBgImage.includes("supabase.co")
         ? "Active (Synced with Supabase Storage)"
         : "Active (Custom Image URL)";
     } else {
       bgImg.src = "";
       bgImg.style.display = "none";
-      bgName.textContent = "Default Festive Mesh Gradient";
-      bgStatus.textContent = "Standard Theme Colors Active";
+      if (bgName) bgName.textContent = "Default Festive Mesh Gradient";
+      if (bgStatus) bgStatus.textContent = "Standard Theme Colors Active";
     }
   }
 
-  const musicName = document.getElementById("adminCurrentMusicName");
-  const musicStatus = document.getElementById("adminCurrentMusicStatus");
-  if (musicName && musicStatus) {
-    if (currentMusicUrl && currentMusicUrl.trim() !== "") {
-      musicName.textContent = currentMusicUrl.split("/").pop() || "Custom Celebration Track";
-      musicStatus.textContent = currentMusicUrl.includes("supabase.co")
-        ? "Active (Synced with Supabase Storage)"
-        : "Active (Audio URL)";
-    } else {
-      musicName.textContent = "No Audio Track Set";
-      musicStatus.textContent = "Muted / Inactive";
-    }
+  const bgInput = document.getElementById("devBgInput");
+  if (bgInput && document.activeElement !== bgInput) {
+    bgInput.value = currentBgImage || "";
+  }
+
+  const musicUrlDisplay = document.getElementById("adminMusicUrlDisplay");
+  if (musicUrlDisplay) {
+    musicUrlDisplay.textContent = currentMusicUrl || "audio/background-music.mp3";
+  }
+
+  const musicInput = document.getElementById("devMusicInput");
+  if (musicInput && document.activeElement !== musicInput) {
+    musicInput.value = currentMusicUrl || "audio/background-music.mp3";
   }
 }
 
 function updateAdminRevealCards() {
   const [p1, p2, p3] = typeof getThreeHeroPhotos === "function" ? getThreeHeroPhotos() : ["", "", ""];
 
-  const img1 = document.getElementById("adminRevealImg1");
-  const img2 = document.getElementById("adminRevealImg2");
-  const img3 = document.getElementById("adminRevealImg3");
+  const img1 = document.getElementById("revealAdminImg1") || document.getElementById("adminRevealImg1");
+  const img2 = document.getElementById("revealAdminImg2") || document.getElementById("adminRevealImg2");
+  const img3 = document.getElementById("revealAdminImg3") || document.getElementById("adminRevealImg3");
 
   if (img1 && p1) img1.src = p1;
   if (img2 && p2) img2.src = p2;
   if (img3 && p3) img3.src = p3;
 
-  const t1 = document.getElementById("adminRevealTitle1");
-  const t2 = document.getElementById("adminRevealTitle2");
-  const t3 = document.getElementById("adminRevealTitle3");
+  const t1 = document.getElementById("revealTitle1Input") || document.getElementById("adminRevealTitle1");
+  const t2 = document.getElementById("revealTitle2Input") || document.getElementById("adminRevealTitle2");
+  const t3 = document.getElementById("revealTitle3Input") || document.getElementById("adminRevealTitle3");
 
-  if (t1) t1.value = currentRevealTitles[0] || "MY BABY";
-  if (t2) t2.value = currentRevealTitles[1] || "MY LOVE";
-  if (t3) {
+  if (t1 && document.activeElement !== t1) t1.value = currentRevealTitles[0] || "MY BABY";
+  if (t2 && document.activeElement !== t2) t2.value = currentRevealTitles[1] || "MY LOVE";
+  if (t3 && document.activeElement !== t3) {
     const thirdTitle = (typeof getRevealThirdTitle === "function") ? getRevealThirdTitle() : (currentRevealTitles[2] || "MY EVERYTHING ❤️");
     t3.value = thirdTitle;
   }
@@ -615,7 +660,25 @@ function showStorageStatus(elementId, message, type = "success", duration = 5000
  * Protected: requires an authenticated admin account.
  * Returns { success: true, publicUrl, fileName } or { success: false, error }
  */
-async function uploadToSupabaseStorage(folder, file) {
+async function uploadToSupabaseStorage(arg1, arg2) {
+  let folder = "photos";
+  let file = null;
+
+  if (typeof arg1 === "string") {
+    folder = arg1;
+    file = arg2;
+  } else {
+    file = arg1;
+    if (typeof arg2 === "string") folder = arg2;
+  }
+
+  if (!file || !file.name) {
+    return {
+      success: false,
+      error: "No valid file provided for upload."
+    };
+  }
+
   if (!isCurrentUserAdmin()) {
     openAdminLoginForm("🔒 Admin sign-in required to upload files to Supabase Storage.");
     return {
@@ -918,6 +981,16 @@ async function loadBirthdayContentFromSupabase() {
 
       // Reveal Photos (JSONB array)
       if (Array.isArray(row.reveal_photos) && row.reveal_photos.length > 0) {
+        row.reveal_photos.forEach((item, idx) => {
+          if (idx < 3) {
+            const url = typeof item === "string" ? item : (item?.src || item?.url || "");
+            if (url) currentRevealPhotos[idx] = url;
+          }
+        });
+        try {
+          localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
+        } catch (_) {}
+
         currentPhotos = row.reveal_photos.map((item, idx) => {
           if (typeof item === "string") {
             const filename = item.split("/").pop() || `photo_${idx + 1}.jpg`;
@@ -955,12 +1028,19 @@ async function loadBirthdayContentFromSupabase() {
 
       // Reveal Titles (JSONB array)
       if (Array.isArray(row.reveal_titles) && row.reveal_titles.length >= 3) {
-        currentRevealTitles = [...row.reveal_titles];
+        currentRevealTitles = [
+          row.reveal_titles[0] || "MY BABY",
+          row.reveal_titles[1] || "MY LOVE",
+          row.reveal_titles[2] || "MY EVERYTHING ❤️"
+        ];
         if (row.reveal_titles[2] && typeof row.reveal_titles[2] === "string") {
           burstConfig.revealThirdTitle = row.reveal_titles[2].trim();
           if (devRevealThirdTitleInput) devRevealThirdTitleInput.value = burstConfig.revealThirdTitle;
           saveBurstSettings();
         }
+        try {
+          localStorage.setItem("birthday_reveal_titles_v1", JSON.stringify(currentRevealTitles));
+        } catch (_) {}
       } else if (row.reveal_titles && typeof row.reveal_titles === "object") {
         const t3 = row.reveal_titles.title3 || row.reveal_titles[2];
         if (t3 && typeof t3 === "string") {
@@ -1050,23 +1130,30 @@ async function loadBirthdayContentFromSupabase() {
  * reveal_photos, reveal_titles, memories, love_notes, and updated_at.
  * Requires admin authentication to write to remote database, protecting against unauthorized edits.
  */
-async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = true) {
-  if (requireAdmin && !isCurrentUserAdmin()) {
-    console.log("[Supabase] Visitor mode: remote database update skipped (admin authentication required).");
-    return false;
-  }
-
+async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
   try {
     localStorage.setItem("birthday_site_texts_v1", JSON.stringify(currentSiteTexts));
+    localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
+    localStorage.setItem("birthday_reveal_titles_v1", JSON.stringify(currentRevealTitles));
+    if (currentBgImage) localStorage.setItem("birthday_bg_image_v1", currentBgImage);
+    if (currentMusicUrl) localStorage.setItem("birthday_custom_music_v1", currentMusicUrl);
+    if (currentName) localStorage.setItem("birthday_custom_name_v1", currentName);
+    if (currentMessage) localStorage.setItem("birthday_custom_message_v1", currentMessage);
   } catch (_) {}
 
-  const revealPhotoUrls = (Array.isArray(currentPhotos) ? currentPhotos : [])
+  const heroUrls = (Array.isArray(currentRevealPhotos) ? currentRevealPhotos : [])
+    .map(u => (typeof u === "string" ? u.trim() : ""))
+    .filter(Boolean);
+
+  const photosUrls = (Array.isArray(currentPhotos) ? currentPhotos : [])
     .map(p => (typeof p === "string" ? p : (p.src || p.url || "")))
     .filter(u => Boolean(u) && typeof u === "string" && u.trim() !== "");
 
+  const revealPhotoUrls = Array.from(new Set([...heroUrls, ...photosUrls]));
+
   const revealTitles = [
-    currentRevealTitles[0] || "MY BABY",
-    currentRevealTitles[1] || "MY LOVE",
+    (currentRevealTitles[0] || "MY BABY").trim(),
+    (currentRevealTitles[1] || "MY LOVE").trim(),
     (burstConfig.revealThirdTitle || currentRevealTitles[2] || "MY EVERYTHING ❤️").trim(),
     { site_texts: currentSiteTexts }
   ];
@@ -1079,6 +1166,7 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = t
     music_url: (currentMusicUrl || "").trim(),
     reveal_photos: revealPhotoUrls,
     reveal_titles: revealTitles,
+    site_texts: currentSiteTexts,
     memories: Array.isArray(activeMemories) ? activeMemories : [],
     love_notes: Array.isArray(guestbookMessages) ? guestbookMessages : [],
     updated_at: new Date().toISOString(),
@@ -1644,7 +1732,11 @@ function triggerBirthdayRevealWithPhotoHover() {
 function getThreeHeroPhotos() {
   let photoUrls = [];
 
-  if (Array.isArray(currentPhotos) && currentPhotos.length > 0) {
+  if (Array.isArray(currentRevealPhotos) && currentRevealPhotos.some(u => Boolean(u) && typeof u === "string" && u.trim() !== "")) {
+    photoUrls = currentRevealPhotos.map(u => (typeof u === "string" ? u.trim() : "")).filter(Boolean);
+  }
+
+  if (photoUrls.length === 0 && Array.isArray(currentPhotos) && currentPhotos.length > 0) {
     photoUrls = currentPhotos
       .map(p => (typeof p === "string" ? p : (p.src || p.url || "")))
       .filter(u => Boolean(u) && u.trim() !== "");
@@ -1663,9 +1755,9 @@ function getThreeHeroPhotos() {
     ];
   }
 
-  const p1 = photoUrls[0];
-  const p2 = photoUrls[1] || photoUrls[0];
-  const p3 = photoUrls[2] || photoUrls[1] || photoUrls[0];
+  const p1 = photoUrls[0] || "";
+  const p2 = photoUrls[1] || photoUrls[0] || "";
+  const p3 = photoUrls[2] || photoUrls[1] || photoUrls[0] || "";
 
   return [p1, p2, p3];
 }
@@ -3909,6 +4001,10 @@ function setupEventListeners() {
         saveBurstSettings();
       }
 
+      // Read any edited website texts and apply immediately to DOM
+      readAdminTextInputs();
+      applySiteTextsToDOM();
+
       // Persist latest configuration to Supabase birthday_content table (row id=1)
       await saveAllBirthdayContentToSupabase();
 
@@ -4478,76 +4574,29 @@ const loopMusic = ${loopMusic};`;
 // ADMIN PANEL FULL CONTENT MANAGEMENT (TEXT, REVEAL PHOTOS, BACKGROUND, MUSIC)
 // ============================================================================
 function setupAdminPanelControls() {
+  // --------------------------------------------------------------------------
   // 1. All Website Text Tab Controls
-  const saveAllTextBtn = document.getElementById("adminSaveAllTextBtn");
-  const resetTextBtn = document.getElementById("adminResetTextBtn");
+  // --------------------------------------------------------------------------
+  async function handleSaveAllText() {
+    readAdminTextInputs();
+    applySiteTextsToDOM();
 
-  if (saveAllTextBtn) {
-    saveAllTextBtn.addEventListener("click", async () => {
-      const textIdMap = {
-        openingBadge: "adminOpeningBadgeText",
-        openingTitle: "adminOpeningTitle",
-        openingSubtitle: "adminOpeningSubtitle",
-        showMeBtnText: "adminShowMeBtnText",
-        tapBadgeText: "adminTapBadgeText",
-        fingerGuideText: "adminFingerGuideText",
-        topNavBrandText: "adminTopNavBrandText",
-        chapter1Eyebrow: "adminChapter1Eyebrow",
-        chapter1Title: "adminChapter1Title",
-        heroPinnedTag: "adminHeroPinnedTag",
-        replayBurstBtnText: "adminReplayBurstBtnText",
-        celebrateMoreBtnText: "adminCelebrateMoreBtnText",
-        page1ContinueTitle: "adminPage1ContinueTitle",
-        chapter2Tag: "adminChapter2Tag",
-        chapter2Title: "adminChapter2Title",
-        chapter2Subtitle: "adminChapter2Subtitle",
-        page2BackBtnText: "adminPage2BackBtnText",
-        page2ContinueTitle: "adminPage2ContinueTitle",
-        chapter3Tag: "adminChapter3Tag",
-        chapter3Title: "adminChapter3Title",
-        chapter3Subtitle: "adminChapter3Subtitle",
-        page3BackBtnText: "adminPage3BackBtnText",
-        page3LeaveNoteBtnText: "adminPage3LeaveNoteBtnText",
-        page3ContinueTitle: "adminPage3ContinueTitle",
-        finaleSparklePillText: "adminFinaleSparklePillText",
-        finaleMainTitle: "adminFinaleMainTitle",
-        finaleInfinityBadgeText: "adminFinaleInfinityBadgeText",
-        finaleClosingQuote: "adminFinaleClosingQuote",
-        finaleAuthorName: "adminFinaleAuthorName",
-        finaleReplayBtnText: "adminFinaleReplayBtnText",
-        siteFooterText: "adminSiteFooterText"
-      };
-
-      Object.entries(textIdMap).forEach(([key, elemId]) => {
-        const inputEl = document.getElementById(elemId);
-        if (inputEl && inputEl.value !== undefined) {
-          currentSiteTexts[key] = inputEl.value.trim();
-        }
-      });
-
-      const bdayMsgInput = document.getElementById("adminBirthdayMessage");
-      if (bdayMsgInput && bdayMsgInput.value !== undefined) {
-        currentMessage = bdayMsgInput.value.trim();
-        if (celebrationMsg) celebrationMsg.textContent = currentMessage;
-        if (devMessageInput) devMessageInput.value = currentMessage;
-        try { localStorage.setItem("birthday_custom_message_v1", currentMessage); } catch (_) {}
-      }
-
-      burstConfig.headline = currentSiteTexts.chapter1Eyebrow;
-      saveBurstSettings();
-
-      applySiteTextsToDOM();
-
-      showStorageStatus("adminTextSaveStatus", "Saving all website text to Supabase...", "loading", 0);
-      const saved = await saveAllBirthdayContentToSupabase();
-      if (saved) {
-        showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated)", "success", 4000);
-      } else {
-        showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
-      }
-    });
+    showStorageStatus("adminTextSaveStatus", "Saving all website text to Supabase...", "loading", 0);
+    const saved = await saveAllBirthdayContentToSupabase();
+    if (saved) {
+      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated)", "success", 4000);
+    } else {
+      showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+    }
   }
 
+  const saveAllTextBtn = document.getElementById("adminSaveAllTextBtn");
+  if (saveAllTextBtn) saveAllTextBtn.addEventListener("click", handleSaveAllText);
+
+  const saveAllTextBtnBottom = document.getElementById("adminSaveAllTextBtnBottom");
+  if (saveAllTextBtnBottom) saveAllTextBtnBottom.addEventListener("click", handleSaveAllText);
+
+  const resetTextBtn = document.getElementById("adminResetTextBtn");
   if (resetTextBtn) {
     resetTextBtn.addEventListener("click", async () => {
       if (!confirm("Are you sure you want to restore all website text back to original default settings?")) return;
@@ -4560,29 +4609,38 @@ function setupAdminPanelControls() {
     });
   }
 
-  // 2. Reveal Sequence Tab Controls
+  // --------------------------------------------------------------------------
+  // 2. Reveal Sequence Tab Controls (Photos & Titles)
+  // --------------------------------------------------------------------------
   async function handleRevealPhotoUpload(slotIndex, file) {
-    if (!isCurrentUserAdmin()) {
-      openAdminLoginForm("🔒 Admin sign-in required to upload reveal photos to Supabase Storage.");
-      return;
-    }
     if (!file || !file.type || !file.type.startsWith("image/")) {
       alert("Please select a valid image file (JPG, PNG, WebP).");
       return;
     }
 
-    showStorageStatus("adminRevealStatus", `Uploading Reveal Photo #${slotIndex + 1} to Supabase Storage (photos/)...`, "loading", 0);
+    const statusId = "adminRevealStatus";
+    showStorageStatus(statusId, `Uploading Reveal Photo #${slotIndex + 1} to Supabase Storage (photos/)...`, "loading", 0);
     try {
-      const uploadRes = await uploadToSupabaseStorage("photos", file);
       let photoSrc = "";
       let isRemote = false;
 
-      if (uploadRes.success) {
-        photoSrc = uploadRes.publicUrl;
-        isRemote = true;
+      if (isCurrentUserAdmin()) {
+        const uploadRes = await uploadToSupabaseStorage("photos", file);
+        if (uploadRes.success && uploadRes.publicUrl) {
+          photoSrc = uploadRes.publicUrl;
+          isRemote = true;
+        } else {
+          console.warn("Supabase upload returned without publicUrl, falling back to local data URL:", uploadRes.error);
+          photoSrc = await readFileAsOptimizedDataURL(file);
+        }
       } else {
         photoSrc = await readFileAsOptimizedDataURL(file);
       }
+
+      currentRevealPhotos[slotIndex] = photoSrc;
+      try {
+        localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
+      } catch (_) {}
 
       const photoItem = {
         id: "reveal-hero-" + (slotIndex + 1) + "-" + Date.now(),
@@ -4607,79 +4665,157 @@ function setupAdminPanelControls() {
       updateAdminRevealCards();
       renderPhotoThumbnails();
 
-      await saveAllBirthdayContentToSupabase();
-      showStorageStatus("adminRevealStatus", `Reveal Photo #${slotIndex + 1} updated in Supabase Storage! ❤️`, "success", 4500);
+      const saved = await saveAllBirthdayContentToSupabase();
+      if (saved) {
+        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Supabase! ❤️`, "success", 4500);
+      } else {
+        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated locally! (Admin sign-in required to sync online)`, "loading", 4000);
+      }
     } catch (err) {
       console.error("Reveal photo upload failed:", err);
-      showStorageStatus("adminRevealStatus", "Failed to upload photo to Supabase. Check connection.", "error", 4000);
+      showStorageStatus(statusId, "Failed to upload photo. Check network connection.", "error", 4000);
     }
   }
 
-  // Bind Photo 1
-  const changeRev1 = document.getElementById("adminChangeRevealPhoto1");
-  const fileRev1 = document.getElementById("adminRevealFileInput1");
-  if (changeRev1 && fileRev1) {
-    changeRev1.addEventListener("click", () => fileRev1.click());
-    fileRev1.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleRevealPhotoUpload(0, e.target.files[0]);
-        e.target.value = "";
+  function setupRevealSlot(slotIndex, triggerIds, inputIds, removeIds, saveBtnId, titleInputId) {
+    triggerIds.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener("click", () => {
+          for (const inpId of inputIds) {
+            const input = document.getElementById(inpId);
+            if (input) {
+              input.click();
+              break;
+            }
+          }
+        });
       }
     });
-  }
 
-  // Bind Photo 2
-  const changeRev2 = document.getElementById("adminChangeRevealPhoto2");
-  const fileRev2 = document.getElementById("adminRevealFileInput2");
-  if (changeRev2 && fileRev2) {
-    changeRev2.addEventListener("click", () => fileRev2.click());
-    fileRev2.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleRevealPhotoUpload(1, e.target.files[0]);
-        e.target.value = "";
+    inputIds.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleRevealPhotoUpload(slotIndex, e.target.files[0]);
+            e.target.value = "";
+          }
+        });
       }
     });
-  }
 
-  // Bind Photo 3
-  const changeRev3 = document.getElementById("adminChangeRevealPhoto3");
-  const fileRev3 = document.getElementById("adminRevealFileInput3");
-  if (changeRev3 && fileRev3) {
-    changeRev3.addEventListener("click", () => fileRev3.click());
-    fileRev3.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleRevealPhotoUpload(2, e.target.files[0]);
-        e.target.value = "";
+    removeIds.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          currentRevealPhotos[slotIndex] = "";
+          try {
+            localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
+          } catch (_) {}
+          updateAdminRevealCards();
+          renderPhotoThumbnails();
+          await saveAllBirthdayContentToSupabase();
+          showStorageStatus("adminRevealStatus", `Photo #${slotIndex + 1} removed ❤️`, "success", 3000);
+        });
       }
     });
+
+    if (saveBtnId) {
+      const saveBtn = document.getElementById(saveBtnId);
+      if (saveBtn) {
+        saveBtn.addEventListener("click", async () => {
+          if (titleInputId) {
+            const tInput = document.getElementById(titleInputId);
+            if (tInput && tInput.value.trim()) {
+              currentRevealTitles[slotIndex] = tInput.value.trim();
+              if (slotIndex === 2) {
+                burstConfig.revealThirdTitle = tInput.value.trim();
+                const devThird = document.getElementById("devRevealThirdTitleInput");
+                if (devThird) devThird.value = burstConfig.revealThirdTitle;
+                saveBurstSettings();
+              }
+            }
+          }
+          showStorageStatus("adminRevealStatus", `Saving Reveal Photo #${slotIndex + 1}...`, "loading", 0);
+          const saved = await saveAllBirthdayContentToSupabase();
+          if (saved) {
+            showStorageStatus("adminRevealStatus", `Reveal Photo #${slotIndex + 1} saved successfully! ❤️`, "success", 3500);
+          } else {
+            showStorageStatus("adminRevealStatus", `Saved locally! (Admin sign-in required to sync online)`, "loading", 3500);
+          }
+        });
+      }
+    }
   }
 
-  // Save Reveal Sequence Button
-  const saveRevealBtn = document.getElementById("adminSaveRevealBtn");
-  if (saveRevealBtn) {
-    saveRevealBtn.addEventListener("click", async () => {
-      const t1 = document.getElementById("adminRevealTitle1");
-      const t2 = document.getElementById("adminRevealTitle2");
-      const t3 = document.getElementById("adminRevealTitle3");
+  // Bind Slot 0 (Reveal Photo 1)
+  setupRevealSlot(
+    0,
+    ["uploadRevealPhoto1", "changeRevealPhoto1Btn", "adminChangeRevealPhoto1"],
+    ["revealPhotoInput1", "revealPhoto1Input", "adminRevealFileInput1"],
+    ["removeRevealPhoto1Btn"],
+    "saveRevealPhoto1Btn",
+    "revealTitle1Input"
+  );
 
-      if (t1 && t1.value.trim()) currentRevealTitles[0] = t1.value.trim();
-      if (t2 && t2.value.trim()) currentRevealTitles[1] = t2.value.trim();
-      if (t3 && t3.value.trim()) {
-        currentRevealTitles[2] = t3.value.trim();
-        burstConfig.revealThirdTitle = t3.value.trim();
-        if (devRevealThirdTitleInput) devRevealThirdTitleInput.value = burstConfig.revealThirdTitle;
-        saveBurstSettings();
-      }
+  // Bind Slot 1 (Reveal Photo 2)
+  setupRevealSlot(
+    1,
+    ["uploadRevealPhoto2", "changeRevealPhoto2Btn", "adminChangeRevealPhoto2"],
+    ["revealPhotoInput2", "revealPhoto2Input", "adminRevealFileInput2"],
+    ["removeRevealPhoto2Btn"],
+    "saveRevealPhoto2Btn",
+    "revealTitle2Input"
+  );
 
-      showStorageStatus("adminRevealStatus", "Saving reveal sequence to Supabase...", "loading", 0);
-      const saved = await saveAllBirthdayContentToSupabase();
-      if (saved) {
-        showStorageStatus("adminRevealStatus", "Saved successfully ❤️ (Reveal Sequence updated)", "success", 4000);
-      } else {
-        showStorageStatus("adminRevealStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
-      }
-    });
+  // Bind Slot 2 (Reveal Photo 3)
+  setupRevealSlot(
+    2,
+    ["uploadRevealPhoto3", "changeRevealPhoto3Btn", "adminChangeRevealPhoto3"],
+    ["revealPhotoInput3", "revealPhoto3Input", "adminRevealFileInput3"],
+    ["removeRevealPhoto3Btn"],
+    "saveRevealPhoto3Btn",
+    "revealTitle3Input"
+  );
+
+  // Save All Reveal Sequence Button
+  async function handleSaveAllReveal() {
+    const t1 = document.getElementById("revealTitle1Input") || document.getElementById("adminRevealTitle1");
+    const t2 = document.getElementById("revealTitle2Input") || document.getElementById("adminRevealTitle2");
+    const t3 = document.getElementById("revealTitle3Input") || document.getElementById("adminRevealTitle3");
+
+    if (t1 && t1.value.trim()) currentRevealTitles[0] = t1.value.trim();
+    if (t2 && t2.value.trim()) currentRevealTitles[1] = t2.value.trim();
+    if (t3 && t3.value.trim()) {
+      currentRevealTitles[2] = t3.value.trim();
+      burstConfig.revealThirdTitle = t3.value.trim();
+      const devThird = document.getElementById("devRevealThirdTitleInput");
+      if (devThird) devThird.value = burstConfig.revealThirdTitle;
+      saveBurstSettings();
+    }
+
+    try {
+      localStorage.setItem("birthday_reveal_titles_v1", JSON.stringify(currentRevealTitles));
+    } catch (_) {}
+
+    showStorageStatus("adminRevealStatus", "Saving reveal sequence to Supabase...", "loading", 0);
+    const saved = await saveAllBirthdayContentToSupabase();
+    if (saved) {
+      showStorageStatus("adminRevealStatus", "Saved successfully ❤️ (Reveal Sequence updated)", "success", 4000);
+    } else {
+      showStorageStatus("adminRevealStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+    }
   }
+
+  const adminSaveAllRevealBtn = document.getElementById("adminSaveAllRevealBtn");
+  if (adminSaveAllRevealBtn) adminSaveAllRevealBtn.addEventListener("click", handleSaveAllReveal);
+
+  const saveAllRevealBtn = document.getElementById("saveAllRevealBtn");
+  if (saveAllRevealBtn) saveAllRevealBtn.addEventListener("click", handleSaveAllReveal);
+
+  const adminSaveRevealBtn = document.getElementById("adminSaveRevealBtn");
+  if (adminSaveRevealBtn) adminSaveRevealBtn.addEventListener("click", handleSaveAllReveal);
 
   // Test Reveal Button
   const testRevealBtn = document.getElementById("adminTestRevealBtn");
@@ -4690,19 +4826,16 @@ function setupAdminPanelControls() {
     });
   }
 
+  // --------------------------------------------------------------------------
   // 3. Background Tab Controls
-  const changeBgBtn = document.getElementById("adminChangeBgBtn");
-  const bgFileInput = document.getElementById("adminBgFileInput");
-  const resetBgBtn = document.getElementById("adminResetBgBtn");
+  // --------------------------------------------------------------------------
+  const changeBgBtn = document.getElementById("changeBgBtn") || document.getElementById("adminChangeBgBtn");
+  const bgFileInput = document.getElementById("bgFileInput") || document.getElementById("adminBgFileInput");
+  const resetBgBtn = document.getElementById("removeBgBtn") || document.getElementById("adminResetBgBtn");
+  const saveBgBtn = document.getElementById("saveBgBtn");
 
   if (changeBgBtn && bgFileInput) {
-    changeBgBtn.addEventListener("click", () => {
-      if (!isCurrentUserAdmin()) {
-        openAdminLoginForm("🔒 Admin sign-in required to upload backgrounds to Supabase Storage.");
-        return;
-      }
-      bgFileInput.click();
-    });
+    changeBgBtn.addEventListener("click", () => bgFileInput.click());
 
     bgFileInput.addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
@@ -4711,9 +4844,13 @@ function setupAdminPanelControls() {
 
       showStorageStatus("bgUploadStatus", "Uploading background to Supabase Storage (photos/)...", "loading", 0);
       try {
-        const uploadRes = await uploadToSupabaseStorage("photos", file);
-        if (uploadRes.success) {
-          currentBgImage = uploadRes.publicUrl;
+        if (isCurrentUserAdmin()) {
+          const uploadRes = await uploadToSupabaseStorage("photos", file);
+          if (uploadRes.success && uploadRes.publicUrl) {
+            currentBgImage = uploadRes.publicUrl;
+          } else {
+            currentBgImage = await readFileAsOptimizedDataURL(file);
+          }
         } else {
           currentBgImage = await readFileAsOptimizedDataURL(file);
         }
@@ -4749,20 +4886,35 @@ function setupAdminPanelControls() {
     });
   }
 
+  if (saveBgBtn) {
+    saveBgBtn.addEventListener("click", async () => {
+      if (devBgInput && devBgInput.value !== undefined) {
+        currentBgImage = devBgInput.value.trim();
+        try { localStorage.setItem("birthday_bg_image_v1", currentBgImage); } catch (_) {}
+        setupBackground();
+        updateAdminMediaCards();
+      }
+      showStorageStatus("bgUploadStatus", "Saving background...", "loading", 0);
+      const saved = await saveAllBirthdayContentToSupabase({ background_url: currentBgImage });
+      if (saved) {
+        showStorageStatus("bgUploadStatus", "Background saved successfully! ❤️", "success", 3500);
+      } else {
+        showStorageStatus("bgUploadStatus", "Background saved locally! (Sign in to sync online)", "loading", 3500);
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------------
   // 4. Music Tab Controls
-  const changeMusicBtn = document.getElementById("adminChangeMusicBtn");
-  const musicFileInput = document.getElementById("adminMusicFileInput");
-  const testMusicBtn = document.getElementById("adminTestMusicBtn");
-  const removeMusicBtn = document.getElementById("adminRemoveMusicBtn");
+  // --------------------------------------------------------------------------
+  const changeMusicBtn = document.getElementById("changeMusicBtn") || document.getElementById("adminChangeMusicBtn");
+  const musicFileInput = document.getElementById("audioFileInput") || document.getElementById("adminMusicFileInput");
+  const testMusicBtn = document.getElementById("previewMusicBtn2") || document.getElementById("adminTestMusicBtn");
+  const removeMusicBtn = document.getElementById("removeMusicBtn") || document.getElementById("adminRemoveMusicBtn");
+  const saveMusicBtn = document.getElementById("saveMusicBtn");
 
   if (changeMusicBtn && musicFileInput) {
-    changeMusicBtn.addEventListener("click", () => {
-      if (!isCurrentUserAdmin()) {
-        openAdminLoginForm("🔒 Admin sign-in required to upload music to Supabase Storage.");
-        return;
-      }
-      musicFileInput.click();
-    });
+    changeMusicBtn.addEventListener("click", () => musicFileInput.click());
 
     musicFileInput.addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
@@ -4771,9 +4923,13 @@ function setupAdminPanelControls() {
 
       showStorageStatus("musicUploadStatus", "Uploading audio to Supabase Storage (music/)...", "loading", 0);
       try {
-        const uploadRes = await uploadToSupabaseStorage("music", file);
-        if (uploadRes.success) {
-          currentMusicUrl = uploadRes.publicUrl;
+        if (isCurrentUserAdmin()) {
+          const uploadRes = await uploadToSupabaseStorage("music", file);
+          if (uploadRes.success && uploadRes.publicUrl) {
+            currentMusicUrl = uploadRes.publicUrl;
+          } else {
+            currentMusicUrl = URL.createObjectURL(file);
+          }
         } else {
           currentMusicUrl = URL.createObjectURL(file);
         }
@@ -4820,6 +4976,24 @@ function setupAdminPanelControls() {
       updateAdminMediaCards();
       await saveAllBirthdayContentToSupabase({ music_url: "" });
       showStorageStatus("musicUploadStatus", "Music removed (muted) ❤️", "success", 3000);
+    });
+  }
+
+  if (saveMusicBtn) {
+    saveMusicBtn.addEventListener("click", async () => {
+      if (devMusicInput && devMusicInput.value !== undefined) {
+        currentMusicUrl = devMusicInput.value.trim();
+        try { localStorage.setItem("birthday_custom_music_v1", currentMusicUrl); } catch (_) {}
+        if (bgAudio) bgAudio.src = currentMusicUrl;
+        updateAdminMediaCards();
+      }
+      showStorageStatus("musicUploadStatus", "Saving audio configuration...", "loading", 0);
+      const saved = await saveAllBirthdayContentToSupabase({ music_url: currentMusicUrl });
+      if (saved) {
+        showStorageStatus("musicUploadStatus", "Music saved successfully! ❤️", "success", 3500);
+      } else {
+        showStorageStatus("musicUploadStatus", "Music saved locally! (Sign in to sync online)", "loading", 3500);
+      }
     });
   }
 }

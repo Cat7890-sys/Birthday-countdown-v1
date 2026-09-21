@@ -71,22 +71,22 @@
       <div class="chapter-nav-container">
         <button type="button" class="chapter-pill-btn active" id="navChapterBtn1" data-page="1" aria-label="Chapter 1: Main Celebration">
           <span class="chapter-pill-num">1</span>
-          <span class="chapter-pill-label">Celebration</span>
+          <span class="chapter-pill-label" id="navChapterLabel1">Celebration</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
         <button type="button" class="chapter-pill-btn" id="navChapterBtn2" data-page="2" aria-label="Chapter 2: Our Memories">
           <span class="chapter-pill-num">2</span>
-          <span class="chapter-pill-label">Our Memories ❤️</span>
+          <span class="chapter-pill-label" id="navChapterLabel2">Our Memories ❤️</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
         <button type="button" class="chapter-pill-btn" id="navChapterBtn3" data-page="3" aria-label="Chapter 3: Birthday Love Notes">
           <span class="chapter-pill-num">3</span>
-          <span class="chapter-pill-label">Love Notes 💌</span>
+          <span class="chapter-pill-label" id="navChapterLabel3">Love Notes 💌</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
         <button type="button" class="chapter-pill-btn" id="navChapterBtn4" data-page="4" aria-label="Chapter 4: The Finale">
           <span class="chapter-pill-num">4</span>
-          <span class="chapter-pill-label">Finale ✨</span>
+          <span class="chapter-pill-label" id="navChapterLabel4">Finale ✨</span>
         </button>
       </div>
     </nav>
@@ -264,7 +264,7 @@
           <!-- Continue to Finale or Back to Celebration Banner -->
           <div class="page-continue-banner" id="page3ContinueBanner">
             <button type="button" class="continue-page-btn primary-finale-btn" id="goToFinaleBtn">
-              <span class="continue-text-title">Experience The Finale Scene ✨</span>
+              <span class="continue-text-title" id="page3ContinueTitle">Experience The Finale Scene ✨</span>
               <span class="continue-arrow">A final message just for you →</span>
             </button>
             <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn" style="margin-top: 0.75rem;">
@@ -288,7 +288,7 @@
             <!-- Subtle chapter back control -->
             <div class="finale-back-nav">
               <button type="button" class="finale-back-btn" id="backToPage3FromFinaleBtn" aria-label="Back to Love Notes">
-                <span>← Back to Love Notes</span>
+                <span id="finaleBackBtnText">← Back to Love Notes</span>
               </button>
             </div>
 
@@ -483,12 +483,21 @@
 
         <!-- ================= TAB: ALL WEBSITE TEXT ================= -->
         <div id="tabText" class="customize-pane active">
-          <div class="pane-header-row">
+          <div class="pane-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
             <div>
               <h3 class="pane-heading">✍️ Website Text & Content Management</h3>
               <p class="pane-subheading">Full control to edit every single text element, headline, button, and message across the entire website. Live updates appear immediately.</p>
             </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" id="adminSaveAllTextBtn" class="primary-btn" style="padding: 0.65rem 1.3rem; font-weight: 700;">
+                <span>💾 Save All Website Text</span>
+              </button>
+              <button type="button" id="adminResetTextBtn" class="secondary-btn" style="padding: 0.65rem 0.9rem;">
+                <span>↺ Reset</span>
+              </button>
+            </div>
           </div>
+          <div id="adminTextSaveStatus" class="storage-upload-status" style="display: none; margin-bottom: 1rem;"></div>
 
           <!-- Section 1: Opening Screen & Interactive Sticker -->
           <div class="admin-content-section">
@@ -707,29 +716,45 @@
               </div>
             </div>
           </div>
+
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+            <button type="button" id="adminSaveAllTextBtnBottom" class="primary-btn" style="padding: 0.75rem 1.6rem; font-weight: 700;">
+              <span>💾 Save All Website Text</span>
+            </button>
+          </div>
         </div>
 
         <!-- ================= TAB: REVEAL PHOTOS & TITLES ================= -->
         <div id="tabRevealAdmin" class="customize-pane">
-          <div class="pane-header-row">
+          <div class="pane-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
             <div>
               <h3 class="pane-heading">🌟 10-Second 3-Photo Reveal</h3>
               <p class="pane-subheading">Customize the three sequential photos and their display titles for the dramatic 10-second reveal surprise.</p>
             </div>
+            <div>
+              <button type="button" id="saveAllRevealBtn" class="primary-btn" style="padding: 0.65rem 1.3rem; font-weight: 700;">
+                <span>💾 Save All Reveal Photos & Titles</span>
+              </button>
+            </div>
           </div>
+
+          <!-- Reveal Upload Status Feedback -->
+          <div id="revealUploadStatus" class="storage-upload-status" style="display: none; margin-bottom: 1rem;"></div>
 
           <div class="admin-reveal-photos-grid">
             <!-- Photo 1 -->
             <div class="admin-reveal-card" id="adminRevealCard1">
               <div class="reveal-card-header">
-                <span class="reveal-card-num">Photo 1</span>
+                <span class="reveal-card-num">Reveal Photo 1</span>
                 <span class="reveal-card-desc">Initial depth layer</span>
               </div>
               <div class="admin-reveal-preview">
                 <img id="revealAdminImg1" src="" alt="Photo 1 Preview" />
               </div>
-              <div class="reveal-card-btns">
-                <button type="button" class="primary-btn" id="changeRevealPhoto1Btn">📷 Change Photo</button>
+              <div class="reveal-card-btns" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="primary-btn" id="uploadRevealPhoto1">📷 Upload Photo</button>
+                <button type="button" class="primary-btn" id="changeRevealPhoto1Btn" style="display: none;">📷 Change Photo</button>
+                <input type="file" id="revealPhotoInput1" accept="image/*" style="display: none;" />
                 <input type="file" id="revealPhoto1Input" accept="image/*" style="display: none;" />
                 <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto1Btn">❌ Remove</button>
               </div>
@@ -737,19 +762,24 @@
                 <label for="revealTitle1Input">Title:</label>
                 <input type="text" id="revealTitle1Input" class="form-input" value="MY BABY" placeholder="e.g., MY BABY" />
               </div>
+              <button type="button" class="primary-btn save-card-btn" id="saveRevealPhoto1Btn" style="margin-top: 0.5rem; width: 100%; font-weight: 600;">
+                <span>💾 Save Photo 1</span>
+              </button>
             </div>
 
             <!-- Photo 2 -->
             <div class="admin-reveal-card" id="adminRevealCard2">
               <div class="reveal-card-header">
-                <span class="reveal-card-num">Photo 2</span>
+                <span class="reveal-card-num">Reveal Photo 2</span>
                 <span class="reveal-card-desc">Mid-layer transition</span>
               </div>
               <div class="admin-reveal-preview">
                 <img id="revealAdminImg2" src="" alt="Photo 2 Preview" />
               </div>
-              <div class="reveal-card-btns">
-                <button type="button" class="primary-btn" id="changeRevealPhoto2Btn">📷 Change Photo</button>
+              <div class="reveal-card-btns" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="primary-btn" id="uploadRevealPhoto2">📷 Upload Photo</button>
+                <button type="button" class="primary-btn" id="changeRevealPhoto2Btn" style="display: none;">📷 Change Photo</button>
+                <input type="file" id="revealPhotoInput2" accept="image/*" style="display: none;" />
                 <input type="file" id="revealPhoto2Input" accept="image/*" style="display: none;" />
                 <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto2Btn">❌ Remove</button>
               </div>
@@ -757,19 +787,24 @@
                 <label for="revealTitle2Input">Title:</label>
                 <input type="text" id="revealTitle2Input" class="form-input" value="MY LOVE" placeholder="e.g., MY LOVE" />
               </div>
+              <button type="button" class="primary-btn save-card-btn" id="saveRevealPhoto2Btn" style="margin-top: 0.5rem; width: 100%; font-weight: 600;">
+                <span>💾 Save Photo 2</span>
+              </button>
             </div>
 
             <!-- Photo 3 -->
             <div class="admin-reveal-card" id="adminRevealCard3">
               <div class="reveal-card-header">
-                <span class="reveal-card-num">Photo 3</span>
+                <span class="reveal-card-num">Reveal Photo 3</span>
                 <span class="reveal-card-desc">Main focal centerpiece</span>
               </div>
               <div class="admin-reveal-preview">
                 <img id="revealAdminImg3" src="" alt="Photo 3 Preview" />
               </div>
-              <div class="reveal-card-btns">
-                <button type="button" class="primary-btn" id="changeRevealPhoto3Btn">📷 Change Photo</button>
+              <div class="reveal-card-btns" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="primary-btn" id="uploadRevealPhoto3">📷 Upload Photo</button>
+                <button type="button" class="primary-btn" id="changeRevealPhoto3Btn" style="display: none;">📷 Change Photo</button>
+                <input type="file" id="revealPhotoInput3" accept="image/*" style="display: none;" />
                 <input type="file" id="revealPhoto3Input" accept="image/*" style="display: none;" />
                 <button type="button" class="secondary-btn danger-btn" id="removeRevealPhoto3Btn">❌ Remove</button>
               </div>
@@ -777,11 +812,11 @@
                 <label for="revealTitle3Input">Title:</label>
                 <input type="text" id="revealTitle3Input" class="form-input" value="MY EVERYTHING ❤️" placeholder="e.g., MY EVERYTHING ❤️" />
               </div>
+              <button type="button" class="primary-btn save-card-btn" id="saveRevealPhoto3Btn" style="margin-top: 0.5rem; width: 100%; font-weight: 600;">
+                <span>💾 Save Photo 3</span>
+              </button>
             </div>
           </div>
-
-          <!-- Reveal Upload Status Feedback -->
-          <div id="revealUploadStatus" class="storage-upload-status" style="display: none; margin-top: 1rem;"></div>
         </div>
 
         <!-- ================= TAB: BURST CELEBRATION PHOTOS ================= -->
@@ -991,6 +1026,10 @@
               <option value="midnight">🌌 Midnight Berry & Deep Indigo</option>
             </select>
           </div>
+
+          <button type="button" id="saveBgBtn" class="primary-btn" style="margin-top: 1.25rem; width: 100%; font-weight: 700; padding: 0.75rem;">
+            <span>💾 Save Background to Supabase</span>
+          </button>
         </div>
 
         <!-- ================= TAB 4: MUSIC ================= -->
@@ -1036,6 +1075,10 @@
             <input type="checkbox" id="devMusicLoop" checked style="width: 18px; height: 18px; accent-color: var(--color-pink-primary);" />
             <label for="devMusicLoop" style="margin: 0; cursor: pointer;">Loop background music seamlessly</label>
           </div>
+
+          <button type="button" id="saveMusicBtn" class="primary-btn" style="margin-top: 1.25rem; width: 100%; font-weight: 700; padding: 0.75rem;">
+            <span>💾 Save Music to Supabase</span>
+          </button>
         </div>
 
 
