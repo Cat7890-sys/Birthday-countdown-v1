@@ -21,7 +21,7 @@ const birthdayDate = "2026-10-05T00:00:00";
  * 2. Birthday Person's Name
  * Displayed dynamically in the title and celebration screen.
  */
-const birthdayName = "Sarah";
+const birthdayName = "Joy";
 
 /**
  * 3. Personalized Heartfelt Birthday Message
@@ -298,7 +298,7 @@ const SITE_TEXT_FIELDS = [
   { key: "countdownSub", inputId: "textCountdownSub", domId: "revealCountdownSub", default: "3-2-1 Countdown to celebration" },
 
   // 2. Celebration (Chapter 1)
-  { key: "celebrationHeadline", inputId: "devHeadlineInput", domId: "celebrationTitle", default: "HAPPY BIRTHDAY, SARAH! 🎉" },
+  { key: "celebrationHeadline", inputId: "devHeadlineInput", domId: "celebrationTitle", default: "HAPPY BIRTHDAY, JOY! 🎉" },
   { key: "chapter1Eyebrow", inputId: "textCelebrationIntro", domId: "celebrationEyebrow", default: "IT'S FINALLY HERE!" },
   { key: "celebrationIntro", inputId: "textCelebrationIntro", domId: "celebrationSurpriseIntro", default: "I made this little surprise just for you." },
   { key: "heroPinnedTag", inputId: "textHeroPinnedTag", domId: "heroPinnedTag", default: "✨ Our Cherished Memories Together ✨" },
@@ -333,7 +333,7 @@ const SITE_TEXT_FIELDS = [
   { key: "finaleReplayBtnText", inputId: "textFinaleReplayBtn", domId: "finaleReplayBtnText", default: "REPLAY EXPERIENCE" },
 
   // 6. Navigation & Footer
-  { key: "topNavBrandText", inputId: "textTopNavBadge", domId: "topNavBrandText", default: "✨ Sarah's Birthday ✨" },
+  { key: "topNavBrandText", inputId: "textTopNavBadge", domId: "topNavBrandText", default: "✨ Joy's Birthday ✨" },
   { key: "siteFooterText", inputId: "textFooter", domId: "siteFooterText", default: "Made with all my love, just for you ❤️" },
   { key: "navChapter1", inputId: "textNavChapter1", domId: "navChapterLabel1", default: "Celebration" },
   { key: "navChapter2", inputId: "textNavChapter2", domId: "navChapterLabel2", default: "Our Memories ❤️" },
@@ -350,9 +350,29 @@ let currentSiteTexts = { ...defaultSiteTexts };
 
 function initSiteTexts() {
   try {
+    const savedName = localStorage.getItem("birthday_custom_name_v1");
+    if (savedName && savedName.trim().toLowerCase() === "sarah") {
+      currentName = "Joy";
+      localStorage.setItem("birthday_custom_name_v1", "Joy");
+    } else if (savedName && savedName.trim()) {
+      currentName = savedName.trim();
+    }
+  } catch (_) {}
+
+  try {
     const saved = localStorage.getItem("birthday_site_texts_v1");
     if (saved) {
       currentSiteTexts = Object.assign({}, defaultSiteTexts, JSON.parse(saved));
+      if (currentSiteTexts.celebrationHeadline && currentSiteTexts.celebrationHeadline.includes("SARAH")) {
+        currentSiteTexts.celebrationHeadline = currentSiteTexts.celebrationHeadline.replace(/SARAH/g, "JOY");
+      }
+      if (currentSiteTexts.celebrationHeadline && currentSiteTexts.celebrationHeadline.includes("Sarah")) {
+        currentSiteTexts.celebrationHeadline = currentSiteTexts.celebrationHeadline.replace(/Sarah/g, "Joy");
+      }
+      if (currentSiteTexts.topNavBrandText && currentSiteTexts.topNavBrandText.includes("Sarah")) {
+        currentSiteTexts.topNavBrandText = currentSiteTexts.topNavBrandText.replace(/Sarah/g, "Joy");
+      }
+      localStorage.setItem("birthday_site_texts_v1", JSON.stringify(currentSiteTexts));
     }
   } catch (_) {}
   try {
@@ -414,7 +434,7 @@ function populateAdminTextInputs() {
 
   const nameInput = document.getElementById("devNameInput");
   if (nameInput && document.activeElement !== nameInput) {
-    nameInput.value = currentName || "Sarah";
+    nameInput.value = currentName || "Joy";
   }
 
   const msgInput = document.getElementById("devMessageInput");
@@ -424,7 +444,7 @@ function populateAdminTextInputs() {
 
   const headlineInput = document.getElementById("devHeadlineInput");
   if (headlineInput && document.activeElement !== headlineInput) {
-    headlineInput.value = currentSiteTexts.celebrationHeadline || "HAPPY BIRTHDAY, SARAH! 🎉";
+    headlineInput.value = currentSiteTexts.celebrationHeadline || "HAPPY BIRTHDAY, JOY! 🎉";
   }
 }
 
@@ -447,7 +467,7 @@ function applySiteTextsToDOM() {
   const openingMsg = document.getElementById("openingMessage");
   if (openingMsg) {
     const prefix = currentSiteTexts.openingPrefix || "I made something Just for you,";
-    const nameVal = currentName || "Sarah";
+    const nameVal = currentName || "Joy";
     openingMsg.innerHTML = `${prefix} <span class="recipient-highlight" id="openingPersonName">${nameVal}</span> ❤️`;
   }
 
@@ -930,13 +950,22 @@ async function loadBirthdayContentFromSupabase() {
 
       // Recipient Name
       if (row.recipient_name && typeof row.recipient_name === "string" && row.recipient_name.trim() !== "") {
-        currentName = row.recipient_name.trim();
+        let fetchedName = row.recipient_name.trim();
+        if (fetchedName.toLowerCase() === "sarah") {
+          fetchedName = "Joy";
+        }
+        currentName = fetchedName;
         try {
           localStorage.setItem("birthday_custom_name_v1", currentName);
         } catch (_) {}
         if (devNameInput) {
           devNameInput.value = currentName;
         }
+      } else {
+        currentName = "Joy";
+        try {
+          localStorage.setItem("birthday_custom_name_v1", "Joy");
+        } catch (_) {}
       }
 
       // Birthday Message
@@ -1103,6 +1132,15 @@ async function loadBirthdayContentFromSupabase() {
 
       if (loadedTexts) {
         currentSiteTexts = Object.assign({}, defaultSiteTexts, loadedTexts);
+        if (currentSiteTexts.celebrationHeadline && currentSiteTexts.celebrationHeadline.includes("SARAH")) {
+          currentSiteTexts.celebrationHeadline = currentSiteTexts.celebrationHeadline.replace(/SARAH/g, "JOY");
+        }
+        if (currentSiteTexts.celebrationHeadline && currentSiteTexts.celebrationHeadline.includes("Sarah")) {
+          currentSiteTexts.celebrationHeadline = currentSiteTexts.celebrationHeadline.replace(/Sarah/g, "Joy");
+        }
+        if (currentSiteTexts.topNavBrandText && currentSiteTexts.topNavBrandText.includes("Sarah")) {
+          currentSiteTexts.topNavBrandText = currentSiteTexts.topNavBrandText.replace(/Sarah/g, "Joy");
+        }
         try {
           localStorage.setItem("birthday_site_texts_v1", JSON.stringify(currentSiteTexts));
         } catch (_) {}
