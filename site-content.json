@@ -1,0 +1,60 @@
+{
+  "recipientName": "Joy",
+  "opening": {
+    "badge": "✦ A SPECIAL SURPRISE AWAITS ✦",
+    "prefix": "I made something Just for you,",
+    "showMeButton": "Tap photo to reveal surprise",
+    "tapIndicator": "👇 Tap me to open",
+    "countdownSub": "3-2-1 Countdown to celebration"
+  },
+  "chapter1": {
+    "headline": "HAPPY BIRTHDAY, JOY! 🎉",
+    "eyebrow": "IT'S FINALLY HERE!",
+    "intro": "I made this little surprise just for you.",
+    "heroTag": "✨ Our Cherished Memories Together ✨",
+    "replayButton": "💥 Replay Photo Burst",
+    "celebrateButton": "🎊 Celebrate More Confetti",
+    "continueText": "Explore Our Memories ❤️"
+  },
+  "chapter2": {
+    "tag": "CHAPTER 2",
+    "backButton": "← Celebration",
+    "title": "OUR MEMORIES ❤️",
+    "subtitle": "A visual scrapbook of every smile, road trip, and sweet adventure we've shared",
+    "continueText": "Read Birthday Love Notes & Wishes 💌",
+    "continueArrow": "Tap to continue →"
+  },
+  "chapter3": {
+    "tag": "CHAPTER 3",
+    "backButton": "← Our Memories",
+    "title": "Birthday Love Notes & Wishes ❤️",
+    "subtitle": "Heartfelt notes, sweet blessings, photos & video wishes from everyone who loves you",
+    "leaveNoteButton": "✍️ Leave A Sweet Note",
+    "continueText": "Continue to Our Finale ✨"
+  },
+  "chapter4": {
+    "sparkleText": "My Endless Birthday Wish For You",
+    "backButton": "← Back to Love Notes",
+    "title": "I LOVE YOU",
+    "badgeText": "∞ ALWAYS & FOREVER ∞",
+    "hintText": "Drag or swipe to tilt • Tap to pulse",
+    "closingQuote": "\"No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love.\"",
+    "authorSignature": "Forever Yours ❤️",
+    "replayButton": "REPLAY EXPERIENCE"
+  },
+  "navigation": {
+    "brandTitle": "✨ Joy's Birthday ✨",
+    "footer": "Made with all my love, just for you ❤️",
+    "navChapter1": "Celebration",
+    "navChapter2": "Our Memories ❤️",
+    "navChapter3": "Love Notes 💌",
+    "navChapter4": "Finale ✨"
+  },
+  "revealTitles": [
+    "MY BABY",
+    "MY LOVE",
+    "MY EVERYTHING ❤️"
+  ],
+  "birthdayMessage": "Happy Birthday to the most wonderful person in my life. Thank you for filling every single day with warmth, laughter, and so much happiness. Being with you is my favorite thing in the world, and I wanted to make this little surprise just to remind you how deeply loved and cherished you are. Here's to you, all our sweetest memories, and all the adventures still ahead of us. I love you endlessly! ❤️✨",
+  "lastUpdated": "2026-09-21T03:30:00.000Z"
+}

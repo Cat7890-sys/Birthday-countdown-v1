@@ -348,6 +348,293 @@ SITE_TEXT_FIELDS.forEach(f => {
 
 let currentSiteTexts = { ...defaultSiteTexts };
 
+// ============================================================================
+// CENTRAL GITHUB-BACKED SITE CONFIGURATION (site-content.json)
+// ============================================================================
+let siteContent = null;
+let lastKnownGitHubSha = null;
+let gitHubSyncStatus = {
+  synced: false,
+  lastSyncTime: null,
+  commitSha: null,
+  commitUrl: null,
+  fileSha: null
+};
+
+/**
+ * Maps the centralized structured site-content.json object into flat key-value pairs
+ * expected by currentSiteTexts and the Admin Console.
+ */
+function flattenSiteContentToSiteTexts(content) {
+  const texts = { ...defaultSiteTexts };
+  if (!content || typeof content !== "object") return texts;
+
+  if (content.opening) {
+    if (content.opening.badge) texts.openingBadge = content.opening.badge;
+    if (content.opening.prefix) texts.openingPrefix = content.opening.prefix;
+    if (content.opening.showMeButton) texts.showMeBtnText = content.opening.showMeButton;
+    if (content.opening.tapIndicator) texts.fingerGuideText = content.opening.tapIndicator;
+    if (content.opening.countdownSub) texts.countdownSub = content.opening.countdownSub;
+  }
+  if (content.chapter1) {
+    if (content.chapter1.headline || content.chapter1.title) texts.celebrationHeadline = content.chapter1.headline || content.chapter1.title;
+    if (content.chapter1.eyebrow) texts.chapter1Eyebrow = content.chapter1.eyebrow;
+    if (content.chapter1.intro) texts.celebrationIntro = content.chapter1.intro;
+    if (content.chapter1.heroTag) texts.heroPinnedTag = content.chapter1.heroTag;
+    if (content.chapter1.replayButton) texts.replayBurstBtnText = content.chapter1.replayButton;
+    if (content.chapter1.celebrateButton) texts.celebrateMoreBtnText = content.chapter1.celebrateButton;
+    if (content.chapter1.continueText) texts.page1ContinueTitle = content.chapter1.continueText;
+  }
+  if (content.chapter2) {
+    if (content.chapter2.tag) texts.chapter2Tag = content.chapter2.tag;
+    if (content.chapter2.backButton) texts.page2BackBtnText = content.chapter2.backButton;
+    if (content.chapter2.title) texts.chapter2Title = content.chapter2.title;
+    if (content.chapter2.subtitle) texts.chapter2Subtitle = content.chapter2.subtitle;
+    if (content.chapter2.continueText) texts.page2ContinueTitle = content.chapter2.continueText;
+    if (content.chapter2.continueArrow) texts.page2ContinueArrow = content.chapter2.continueArrow;
+  }
+  if (content.chapter3) {
+    if (content.chapter3.tag) texts.chapter3Tag = content.chapter3.tag;
+    if (content.chapter3.backButton) texts.page3BackBtnText = content.chapter3.backButton;
+    if (content.chapter3.title) texts.chapter3Title = content.chapter3.title;
+    if (content.chapter3.subtitle) texts.chapter3Subtitle = content.chapter3.subtitle;
+    if (content.chapter3.leaveNoteButton) texts.page3LeaveNoteBtnText = content.chapter3.leaveNoteButton;
+    if (content.chapter3.continueText) texts.page3ContinueTitle = content.chapter3.continueText;
+  }
+  if (content.chapter4) {
+    if (content.chapter4.sparkleText) texts.finaleSparklePillText = content.chapter4.sparkleText;
+    if (content.chapter4.backButton) texts.finaleBackBtnText = content.chapter4.backButton;
+    if (content.chapter4.title) texts.finaleMainTitle = content.chapter4.title;
+    if (content.chapter4.badgeText) texts.finaleInfinityBadgeText = content.chapter4.badgeText;
+    if (content.chapter4.hintText) texts.finaleHintText = content.chapter4.hintText;
+    if (content.chapter4.closingQuote) texts.finaleClosingQuote = content.chapter4.closingQuote;
+    if (content.chapter4.authorSignature) texts.finaleAuthorName = content.chapter4.authorSignature;
+    if (content.chapter4.replayButton) texts.finaleReplayBtnText = content.chapter4.replayButton;
+  }
+  if (content.navigation) {
+    if (content.navigation.brandTitle) texts.topNavBrandText = content.navigation.brandTitle;
+    if (content.navigation.footer) texts.siteFooterText = content.navigation.footer;
+    if (content.navigation.navChapter1) texts.navChapter1 = content.navigation.navChapter1;
+    if (content.navigation.navChapter2) texts.navChapter2 = content.navigation.navChapter2;
+    if (content.navigation.navChapter3) texts.navChapter3 = content.navigation.navChapter3;
+    if (content.navigation.navChapter4) texts.navChapter4 = content.navigation.navChapter4;
+  }
+  return texts;
+}
+
+/**
+ * Builds the canonical hierarchical JSON configuration object for site-content.json
+ * to be committed to the GitHub repository.
+ */
+function buildSiteContentObject() {
+  return {
+    recipientName: (currentName || "Joy").trim(),
+    opening: {
+      badge: currentSiteTexts.openingBadge || defaultSiteTexts.openingBadge,
+      prefix: currentSiteTexts.openingPrefix || defaultSiteTexts.openingPrefix,
+      showMeButton: currentSiteTexts.showMeBtnText || defaultSiteTexts.showMeBtnText,
+      tapIndicator: currentSiteTexts.fingerGuideText || defaultSiteTexts.fingerGuideText,
+      countdownSub: currentSiteTexts.countdownSub || defaultSiteTexts.countdownSub
+    },
+    chapter1: {
+      headline: currentSiteTexts.celebrationHeadline || defaultSiteTexts.celebrationHeadline,
+      eyebrow: currentSiteTexts.chapter1Eyebrow || defaultSiteTexts.chapter1Eyebrow,
+      intro: currentSiteTexts.celebrationIntro || defaultSiteTexts.celebrationIntro,
+      heroTag: currentSiteTexts.heroPinnedTag || defaultSiteTexts.heroPinnedTag,
+      replayButton: currentSiteTexts.replayBurstBtnText || defaultSiteTexts.replayBurstBtnText,
+      celebrateButton: currentSiteTexts.celebrateMoreBtnText || defaultSiteTexts.celebrateMoreBtnText,
+      continueText: currentSiteTexts.page1ContinueTitle || defaultSiteTexts.page1ContinueTitle
+    },
+    chapter2: {
+      tag: currentSiteTexts.chapter2Tag || defaultSiteTexts.chapter2Tag,
+      backButton: currentSiteTexts.page2BackBtnText || defaultSiteTexts.page2BackBtnText,
+      title: currentSiteTexts.chapter2Title || defaultSiteTexts.chapter2Title,
+      subtitle: currentSiteTexts.chapter2Subtitle || defaultSiteTexts.chapter2Subtitle,
+      continueText: currentSiteTexts.page2ContinueTitle || defaultSiteTexts.page2ContinueTitle,
+      continueArrow: currentSiteTexts.page2ContinueArrow || defaultSiteTexts.page2ContinueArrow
+    },
+    chapter3: {
+      tag: currentSiteTexts.chapter3Tag || defaultSiteTexts.chapter3Tag,
+      backButton: currentSiteTexts.page3BackBtnText || defaultSiteTexts.page3BackBtnText,
+      title: currentSiteTexts.chapter3Title || defaultSiteTexts.chapter3Title,
+      subtitle: currentSiteTexts.chapter3Subtitle || defaultSiteTexts.chapter3Subtitle,
+      leaveNoteButton: currentSiteTexts.page3LeaveNoteBtnText || defaultSiteTexts.page3LeaveNoteBtnText,
+      continueText: currentSiteTexts.page3ContinueTitle || defaultSiteTexts.page3ContinueTitle
+    },
+    chapter4: {
+      sparkleText: currentSiteTexts.finaleSparklePillText || defaultSiteTexts.finaleSparklePillText,
+      backButton: currentSiteTexts.finaleBackBtnText || defaultSiteTexts.finaleBackBtnText,
+      title: currentSiteTexts.finaleMainTitle || defaultSiteTexts.finaleMainTitle,
+      badgeText: currentSiteTexts.finaleInfinityBadgeText || defaultSiteTexts.finaleInfinityBadgeText,
+      hintText: currentSiteTexts.finaleHintText || defaultSiteTexts.finaleHintText,
+      closingQuote: currentSiteTexts.finaleClosingQuote || defaultSiteTexts.finaleClosingQuote,
+      authorSignature: currentSiteTexts.finaleAuthorName || defaultSiteTexts.finaleAuthorName,
+      replayButton: currentSiteTexts.finaleReplayBtnText || defaultSiteTexts.finaleReplayBtnText
+    },
+    navigation: {
+      brandTitle: currentSiteTexts.topNavBrandText || defaultSiteTexts.topNavBrandText,
+      footer: currentSiteTexts.siteFooterText || defaultSiteTexts.siteFooterText,
+      navChapter1: currentSiteTexts.navChapter1 || defaultSiteTexts.navChapter1,
+      navChapter2: currentSiteTexts.navChapter2 || defaultSiteTexts.navChapter2,
+      navChapter3: currentSiteTexts.navChapter3 || defaultSiteTexts.navChapter3,
+      navChapter4: currentSiteTexts.navChapter4 || defaultSiteTexts.navChapter4
+    },
+    revealTitles: [
+      currentRevealTitles[0] || "MY BABY",
+      currentRevealTitles[1] || "MY LOVE",
+      (burstConfig?.revealThirdTitle || currentRevealTitles[2] || "MY EVERYTHING ❤️").trim()
+    ],
+    birthdayMessage: (currentMessage || birthdayMessage).trim(),
+    lastUpdated: new Date().toISOString()
+  };
+}
+
+/**
+ * Loads the central site configuration from site-content.json
+ */
+async function loadSiteContentFromJSON() {
+  try {
+    const cacheKey = Math.floor(Date.now() / 60000);
+    const res = await fetch(`site-content.json?_cb=${cacheKey}`, {
+      headers: { "Accept": "application/json" }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === "object") {
+        siteContent = data;
+        const mappedTexts = flattenSiteContentToSiteTexts(data);
+
+        const savedTexts = localStorage.getItem("birthday_site_texts_v1");
+        if (!savedTexts) {
+          currentSiteTexts = Object.assign({}, defaultSiteTexts, mappedTexts);
+        } else {
+          currentSiteTexts = Object.assign({}, defaultSiteTexts, mappedTexts, JSON.parse(savedTexts));
+        }
+
+        if (data.recipientName && (!currentName || currentName.toLowerCase() === "sarah")) {
+          currentName = data.recipientName.trim();
+        }
+        if (data.birthdayMessage && (!currentMessage || currentMessage === birthdayMessage)) {
+          currentMessage = data.birthdayMessage.trim();
+        }
+        if (Array.isArray(data.revealTitles) && data.revealTitles.length >= 3 && (!currentRevealPhotos || currentRevealPhotos.length < 3)) {
+          currentRevealTitles = [
+            data.revealTitles[0] || "MY BABY",
+            data.revealTitles[1] || "MY LOVE",
+            data.revealTitles[2] || "MY EVERYTHING ❤️"
+          ];
+        }
+
+        applySiteTextsToDOM();
+        console.log("[Site Content] Loaded centralized configuration from site-content.json");
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn("[Site Content] Could not load site-content.json (using defaults/Supabase):", err);
+  }
+  return false;
+}
+
+/**
+ * Updates the Website Publishing status badges and indicators
+ */
+function updatePublishingStatusUI(type, state, details = null) {
+  if (type === "supabase") {
+    const dot = document.getElementById("supabaseSyncDot");
+    const txt = document.getElementById("supabaseSyncText");
+    if (dot && txt) {
+      if (state === "saved") {
+        dot.className = "publishing-status-dot saved";
+        txt.textContent = "Saved";
+        txt.style.color = "#52c41a";
+      } else if (state === "saving") {
+        dot.className = "publishing-status-dot unsaved";
+        txt.textContent = "Saving...";
+        txt.style.color = "#faad14";
+      } else {
+        dot.className = "publishing-status-dot unsaved";
+        txt.textContent = "Not Saved";
+        txt.style.color = "#faad14";
+      }
+    }
+  }
+
+  if (type === "github") {
+    const dot = document.getElementById("githubSyncDot");
+    const txt = document.getElementById("githubSyncText");
+    const timeEl = document.getElementById("lastGitHubSyncTime");
+    const commitEl = document.getElementById("lastGitHubCommitSha");
+
+    if (state === "synced") {
+      if (dot) dot.className = "publishing-status-dot synced";
+      if (txt) {
+        txt.textContent = "Synced";
+        txt.style.color = "#52c41a";
+      }
+      if (timeEl && details?.lastSyncTime) {
+        const d = new Date(details.lastSyncTime);
+        timeEl.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      if (commitEl && details?.commitSha) {
+        if (details.commitUrl) {
+          commitEl.innerHTML = `<a href="${details.commitUrl}" target="_blank" rel="noopener noreferrer" style="color: #ff85c0; text-decoration: underline;">${details.commitSha}</a>`;
+        } else {
+          commitEl.textContent = details.commitSha;
+        }
+      }
+    } else if (state === "syncing") {
+      if (dot) dot.className = "publishing-status-dot unsaved";
+      if (txt) {
+        txt.textContent = "Syncing...";
+        txt.style.color = "#faad14";
+      }
+    } else if (state === "conflict") {
+      if (dot) dot.className = "publishing-status-dot error";
+      if (txt) {
+        txt.textContent = "Conflict";
+        txt.style.color = "#ff4d4f";
+      }
+    } else if (state === "error") {
+      if (dot) dot.className = "publishing-status-dot error";
+      if (txt) {
+        txt.textContent = "Error";
+        txt.style.color = "#ff4d4f";
+      }
+    } else {
+      if (dot) dot.className = "publishing-status-dot idle";
+      if (txt) {
+        txt.textContent = "Not Synced";
+        txt.style.color = "rgba(255, 255, 255, 0.7)";
+      }
+    }
+  }
+}
+
+/**
+ * Initializes the publishing status from localStorage or session
+ */
+function initPublishingStatus() {
+  updatePublishingStatusUI("supabase", "saved");
+
+  try {
+    const saved = localStorage.getItem("birthday_github_sync_status_v1");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === "object") {
+        gitHubSyncStatus = parsed;
+        if (parsed.fileSha) lastKnownGitHubSha = parsed.fileSha;
+        if (parsed.synced) {
+          updatePublishingStatusUI("github", "synced", parsed);
+          return;
+        }
+      }
+    }
+  } catch (_) {}
+
+  updatePublishingStatusUI("github", "idle");
+}
+
 function initSiteTexts() {
   try {
     const savedName = localStorage.getItem("birthday_custom_name_v1");
@@ -393,7 +680,10 @@ function initSiteTexts() {
       }
     }
   } catch (_) {}
+
   applySiteTextsToDOM();
+  initPublishingStatus();
+  loadSiteContentFromJSON();
 }
 
 function readAdminTextInputs() {
@@ -1149,6 +1439,7 @@ async function loadBirthdayContentFromSupabase() {
       applySiteTextsToDOM();
       updateAdminMediaCards();
       updateAdminRevealCards();
+      updatePublishingStatusUI("supabase", "saved");
 
       setupDynamicContent();
       console.log("[Supabase] Successfully loaded and synchronized online birthday content:", row);
@@ -4613,18 +4904,157 @@ const loopMusic = ${loopMusic};`;
 // ============================================================================
 function setupAdminPanelControls() {
   // --------------------------------------------------------------------------
-  // 1. All Website Text Tab Controls
+  // 1. All Website Text Tab Controls & GitHub Publishing
   // --------------------------------------------------------------------------
   async function handleSaveAllText() {
     readAdminTextInputs();
     applySiteTextsToDOM();
 
     showStorageStatus("adminTextSaveStatus", "Saving all website text to Supabase...", "loading", 0);
+    updatePublishingStatusUI("supabase", "saving");
+
     const saved = await saveAllBirthdayContentToSupabase();
     if (saved) {
-      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated)", "success", 4000);
+      updatePublishingStatusUI("supabase", "saved");
+      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated in database)", "success", 4000);
+      updatePublishingStatusUI("github", "unsynced");
     } else {
+      updatePublishingStatusUI("supabase", "unsaved");
       showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+    }
+  }
+
+  async function saveWebsiteChangesToGitHub() {
+    const statusId = "adminGitHubSaveStatus";
+    const btn = document.getElementById("adminSaveToGitHubBtn");
+    const bottomBtn = document.getElementById("adminSaveToGitHubBtnBottom");
+
+    if (!isCurrentUserAdmin()) {
+      openAdminLoginForm("🔒 Admin sign-in required to commit changes to GitHub.");
+      showStorageStatus(statusId, "Admin authentication required. Please sign in to publish.", "error", 6000);
+      return;
+    }
+
+    readAdminTextInputs();
+    applySiteTextsToDOM();
+
+    // 1. Supabase save FIRST
+    showStorageStatus(statusId, "Step 1/2: Saving changes to Supabase...", "loading", 0);
+    updatePublishingStatusUI("supabase", "saving");
+
+    const saved = await saveAllBirthdayContentToSupabase();
+    if (!saved) {
+      updatePublishingStatusUI("supabase", "unsaved");
+      showStorageStatus(statusId, "Supabase save failed. GitHub commit aborted to prevent desynchronization.", "error", 6000);
+      return;
+    }
+    updatePublishingStatusUI("supabase", "saved");
+
+    // 2. GitHub commit through Supabase Edge Function
+    showStorageStatus(statusId, "Step 2/2: Committing content to GitHub repository via Supabase Edge Function...", "loading", 0);
+    updatePublishingStatusUI("github", "syncing");
+    if (btn) btn.disabled = true;
+    if (bottomBtn) bottomBtn.disabled = true;
+
+    try {
+      const contentPayload = buildSiteContentObject();
+      const token = currentAdminSession?.access_token;
+      const client = getSupabaseClient();
+
+      let resData = null;
+      let invokeError = null;
+
+      if (client && client.functions) {
+        try {
+          const { data, error } = await client.functions.invoke("github-update-content", {
+            body: {
+              content: contentPayload,
+              expectedSha: lastKnownGitHubSha || undefined,
+              commitMessage: `Update website content from Admin Console`
+            }
+          });
+          if (error) {
+            invokeError = error;
+          } else {
+            resData = data;
+          }
+        } catch (fnErr) {
+          invokeError = fnErr;
+        }
+      }
+
+      if (!resData) {
+        const edgeUrl = `${SUPABASE_URL}/functions/v1/github-update-content`;
+        const res = await fetch(edgeUrl, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_PUBLISHABLE_KEY,
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            content: contentPayload,
+            expectedSha: lastKnownGitHubSha || undefined,
+            commitMessage: `Update website content from Admin Console`
+          })
+        });
+
+        resData = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          if (res.status === 409) {
+            updatePublishingStatusUI("github", "conflict");
+            showStorageStatus(statusId, "GitHub file changed externally. Please reload and try again.", "error", 8000);
+            return;
+          }
+          const errMsg = resData?.error || invokeError?.message || `GitHub commit request failed (${res.status})`;
+          throw new Error(errMsg);
+        }
+      }
+
+      if (resData?.conflict) {
+        updatePublishingStatusUI("github", "conflict");
+        showStorageStatus(statusId, "GitHub file changed externally. Please reload and try again.", "error", 8000);
+        return;
+      }
+
+      if (!resData?.success) {
+        updatePublishingStatusUI("github", "error");
+        const safeMsg = resData?.error || "GitHub repository update failed.";
+        showStorageStatus(statusId, safeMsg, "error", 7000);
+        return;
+      }
+
+      const commitSha = resData.commit?.sha || "";
+      const shortSha = resData.commit?.shortSha || (commitSha ? commitSha.substring(0, 7) : "");
+      const commitUrl = resData.commit?.htmlUrl || `https://github.com/Cat7890-sys/Birthday-countdown-v1/commit/${commitSha}`;
+      const newFileSha = resData.file?.sha || null;
+      if (newFileSha) lastKnownGitHubSha = newFileSha;
+
+      gitHubSyncStatus = {
+        synced: true,
+        lastSyncTime: new Date().toISOString(),
+        commitSha: shortSha,
+        commitUrl: commitUrl,
+        fileSha: newFileSha
+      };
+
+      try {
+        localStorage.setItem("birthday_github_sync_status_v1", JSON.stringify(gitHubSyncStatus));
+      } catch (_) {}
+
+      updatePublishingStatusUI("github", "synced", gitHubSyncStatus);
+
+      const successMsg = "Saved to GitHub successfully. Changes committed to GitHub. GitHub Pages may take a short time to deploy.";
+      showStorageStatus(statusId, `✅ ${successMsg}${shortSha ? ` (Commit: ${shortSha})` : ""}`, "success", 10000);
+
+    } catch (err) {
+      console.error("[GitHub Sync] Commit error:", err);
+      updatePublishingStatusUI("github", "error");
+      const cleanErr = err?.message || "GitHub repository update failed.";
+      showStorageStatus(statusId, cleanErr, "error", 7000);
+    } finally {
+      if (btn) btn.disabled = false;
+      if (bottomBtn) bottomBtn.disabled = false;
     }
   }
 
@@ -4633,6 +5063,23 @@ function setupAdminPanelControls() {
 
   const saveAllTextBtnBottom = document.getElementById("adminSaveAllTextBtnBottom");
   if (saveAllTextBtnBottom) saveAllTextBtnBottom.addEventListener("click", handleSaveAllText);
+
+  const saveToGitHubBtn = document.getElementById("adminSaveToGitHubBtn");
+  if (saveToGitHubBtn) saveToGitHubBtn.addEventListener("click", saveWebsiteChangesToGitHub);
+
+  const saveToGitHubBtnBottom = document.getElementById("adminSaveToGitHubBtnBottom");
+  if (saveToGitHubBtnBottom) saveToGitHubBtnBottom.addEventListener("click", saveWebsiteChangesToGitHub);
+
+  // Mark changes as unsynced when user types in any text inputs
+  SITE_TEXT_FIELDS.forEach(item => {
+    const input = document.getElementById(item.inputId);
+    if (input) {
+      input.addEventListener("input", () => {
+        updatePublishingStatusUI("supabase", "unsaved");
+        updatePublishingStatusUI("github", "unsynced");
+      });
+    }
+  });
 
   const resetTextBtn = document.getElementById("adminResetTextBtn");
   if (resetTextBtn) {

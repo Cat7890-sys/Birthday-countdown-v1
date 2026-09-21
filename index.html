@@ -489,15 +489,64 @@
               <p class="pane-subheading">Full control to edit every single text element, headline, button, and message across the entire website. Live updates appear immediately.</p>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <button type="button" id="adminSaveAllTextBtn" class="primary-btn" style="padding: 0.65rem 1.3rem; font-weight: 700;">
-                <span>💾 Save All Website Text</span>
-              </button>
               <button type="button" id="adminResetTextBtn" class="secondary-btn" style="padding: 0.65rem 0.9rem;">
                 <span>↺ Reset</span>
               </button>
             </div>
           </div>
-          <div id="adminTextSaveStatus" class="storage-upload-status" style="display: none; margin-bottom: 1rem;"></div>
+
+          <!-- Website Publishing & GitHub Sync Section -->
+          <div class="admin-card publishing-card" id="adminPublishingCard" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                  <span style="font-size: 1.15rem;">🚀</span>
+                  <h4 style="font-size: 1rem; font-weight: 700; margin: 0; color: #fff;">Website Publishing</h4>
+                </div>
+                <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); margin: 0; max-width: 620px; line-height: 1.45;">
+                  Save changes to Supabase for immediate live website updates, and commit approved text to the version-controlled GitHub repository (<code style="background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: #ff85c0;">site-content.json</code> on branch <code style="background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: #7dd3fc;">main</code>).
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="adminSaveAllTextBtn" class="primary-btn" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem;">
+                  <span>💾 Save All Website Text</span>
+                </button>
+                <button type="button" id="adminSaveToGitHubBtn" class="secondary-btn" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem; border-color: rgba(255, 133, 192, 0.45); background: rgba(255, 133, 192, 0.1); color: #fff;">
+                  <span>🚀 Save Website Changes to GitHub</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Status area -->
+            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; font-size: 0.85rem;">
+              <div id="statusSupabaseIndicator" style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="color: rgba(255, 255, 255, 0.6);">Supabase:</span>
+                <span id="supabaseSyncDot" class="publishing-status-dot saved"></span>
+                <strong id="supabaseSyncText" style="color: #52c41a;">Saved</strong>
+              </div>
+
+              <div id="statusGitHubIndicator" style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="color: rgba(255, 255, 255, 0.6);">GitHub:</span>
+                <span id="githubSyncDot" class="publishing-status-dot idle"></span>
+                <strong id="githubSyncText" style="color: rgba(255, 255, 255, 0.7);">Not Synced</strong>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.45rem; color: rgba(255, 255, 255, 0.6);">
+                <span>Last GitHub Sync:</span>
+                <span id="lastGitHubSyncTime" style="color: rgba(255, 255, 255, 0.9); font-family: monospace;">Never</span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.45rem; color: rgba(255, 255, 255, 0.6);">
+                <span>Commit:</span>
+                <span id="lastGitHubCommitSha" style="color: #ff85c0; font-family: monospace; font-weight: 600;">None</span>
+              </div>
+            </div>
+
+            <!-- Live Status Messages -->
+            <div id="adminGitHubSaveStatus" class="storage-upload-status" style="display: none; margin-top: 0.85rem;"></div>
+            <div id="adminTextSaveStatus" class="storage-upload-status" style="display: none; margin-top: 0.85rem;"></div>
+          </div>
 
           <!-- Section 1: Opening Screen & Interactive Sticker -->
           <div class="admin-content-section">
@@ -717,9 +766,12 @@
             </div>
           </div>
 
-          <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end; flex-wrap: wrap;">
             <button type="button" id="adminSaveAllTextBtnBottom" class="primary-btn" style="padding: 0.75rem 1.6rem; font-weight: 700;">
               <span>💾 Save All Website Text</span>
+            </button>
+            <button type="button" id="adminSaveToGitHubBtnBottom" class="secondary-btn" style="padding: 0.75rem 1.6rem; font-weight: 700; border-color: rgba(255, 133, 192, 0.45); background: rgba(255, 133, 192, 0.1); color: #fff;">
+              <span>🚀 Save Website Changes to GitHub</span>
             </button>
           </div>
         </div>
