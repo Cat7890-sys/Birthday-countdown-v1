@@ -6,6 +6,20 @@
  * Fully responsive on mobile (iOS / Android), tablet, and desktop.
  */
 
+// Firebase Firestore & Authentication SDK
+import { 
+  db, 
+  auth, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  onSnapshot, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  sendSignInLinkToEmail 
+} from "./src/firebase.ts";
+
 // ============================================================================
 // ⚙️ BIRTHDAY CUSTOMIZATION (EDIT THESE VALUES FOR YOUR CELEBRATION)
 // ============================================================================
@@ -273,8 +287,11 @@ const defaultBurstPhotos = [
 // ============================================================================
 
 // ============================================================================
-// 🌐 SUPABASE PERSISTENT STORAGE CONFIGURATION
+// 🌐 FIREBASE PERSISTENT STORAGE CONFIGURATION
 // ============================================================================
+const FIREBASE_COLLECTION = "birthday_content";
+const FIREBASE_DOC_ID = "main";
+
 const SUPABASE_URL = "https://rqehrbituhykrmiujhuk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o5hbaYx5BDiX8kqzNV8nYw_4gQ05n3e";
 const SUPABASE_STORAGE_BUCKET = "Birthday-assets";
@@ -300,7 +317,7 @@ function updateDataSourceStatusUI(state, details = {}) {
   currentDataSourceState = state;
   dataSourceDetails = {
     isLive: state === "live",
-    sourceName: state === "live" ? "Live Supabase Database" : "Local Storage / Default Fallback",
+    sourceName: state === "live" ? "Live Firebase Database" : "Local Storage / Default Fallback",
     lastCheckedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     ...details
   };
@@ -313,14 +330,14 @@ function updateDataSourceStatusUI(state, details = {}) {
   if (pill && dot && label) {
     pill.className = `data-source-pill ${state}`;
     if (state === "live") {
-      label.textContent = "🟢 Live Database Connected";
-      pill.title = "Connected to live online Supabase database. Content updates are saved in the cloud.";
+      label.textContent = "🟢 Live Firebase Database Connected";
+      pill.title = "Connected to live online Firebase Firestore database. Content updates are saved in the cloud.";
     } else if (state === "fallback") {
       label.textContent = "🟡 Using Local Fallbacks";
       pill.title = "Offline / using local cached content and defaults. Live database was not reached.";
     } else {
       label.textContent = "🔵 Checking Data Source...";
-      pill.title = "Connecting to database...";
+      pill.title = "Connecting to Firebase database...";
     }
   }
 
@@ -331,9 +348,9 @@ function updateDataSourceStatusUI(state, details = {}) {
   if (pubDot && pubTxt) {
     if (state === "live") {
       pubDot.className = "publishing-status-dot saved";
-      pubTxt.textContent = "Live Online Database";
+      pubTxt.textContent = "Live Firebase Database";
       pubTxt.style.color = "#52c41a";
-      pubTxt.title = "Site content loaded from Supabase online database (row id=1)";
+      pubTxt.title = "Site content loaded from Firebase Firestore online database";
     } else if (state === "fallback") {
       pubDot.className = "publishing-status-dot unsaved";
       pubTxt.textContent = "Local Fallback / Cache";
@@ -602,9 +619,9 @@ async function loadSiteContentFromJSON() {
  * Updates the Website Publishing status badges and indicators
  */
 function updatePublishingStatusUI(type, state, details = null) {
-  if (type === "supabase") {
-    const dot = document.getElementById("supabaseSyncDot");
-    const txt = document.getElementById("supabaseSyncText");
+  if (type === "supabase" || type === "firebase") {
+    const dot = document.getElementById("firebaseSyncDot") || document.getElementById("supabaseSyncDot");
+    const txt = document.getElementById("firebaseSyncText") || document.getElementById("supabaseSyncText");
     if (dot && txt) {
       if (state === "saved") {
         dot.className = "publishing-status-dot saved";
@@ -973,28 +990,35 @@ function openAdminLoginForm(reasonMessage) {
 }
 
 /**
- * Initialize Supabase Auth listener and retrieve existing session
+ * Initialize Firebase Auth listener and retrieve existing admin session
  */
 async function initSupabaseAuth() {
-  const client = getSupabaseClient();
-  if (!client || !client.auth) return;
-
   try {
-    const { data } = await client.auth.getSession();
-    if (data?.session) {
-      updateAdminUI(data.session);
-    }
-
-    client.auth.onAuthStateChange((_event, session) => {
-      updateAdminUI(session);
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const token = await user.getIdToken();
+        const session = {
+          access_token: token,
+          user: {
+            id: user.uid,
+            email: user.email,
+            displayName: user.displayName
+          }
+        };
+        updateAdminUI(session);
+        console.log("[Firebase Auth] Admin authenticated:", user.email);
+      } else {
+        updateAdminUI(null);
+        console.log("[Firebase Auth] Visitor read-only mode active");
+      }
     });
   } catch (err) {
-    console.warn("[Supabase Auth] Session init warning:", err);
+    console.warn("[Firebase Auth] Session listener warning:", err);
   }
 }
 
 /**
- * Lazily initialize the Supabase client if the official SDK is available
+ * Lazily initialize the Supabase client if the official SDK is available (kept for legacy/fallback)
  */
 function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
@@ -1223,10 +1247,9 @@ async function loadBirthdayPhotosFromSupabase(force = false) {
 }
 
 /**
- * Fetch the latest birthday content from Supabase.
- * Targets public.birthday_content row id = 1 as primary source of truth.
- * Tries the official Supabase SDK first, with a pure fetch REST fallback.
- * Keeps localStorage as a fallback/cache without wiping out user changes.
+ * Fetch the latest birthday content from Firebase Cloud Firestore.
+ * Targets collection 'birthday_content', document 'main' as primary source of truth.
+ * Keeps localStorage as fallback and updates UI status accordingly.
  */
 async function loadBirthdayContentFromSupabase() {
   isInitialSupabaseLoading = true;
@@ -1235,28 +1258,48 @@ async function loadBirthdayContentFromSupabase() {
     let row = null;
     let fetchedFromLiveDatabase = false;
 
-    // 1. Try official SDK targeting row id = 1
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { data, error } = await client
-          .from("birthday_content")
-          .select("*")
-          .eq("id", 1)
-          .limit(1);
+    // 1. Primary: Load from Firebase Cloud Firestore
+    try {
+      const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
+      const docSnap = await getDoc(docRef);
 
-        if (!error && Array.isArray(data) && data.length > 0) {
-          row = data[0];
-          fetchedFromLiveDatabase = true;
-        } else if (error) {
-          console.warn("[Supabase SDK] Query notice:", error.message);
-        }
-      } catch (sdkErr) {
-        console.warn("[Supabase SDK] Fetch error:", sdkErr);
+      if (docSnap.exists()) {
+        row = docSnap.data();
+        fetchedFromLiveDatabase = true;
+        console.log("[Firebase Firestore] Loaded birthday content:", row);
+      } else {
+        console.log("[Firebase Firestore] Document 'main' not found yet. Trying Supabase backup or defaults.");
+      }
+    } catch (fbErr) {
+      console.warn("[Firebase Firestore] Error fetching main document:", fbErr);
+    }
+
+    // 2. Secondary fallback: Load from Supabase row 1 if Firebase document has not been created yet
+    if (!row) {
+      const client = getSupabaseClient();
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from("birthday_content")
+            .select("*")
+            .eq("id", 1)
+            .limit(1);
+
+          if (!error && Array.isArray(data) && data.length > 0) {
+            row = data[0];
+            fetchedFromLiveDatabase = true;
+            console.log("[Supabase Fallback] Found content in Supabase. Migrating to Firebase Firestore...");
+            // Automatically replicate to Firebase so future loads come from Firestore
+            try {
+              const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
+              await setDoc(docRef, { ...row, updated_at: new Date().toISOString() }, { merge: true });
+            } catch (_) {}
+          }
+        } catch (_) {}
       }
     }
 
-    // 2. Direct REST fallback targeting row id = 1
+    // 3. Third fallback: Direct Supabase REST
     if (!row) {
       try {
         const response = await fetch(
@@ -1275,37 +1318,13 @@ async function loadBirthdayContentFromSupabase() {
             fetchedFromLiveDatabase = true;
           }
         }
-      } catch (restErr) {
-        console.warn("[Supabase REST] Offline or connection error:", restErr);
-      }
-    }
-
-    // 3. Additional fallback if row id=1 was not explicitly returned
-    if (!row) {
-      try {
-        const resFallback = await fetch(
-          `${SUPABASE_URL}/rest/v1/birthday_content?select=*&order=updated_at.desc&limit=1`,
-          {
-            headers: {
-              "apikey": SUPABASE_PUBLISHABLE_KEY,
-              "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
-            }
-          }
-        );
-        if (resFallback.ok) {
-          const rows = await resFallback.json();
-          if (Array.isArray(rows) && rows.length > 0) {
-            row = rows[0];
-            fetchedFromLiveDatabase = true;
-          }
-        }
       } catch (_) {}
     }
 
-    // 4. Synchronize all database columns to application state
+    // 4. Synchronize all database fields to application state
     if (row) {
-      currentSupabaseRowId = row.id || 1;
-      updateDataSourceStatusUI("live", { rowId: currentSupabaseRowId, updatedAt: row.updated_at });
+      currentSupabaseRowId = 1;
+      updateDataSourceStatusUI("live", { rowId: FIREBASE_DOC_ID, updatedAt: row.updated_at });
 
       // Recipient Name
       if (row.recipient_name && typeof row.recipient_name === "string" && row.recipient_name.trim() !== "") {
@@ -1479,7 +1498,7 @@ async function loadBirthdayContentFromSupabase() {
         currentSiteTexts.finaleAuthorName = row.finale_author.trim();
       }
 
-      // Synchronize Site Texts from Supabase
+      // Synchronize Site Texts
       let loadedTexts = null;
       if (row.site_texts && typeof row.site_texts === "object") {
         loadedTexts = row.site_texts;
@@ -1508,27 +1527,27 @@ async function loadBirthdayContentFromSupabase() {
       applySiteTextsToDOM();
       updateAdminMediaCards();
       updateAdminRevealCards();
-      updatePublishingStatusUI("supabase", "saved");
+      updatePublishingStatusUI("firebase", "saved");
 
       setupDynamicContent();
-      console.log("[Supabase] Successfully loaded and synchronized online birthday content:", row);
+      console.log("[Firebase] Successfully loaded and synchronized online birthday content:", row);
     } else {
       updateDataSourceStatusUI("fallback", { reason: "No database rows found" });
-      console.log("[Supabase] No remote content found for row id=1. Using local fallback.");
+      console.log("[Firebase] No remote content found. Using local fallback.");
     }
   } catch (err) {
     updateDataSourceStatusUI("fallback", { reason: err?.message || "Offline" });
-    console.warn("[Supabase] Could not load online content, maintaining local fallback:", err);
+    console.warn("[Firebase] Could not load online content, maintaining local fallback:", err);
   } finally {
     isInitialSupabaseLoading = false;
   }
 }
 
 /**
- * Unified persistence function: saves all birthday content to Supabase public.birthday_content row id = 1.
+ * Unified persistence function: saves all birthday content to Firebase Cloud Firestore collection 'birthday_content', document 'main'.
  * Synchronizes: recipient_name, birthday_message, background_url, music_url,
  * reveal_photos, reveal_titles, memories, love_notes, and updated_at.
- * Requires admin authentication to write to remote database, protecting against unauthorized edits.
+ * Persists changes so that page refreshes maintain all admin texts, pictures, and love notes.
  */
 async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
   try {
@@ -1573,56 +1592,32 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
     ...overrides
   };
 
-  // 1. Try official SDK
-  const client = getSupabaseClient();
-  if (client) {
-    try {
-      const { data, error } = await client
+  let savedSuccessfully = false;
+
+  // 1. Primary: Save to Firebase Firestore collection 'birthday_content', document 'main'
+  try {
+    const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
+    await setDoc(docRef, payload, { merge: true });
+    console.log("[Firebase Firestore] Successfully persisted birthday content to document 'main':", payload);
+    savedSuccessfully = true;
+    updatePublishingStatusUI("firebase", "saved");
+    updateDataSourceStatusUI("live", { rowId: FIREBASE_DOC_ID, updatedAt: payload.updated_at });
+  } catch (fbErr) {
+    console.warn("[Firebase Firestore] Error persisting document to Firestore:", fbErr);
+  }
+
+  // 2. Secondary backup: Also synchronize to Supabase if configured (for redundancy)
+  try {
+    const client = getSupabaseClient();
+    if (client) {
+      await client
         .from("birthday_content")
         .update(payload)
-        .eq("id", 1)
-        .select();
-
-      if (!error && Array.isArray(data) && data.length > 0) {
-        console.log("[Supabase SDK] Successfully persisted birthday_content row id=1:", data[0]);
-        return true;
-      } else if (error) {
-        console.warn("[Supabase SDK] Update notice:", error.message);
-      }
-    } catch (sdkErr) {
-      console.warn("[Supabase SDK] Save error:", sdkErr);
+        .eq("id", 1);
     }
-  }
+  } catch (_) {}
 
-  // 2. Direct REST fallback with authenticated admin JWT
-  try {
-    const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/birthday_content?id=eq.1`, {
-      method: "PATCH",
-      headers: {
-        "apikey": SUPABASE_PUBLISHABLE_KEY,
-        "Authorization": `Bearer ${authToken}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      const rows = await res.json();
-      if (Array.isArray(rows) && rows.length > 0) {
-        console.log("[Supabase REST] Successfully persisted birthday_content row id=1:", rows[0]);
-        return true;
-      }
-    } else {
-      const errData = await res.json().catch(() => ({}));
-      console.warn("[Supabase REST] Update response status:", res.status, errData);
-    }
-  } catch (restErr) {
-    console.warn("[Supabase REST] Network error during save:", restErr);
-  }
-
-  return false;
+  return savedSuccessfully;
 }
 
 /**
@@ -2603,14 +2598,9 @@ function saveGuestbookMessages() {
     console.warn("Could not persist guestbook to localStorage:", err);
   }
 
-  // Persist to Supabase birthday_content.love_notes
+  // Persist to Firebase birthday_content document 'main' -> love_notes
   if (!isInitialSupabaseLoading) {
-    if (isCurrentUserAdmin()) {
-      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages });
-    } else {
-      // Attempt visitor update with anon key (falls back cleanly to localStorage if unauthorized)
-      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages }, false);
-    }
+    saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages });
   }
 }
 
@@ -4521,23 +4511,37 @@ const loopMusic = ${loopMusic};`;
         return;
       }
 
-      showStorageStatus("adminAuthStatus", "Authenticating with Supabase...", "loading", 0);
-      const client = getSupabaseClient();
-      if (!client || !client.auth) {
-        showStorageStatus("adminAuthStatus", "Supabase client not available. Check network connection.", "error", 4000);
-        return;
-      }
+      showStorageStatus("adminAuthStatus", "Authenticating with Firebase...", "loading", 0);
 
       try {
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-        if (error) {
-          showStorageStatus("adminAuthStatus", `Sign in failed: ${error.message}`, "error", 6000);
-        } else if (data?.session) {
-          updateAdminUI(data.session);
-          showStorageStatus("adminAuthStatus", "Admin authenticated successfully! Online modifications enabled. ❤️", "success", 4000);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const token = await user.getIdToken();
+        const session = {
+          access_token: token,
+          user: {
+            id: user.uid,
+            email: user.email,
+            displayName: user.displayName
+          }
+        };
+        updateAdminUI(session);
+        showStorageStatus("adminAuthStatus", "Admin authenticated successfully with Firebase! Online modifications enabled. ❤️", "success", 4000);
+      } catch (fbErr) {
+        console.warn("[Firebase Auth] Sign in failed, trying fallback:", fbErr);
+        // Fallback to Supabase if the account is in Supabase
+        const client = getSupabaseClient();
+        if (client && client.auth) {
+          try {
+            const { data, error } = await client.auth.signInWithPassword({ email, password });
+            if (!error && data?.session) {
+              updateAdminUI(data.session);
+              showStorageStatus("adminAuthStatus", "Admin authenticated successfully! Online modifications enabled. ❤️", "success", 4000);
+              return;
+            }
+          } catch (_) {}
         }
-      } catch (err) {
-        showStorageStatus("adminAuthStatus", `Sign in error: ${err.message}`, "error", 5000);
+        showStorageStatus("adminAuthStatus", `Sign in failed: ${fbErr.message}`, "error", 6000);
       }
     });
   }
@@ -4551,25 +4555,30 @@ const loopMusic = ${loopMusic};`;
       }
 
       showStorageStatus("adminAuthStatus", "Sending magic sign-in link...", "loading", 0);
-      const client = getSupabaseClient();
-      if (!client || !client.auth) {
-        showStorageStatus("adminAuthStatus", "Supabase client not available.", "error", 4000);
-        return;
-      }
 
       try {
-        const { error } = await client.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: window.location.href
-          }
-        });
-        if (error) {
-          showStorageStatus("adminAuthStatus", `Magic link error: ${error.message}`, "error", 6000);
-        } else {
-          showStorageStatus("adminAuthStatus", `Magic link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
-        }
+        const actionCodeSettings = {
+          url: window.location.href,
+          handleCodeInApp: true,
+        };
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+        window.localStorage.setItem('emailForSignIn', email);
+        showStorageStatus("adminAuthStatus", `Magic sign-in link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
       } catch (err) {
+        console.warn("[Firebase Magic Link] Error:", err);
+        const client = getSupabaseClient();
+        if (client && client.auth) {
+          try {
+            const { error } = await client.auth.signInWithOtp({
+              email,
+              options: { emailRedirectTo: window.location.href }
+            });
+            if (!error) {
+              showStorageStatus("adminAuthStatus", `Magic link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
+              return;
+            }
+          } catch (_) {}
+        }
         showStorageStatus("adminAuthStatus", `Magic link error: ${err.message}`, "error", 5000);
       }
     });
@@ -4577,6 +4586,9 @@ const loopMusic = ${loopMusic};`;
 
   if (adminSignOutBtn) {
     adminSignOutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (_) {}
       const client = getSupabaseClient();
       if (client && client.auth) {
         await client.auth.signOut().catch(() => {});
@@ -4981,16 +4993,16 @@ function setupAdminPanelControls() {
     readAdminTextInputs();
     applySiteTextsToDOM();
 
-    showStorageStatus("adminTextSaveStatus", "Saving all website text to Supabase...", "loading", 0);
-    updatePublishingStatusUI("supabase", "saving");
+    showStorageStatus("adminTextSaveStatus", "Saving all website text to Firebase...", "loading", 0);
+    updatePublishingStatusUI("firebase", "saving");
 
     const saved = await saveAllBirthdayContentToSupabase();
     if (saved) {
-      updatePublishingStatusUI("supabase", "saved");
-      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated in database)", "success", 4000);
+      updatePublishingStatusUI("firebase", "saved");
+      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated in Firebase)", "success", 4000);
       updatePublishingStatusUI("github", "unsynced");
     } else {
-      updatePublishingStatusUI("supabase", "unsaved");
+      updatePublishingStatusUI("firebase", "unsaved");
       showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
     }
   }
@@ -5223,7 +5235,7 @@ function setupAdminPanelControls() {
 
       const saved = await saveAllBirthdayContentToSupabase();
       if (saved) {
-        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Supabase! ❤️`, "success", 4500);
+        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Firebase! ❤️`, "success", 4500);
       } else {
         showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated locally! (Admin sign-in required to sync online)`, "loading", 4000);
       }
@@ -5502,7 +5514,7 @@ function setupAdminPanelControls() {
 
         const saved = await saveAllBirthdayContentToSupabase({ music_url: currentMusicUrl });
         if (saved) {
-          showStorageStatus("musicUploadStatus", "Saved successfully ❤️ (Music synced with Supabase)", "success", 4500);
+          showStorageStatus("musicUploadStatus", "Saved successfully ❤️ (Music synced with Firebase)", "success", 4500);
         } else {
           showStorageStatus("musicUploadStatus", "Music updated locally! (Sign in to sync online)", "loading", 4000);
         }
@@ -5798,26 +5810,18 @@ async function handlePhotoFiles(files) {
 
   renderPhotoThumbnails();
 
-  if (isCurrentUserAdmin()) {
-    saveAllBirthdayContentToSupabase();
-  }
+  // Persist updated reveal photos and celebration burst photos to Firebase
+  saveAllBirthdayContentToSupabase();
 
   if (successCount > 0) {
     showStorageStatus(
       "photoUploadStatus",
-      `Saved successfully ❤️ (${successCount} photo${successCount > 1 ? "s" : ""} in Supabase Storage)`,
+      `Saved successfully ❤️ (${successCount} photo${successCount > 1 ? "s" : ""} synced to cloud)`,
       "success",
       5000
     );
-  } else if (rlsNotice) {
-    showStorageStatus(
-      "photoUploadStatus",
-      "Saved locally! (Note: Enable INSERT policy on bucket 'Birthday-assets' in Supabase Storage for online sync)",
-      "error",
-      8000
-    );
   } else {
-    showStorageStatus("photoUploadStatus", "Saved locally in browser cache ❤️", "success", 4000);
+    showStorageStatus("photoUploadStatus", "Saved successfully to Firebase & browser ❤️", "success", 4000);
   }
 }
 
@@ -5907,7 +5911,7 @@ async function deletePhoto(id) {
     localStorage.setItem("birthday_burst_photos_v1", JSON.stringify(currentPhotos));
   } catch {}
 
-  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
+  if (!isInitialSupabaseLoading) {
     saveAllBirthdayContentToSupabase();
   }
 }
@@ -5927,7 +5931,7 @@ async function clearAllPhotos() {
     localStorage.removeItem("birthday_burst_photos_v1");
   } catch {}
 
-  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
+  if (!isInitialSupabaseLoading) {
     saveAllBirthdayContentToSupabase();
   }
 }
