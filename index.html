@@ -420,9 +420,16 @@
       <!-- ADMIN AUTHENTICATION & ACCESS CONTROL BAR -->
       <div id="adminAuthBanner" class="admin-auth-banner">
         <div class="admin-auth-header-row">
-          <div class="admin-status-pill" id="adminStatusPill">
-            <span class="admin-status-dot"></span>
-            <span id="adminStatusLabel">Visitor Mode (Public Read-Only)</span>
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div class="admin-status-pill" id="adminStatusPill">
+              <span class="admin-status-dot"></span>
+              <span id="adminStatusLabel">Visitor Mode (Public Read-Only)</span>
+            </div>
+            <!-- Live Database vs Local Fallback DataSource Badge -->
+            <div id="dataSourceBadge" class="data-source-pill fallback" title="Indicates whether celebration content is synchronized with the live online database or running from local cache/fallbacks.">
+              <span id="dataSourceDot" class="data-source-dot"></span>
+              <span id="dataSourceLabel">Checking Data Source...</span>
+            </div>
           </div>
           <div class="admin-auth-actions">
             <button type="button" id="toggleAdminLoginBtn" class="admin-toggle-btn">
@@ -524,6 +531,13 @@
                 <span style="color: rgba(255, 255, 255, 0.6);">Supabase:</span>
                 <span id="supabaseSyncDot" class="publishing-status-dot saved"></span>
                 <strong id="supabaseSyncText" style="color: #52c41a;">Saved</strong>
+              </div>
+
+              <!-- Database Source Details -->
+              <div id="statusDataSourceIndicator" style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="color: rgba(255, 255, 255, 0.6);">Data Source:</span>
+                <span id="publishingDataSourceDot" class="publishing-status-dot unsaved"></span>
+                <strong id="publishingDataSourceText" style="color: #faad14;">Checking...</strong>
               </div>
 
               <div id="statusGitHubIndicator" style="display: flex; align-items: center; gap: 0.45rem;">

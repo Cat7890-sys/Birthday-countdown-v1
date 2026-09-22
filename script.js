@@ -285,6 +285,68 @@ let isInitialSupabaseLoading = true;
 let currentRevealTitles = ["MY BABY", "MY LOVE", "MY EVERYTHING ❤️"];
 let currentRevealPhotos = ["", "", ""];
 
+// Data Source State: 'checking' | 'live' | 'fallback'
+let currentDataSourceState = "checking";
+let dataSourceDetails = {
+  isLive: false,
+  sourceName: "Checking...",
+  lastCheckedTime: null
+};
+
+/**
+ * Updates all visual indicators showing whether live database or local fallback is active
+ */
+function updateDataSourceStatusUI(state, details = {}) {
+  currentDataSourceState = state;
+  dataSourceDetails = {
+    isLive: state === "live",
+    sourceName: state === "live" ? "Live Supabase Database" : "Local Storage / Default Fallback",
+    lastCheckedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    ...details
+  };
+
+  // 1. Admin Banner Data Source Pill
+  const pill = document.getElementById("dataSourceBadge");
+  const dot = document.getElementById("dataSourceDot");
+  const label = document.getElementById("dataSourceLabel");
+
+  if (pill && dot && label) {
+    pill.className = `data-source-pill ${state}`;
+    if (state === "live") {
+      label.textContent = "🟢 Live Database Connected";
+      pill.title = "Connected to live online Supabase database. Content updates are saved in the cloud.";
+    } else if (state === "fallback") {
+      label.textContent = "🟡 Using Local Fallbacks";
+      pill.title = "Offline / using local cached content and defaults. Live database was not reached.";
+    } else {
+      label.textContent = "🔵 Checking Data Source...";
+      pill.title = "Connecting to database...";
+    }
+  }
+
+  // 2. Website Publishing card indicator
+  const pubDot = document.getElementById("publishingDataSourceDot");
+  const pubTxt = document.getElementById("publishingDataSourceText");
+
+  if (pubDot && pubTxt) {
+    if (state === "live") {
+      pubDot.className = "publishing-status-dot saved";
+      pubTxt.textContent = "Live Online Database";
+      pubTxt.style.color = "#52c41a";
+      pubTxt.title = "Site content loaded from Supabase online database (row id=1)";
+    } else if (state === "fallback") {
+      pubDot.className = "publishing-status-dot unsaved";
+      pubTxt.textContent = "Local Fallback / Cache";
+      pubTxt.style.color = "#faad14";
+      pubTxt.title = "Using local storage / site-content.json fallback";
+    } else {
+      pubDot.className = "publishing-status-dot unsaved";
+      pubTxt.textContent = "Checking...";
+      pubTxt.style.color = "#38bdf8";
+    }
+  }
+}
+
 // ============================================================================
 // ALL WEBSITE EDITABLE TEXT CONFIGURATION & PERSISTENCE
 // Comprehensive mapping of all 40 website text elements, inputs, and DOM nodes
@@ -616,6 +678,7 @@ function updatePublishingStatusUI(type, state, details = null) {
  */
 function initPublishingStatus() {
   updatePublishingStatusUI("supabase", "saved");
+  updateDataSourceStatusUI(currentDataSourceState);
 
   try {
     const saved = localStorage.getItem("birthday_github_sync_status_v1");
@@ -1167,8 +1230,10 @@ async function loadBirthdayPhotosFromSupabase(force = false) {
  */
 async function loadBirthdayContentFromSupabase() {
   isInitialSupabaseLoading = true;
+  updateDataSourceStatusUI("checking");
   try {
     let row = null;
+    let fetchedFromLiveDatabase = false;
 
     // 1. Try official SDK targeting row id = 1
     const client = getSupabaseClient();
@@ -1182,6 +1247,7 @@ async function loadBirthdayContentFromSupabase() {
 
         if (!error && Array.isArray(data) && data.length > 0) {
           row = data[0];
+          fetchedFromLiveDatabase = true;
         } else if (error) {
           console.warn("[Supabase SDK] Query notice:", error.message);
         }
@@ -1206,6 +1272,7 @@ async function loadBirthdayContentFromSupabase() {
           const rows = await response.json();
           if (Array.isArray(rows) && rows.length > 0) {
             row = rows[0];
+            fetchedFromLiveDatabase = true;
           }
         }
       } catch (restErr) {
@@ -1229,6 +1296,7 @@ async function loadBirthdayContentFromSupabase() {
           const rows = await resFallback.json();
           if (Array.isArray(rows) && rows.length > 0) {
             row = rows[0];
+            fetchedFromLiveDatabase = true;
           }
         }
       } catch (_) {}
@@ -1237,6 +1305,7 @@ async function loadBirthdayContentFromSupabase() {
     // 4. Synchronize all database columns to application state
     if (row) {
       currentSupabaseRowId = row.id || 1;
+      updateDataSourceStatusUI("live", { rowId: currentSupabaseRowId, updatedAt: row.updated_at });
 
       // Recipient Name
       if (row.recipient_name && typeof row.recipient_name === "string" && row.recipient_name.trim() !== "") {
@@ -1444,9 +1513,11 @@ async function loadBirthdayContentFromSupabase() {
       setupDynamicContent();
       console.log("[Supabase] Successfully loaded and synchronized online birthday content:", row);
     } else {
+      updateDataSourceStatusUI("fallback", { reason: "No database rows found" });
       console.log("[Supabase] No remote content found for row id=1. Using local fallback.");
     }
   } catch (err) {
+    updateDataSourceStatusUI("fallback", { reason: err?.message || "Offline" });
     console.warn("[Supabase] Could not load online content, maintaining local fallback:", err);
   } finally {
     isInitialSupabaseLoading = false;

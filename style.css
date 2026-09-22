@@ -2185,6 +2185,62 @@ body {
   letter-spacing: 0.01em;
 }
 
+.data-source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.3s ease;
+}
+
+.data-source-pill.live {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.data-source-pill.fallback {
+  background: rgba(250, 173, 20, 0.12);
+  border-color: rgba(250, 173, 20, 0.35);
+  color: #fbbf24;
+}
+
+.data-source-pill.loading {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #7dd3fc;
+}
+
+.data-source-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #faad14;
+  box-shadow: 0 0 6px rgba(250, 173, 20, 0.6);
+  transition: all 0.3s ease;
+}
+
+.data-source-pill.live .data-source-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.data-source-pill.fallback .data-source-dot {
+  background: #faad14;
+  box-shadow: 0 0 8px rgba(250, 173, 20, 0.7);
+}
+
+.data-source-pill.loading .data-source-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
 .admin-status-dot {
   width: 8px;
   height: 8px;
