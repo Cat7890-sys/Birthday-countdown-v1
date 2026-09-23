@@ -6,10 +6,14 @@
  * Fully responsive on mobile (iOS / Android), tablet, and desktop.
  */
 
-// Firebase Firestore & Authentication SDK
+// Firebase Firestore, Authentication & Storage SDK
 import { 
   db, 
   auth, 
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   doc, 
   getDoc, 
   setDoc, 
@@ -1052,12 +1056,12 @@ function showStorageStatus(elementId, message, type = "success", duration = 5000
 }
 
 /**
- * Upload a file directly to the Supabase Storage bucket 'Birthday-assets'
- * under photos/, backgrounds/, or music/.
+ * Upload a file directly to Firebase Storage bucket.
+ * Falls back to Supabase Storage if Firebase is unreachable.
  * Protected: requires an authenticated admin account.
- * Returns { success: true, publicUrl, fileName } or { success: false, error }
+ * Returns { success: true, publicUrl, fileName, path } or { success: false, error }
  */
-async function uploadToSupabaseStorage(arg1, arg2) {
+async function uploadToFirebaseStorage(arg1, arg2) {
   let folder = "photos";
   let file = null;
 
@@ -1069,7 +1073,7 @@ async function uploadToSupabaseStorage(arg1, arg2) {
     if (typeof arg2 === "string") folder = arg2;
   }
 
-  if (!file || !file.name) {
+  if (!file || (!file.name && !file.type)) {
     return {
       success: false,
       error: "No valid file provided for upload."
@@ -1077,20 +1081,42 @@ async function uploadToSupabaseStorage(arg1, arg2) {
   }
 
   if (!isCurrentUserAdmin()) {
-    openAdminLoginForm("🔒 Admin sign-in required to upload files to Supabase Storage.");
+    openAdminLoginForm("🔒 Admin sign-in required to upload files to Cloud Storage.");
     return {
       success: false,
       error: "Admin authentication required. Sign in as admin to upload assets."
     };
   }
 
-  const bucket = SUPABASE_STORAGE_BUCKET;
-  const cleanExt = (file.name.split('.').pop() || 'bin').toLowerCase();
-  const cleanBase = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const cleanExt = ((file.name || "media.bin").split('.').pop() || 'bin').toLowerCase();
+  const cleanBase = (file.name || "file").replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
   const fileName = `${Date.now()}_${cleanBase}.${cleanExt}`;
   const filePath = `${folder}/${fileName}`;
 
-  // 1. Try official Supabase SDK (automatically attaches authenticated JWT session)
+  // 1. Primary: Upload to Firebase Storage
+  if (storage) {
+    try {
+      const storageRef = ref(storage, filePath);
+      const metadata = {
+        contentType: file.type || "application/octet-stream",
+        cacheControl: "public, max-age=31536000"
+      };
+      const snapshot = await uploadBytes(storageRef, file, metadata);
+      const publicUrl = await getDownloadURL(snapshot.ref);
+      console.log(`[Firebase Storage] Uploaded ${filePath} successfully:`, publicUrl);
+      return {
+        success: true,
+        publicUrl,
+        fileName,
+        path: filePath
+      };
+    } catch (fbStorageErr) {
+      console.warn("[Firebase Storage] Upload error, trying secondary fallback:", fbStorageErr);
+    }
+  }
+
+  // 2. Secondary fallback: Supabase Storage bucket 'Birthday-assets'
+  const bucket = SUPABASE_STORAGE_BUCKET;
   const client = getSupabaseClient();
   if (client && client.storage) {
     try {
@@ -1112,22 +1138,12 @@ async function uploadToSupabaseStorage(arg1, arg2) {
           fileName
         };
       }
-
-      if (error) {
-        console.warn("[Supabase Storage SDK upload note]:", error);
-        if (error.message && error.message.toLowerCase().includes("row-level security")) {
-          return {
-            success: false,
-            error: "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
-          };
-        }
-      }
     } catch (sdkErr) {
-      console.warn("[Supabase Storage SDK error]:", sdkErr);
+      console.warn("[Supabase Storage fallback error]:", sdkErr);
     }
   }
 
-  // 2. Direct REST upload fallback with authenticated JWT
+  // 3. Direct REST upload fallback to Supabase
   try {
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`;
     const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
@@ -1149,19 +1165,20 @@ async function uploadToSupabaseStorage(arg1, arg2) {
         path: filePath,
         fileName
       };
-    } else {
-      const err = await res.json().catch(() => ({}));
-      const msg = err.message || err.error || res.statusText;
-      return {
-        success: false,
-        error: msg.includes("row-level security")
-          ? "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
-          : msg
-      };
     }
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
+  } catch (_) {}
+
+  return {
+    success: false,
+    error: "Upload to cloud storage failed. Please check network and permissions."
+  };
+}
+
+/**
+ * Backward compatibility alias for existing callers
+ */
+async function uploadToSupabaseStorage(arg1, arg2) {
+  return await uploadToFirebaseStorage(arg1, arg2);
 }
 
 /**
@@ -1251,7 +1268,7 @@ async function loadBirthdayPhotosFromSupabase(force = false) {
  * Targets collection 'birthday_content', document 'main' as primary source of truth.
  * Keeps localStorage as fallback and updates UI status accordingly.
  */
-async function loadBirthdayContentFromSupabase() {
+async function loadBirthdayContentFromFirebase() {
   isInitialSupabaseLoading = true;
   updateDataSourceStatusUI("checking");
   try {
@@ -1549,7 +1566,7 @@ async function loadBirthdayContentFromSupabase() {
  * reveal_photos, reveal_titles, memories, love_notes, and updated_at.
  * Persists changes so that page refreshes maintain all admin texts, pictures, and love notes.
  */
-async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
+async function saveAllBirthdayContentToFirebase(overrides = {}, requireAdmin = false) {
   try {
     localStorage.setItem("birthday_site_texts_v1", JSON.stringify(currentSiteTexts));
     localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
@@ -1621,14 +1638,30 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
 }
 
 /**
- * Backward compatibility wrapper delegating to saveAllBirthdayContentToSupabase.
+ * Universal & backward-compatible aliases
  */
+async function saveAllBirthdayContent(overrides = {}, requireAdmin = false) {
+  return await saveAllBirthdayContentToFirebase(overrides, requireAdmin);
+}
+
+async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
+  return await saveAllBirthdayContentToFirebase(overrides, requireAdmin);
+}
+
 async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, extraPayload = {}) {
   const overrides = { ...extraPayload };
   if (newMessage !== undefined && newMessage !== null) overrides.birthday_message = newMessage;
   if (newBgUrl !== undefined && newBgUrl !== null) overrides.background_url = newBgUrl;
   if (newMusicUrl !== undefined && newMusicUrl !== null) overrides.music_url = newMusicUrl;
-  return await saveAllBirthdayContentToSupabase(overrides);
+  return await saveAllBirthdayContentToFirebase(overrides);
+}
+
+async function loadBirthdayContent() {
+  return await loadBirthdayContentFromFirebase();
+}
+
+async function loadBirthdayContentFromSupabase() {
+  return await loadBirthdayContentFromFirebase();
 }
 
 // State
@@ -6750,11 +6783,17 @@ function initFinaleScene() {
   finaleAnimId = requestAnimationFrame(render2DFinale);
 }
 
-// Expose Supabase helpers and Chapter 4 Finale methods to window
+// Expose Firebase & persistence helpers and Chapter 4 Finale methods to window
 if (typeof window !== "undefined") {
+  window.loadBirthdayContent = loadBirthdayContent;
+  window.loadBirthdayContentFromFirebase = loadBirthdayContentFromFirebase;
   window.loadBirthdayContentFromSupabase = loadBirthdayContentFromSupabase;
-  window.saveBirthdayContentToSupabase = saveBirthdayContentToSupabase;
+  window.saveAllBirthdayContent = saveAllBirthdayContent;
+  window.saveAllBirthdayContentToFirebase = saveAllBirthdayContentToFirebase;
   window.saveAllBirthdayContentToSupabase = saveAllBirthdayContentToSupabase;
+  window.saveBirthdayContentToSupabase = saveBirthdayContentToSupabase;
+  window.uploadToFirebaseStorage = uploadToFirebaseStorage;
+  window.uploadToSupabaseStorage = uploadToSupabaseStorage;
   window.initFinaleScene = initFinaleScene;
   window.disposeFinaleThreeScene = disposeFinaleThreeScene;
 }

@@ -13,6 +13,12 @@ import {
   onAuthStateChanged,
   sendSignInLinkToEmail
 } from "firebase/auth";
+import { 
+  getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from "firebase/storage";
 import firebaseConfig from "../firebase-applet-config.json";
 
 // Initialize Firebase
@@ -24,11 +30,16 @@ const db = firebaseConfig.firestoreDatabaseId
   : getFirestore(app);
 
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 export { 
   app, 
   db, 
   auth, 
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   doc, 
   getDoc, 
   setDoc, 

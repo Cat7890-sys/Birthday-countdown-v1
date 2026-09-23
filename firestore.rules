@@ -21,10 +21,11 @@ service cloud.firestore {
 
     // Birthday Content configuration & customization document
     // Public visitors can read the birthday content
-    // Authenticated admin or visitor guestbook updates can write
+    // Only authorized admin can modify website content; deletes are forbidden
     match /birthday_content/{contentId} {
       allow read: if true;
-      allow write: if true;
+      allow create, update: if isAdmin();
+      allow delete: if false;
     }
   }
 }
