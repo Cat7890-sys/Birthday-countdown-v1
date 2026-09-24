@@ -6,23 +6,102 @@
  * Fully responsive on mobile (iOS / Android), tablet, and desktop.
  */
 
-// Firebase Firestore, Authentication & Storage SDK
-import { 
-  db, 
-  auth, 
-  storage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  doc, 
-  getDoc, 
-  setDoc, 
-  onSnapshot, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  sendSignInLinkToEmail 
-} from "./src/firebase.ts";
+// ============================================================================
+// FIREBASE CLIENT & DYNAMIC RESILIENT ADAPTER
+// ============================================================================
+// Supports local Vite development, static GitHub Pages hosting, and offline mode.
+// Guarantees script.js NEVER fails to parse, so the opening screen is ALWAYS interactive!
+let db = null;
+let auth = null;
+let storage = null;
+let doc = (...args) => ({ _path: args.slice(1).join("/") });
+let getDoc = async () => ({ exists: () => false, data: () => null });
+let setDoc = async () => {};
+let onSnapshot = () => () => {};
+let signInWithEmailAndPassword = async () => { throw new Error("Firebase Auth unavailable"); };
+let signOut = async () => {};
+let onAuthStateChanged = (authInstance, cb) => cb && cb(null);
+let sendSignInLinkToEmail = async () => { throw new Error("Firebase Auth unavailable"); };
+let ref = () => null;
+let uploadBytes = async () => ({ ref: null });
+let getDownloadURL = async () => "";
+
+let isFirebaseReady = false;
+
+async function ensureFirebaseLoaded() {
+  if (isFirebaseReady && db) return true;
+
+  try {
+    // 1. Try local src/firebase.js (works with Vite and full repository clones)
+    const fb = await import("./src/firebase.js");
+    db = fb.db;
+    auth = fb.auth;
+    storage = fb.storage;
+    doc = fb.doc || doc;
+    getDoc = fb.getDoc || getDoc;
+    setDoc = fb.setDoc || setDoc;
+    onSnapshot = fb.onSnapshot || onSnapshot;
+    signInWithEmailAndPassword = fb.signInWithEmailAndPassword || signInWithEmailAndPassword;
+    signOut = fb.signOut || signOut;
+    onAuthStateChanged = fb.onAuthStateChanged || onAuthStateChanged;
+    sendSignInLinkToEmail = fb.sendSignInLinkToEmail || sendSignInLinkToEmail;
+    ref = fb.ref || ref;
+    uploadBytes = fb.uploadBytes || uploadBytes;
+    getDownloadURL = fb.getDownloadURL || getDownloadURL;
+    isFirebaseReady = true;
+    console.log("[Firebase] Loaded successfully from local module");
+    return true;
+  } catch (localErr) {
+    console.warn("[Firebase] Local module not available (e.g. static GitHub Pages), connecting via official Google CDN...", localErr);
+    try {
+      // 2. Google Firebase Official CDN (Zero build step, 100% native on GitHub Pages)
+      const [appMod, firestoreMod, authMod, storageMod] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"),
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js")
+      ]);
+
+      const firebaseConfig = {
+        projectId: "causal-truth-2dx1j",
+        appId: "1:230990850653:web:19902d386c03f70ca3fbb4",
+        apiKey: "AIzaSyC9iwyjkdx0xD9brLc-a7M5FynCOnPkI6k",
+        authDomain: "causal-truth-2dx1j.firebaseapp.com",
+        firestoreDatabaseId: "ai-studio-birthdaycountdow-a6c9d805-fc83-46a9-86c5-9bd152bd9882",
+        storageBucket: "causal-truth-2dx1j.firebasestorage.app",
+        messagingSenderId: "230990850653",
+        measurementId: "",
+        oAuthClientId: "230990850653-lhlbdle72fmcn5bhd5gi89kuhjopm90m.apps.googleusercontent.com",
+        recaptchaSiteKey: ""
+      };
+
+      const app = appMod.getApps().length === 0 ? appMod.initializeApp(firebaseConfig) : appMod.getApp();
+      db = firebaseConfig.firestoreDatabaseId 
+        ? firestoreMod.getFirestore(app, firebaseConfig.firestoreDatabaseId)
+        : firestoreMod.getFirestore(app);
+      auth = authMod.getAuth(app);
+      storage = storageMod.getStorage(app);
+
+      doc = firestoreMod.doc;
+      getDoc = firestoreMod.getDoc;
+      setDoc = firestoreMod.setDoc;
+      onSnapshot = firestoreMod.onSnapshot;
+      signInWithEmailAndPassword = authMod.signInWithEmailAndPassword;
+      signOut = authMod.signOut;
+      onAuthStateChanged = authMod.onAuthStateChanged;
+      sendSignInLinkToEmail = authMod.sendSignInLinkToEmail;
+      ref = storageMod.ref;
+      uploadBytes = storageMod.uploadBytes;
+      getDownloadURL = storageMod.getDownloadURL;
+      isFirebaseReady = true;
+      console.log("[Firebase] Successfully connected via official Google CDN on GitHub Pages!");
+      return true;
+    } catch (cdnErr) {
+      console.warn("[Firebase] CDN unavailable or offline. Falling back to Supabase and LocalStorage:", cdnErr);
+      return false;
+    }
+  }
+}
 
 // ============================================================================
 // ⚙️ BIRTHDAY CUSTOMIZATION (EDIT THESE VALUES FOR YOUR CELEBRATION)
@@ -998,7 +1077,9 @@ function openAdminLoginForm(reasonMessage) {
  */
 async function initSupabaseAuth() {
   try {
-    onAuthStateChanged(auth, async (user) => {
+    await ensureFirebaseLoaded();
+    if (auth && typeof onAuthStateChanged === "function") {
+      onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();
         const session = {
@@ -1016,6 +1097,7 @@ async function initSupabaseAuth() {
         console.log("[Firebase Auth] Visitor read-only mode active");
       }
     });
+    }
   } catch (err) {
     console.warn("[Firebase Auth] Session listener warning:", err);
   }
@@ -1087,6 +1169,8 @@ async function uploadToFirebaseStorage(arg1, arg2) {
       error: "Admin authentication required. Sign in as admin to upload assets."
     };
   }
+
+  await ensureFirebaseLoaded();
 
   const cleanExt = ((file.name || "media.bin").split('.').pop() || 'bin').toLowerCase();
   const cleanBase = (file.name || "file").replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -1272,6 +1356,7 @@ async function loadBirthdayContentFromFirebase() {
   isInitialSupabaseLoading = true;
   updateDataSourceStatusUI("checking");
   try {
+    await ensureFirebaseLoaded();
     let row = null;
     let fetchedFromLiveDatabase = false;
 
@@ -1613,6 +1698,7 @@ async function saveAllBirthdayContentToFirebase(overrides = {}, requireAdmin = f
 
   // 1. Primary: Save to Firebase Firestore collection 'birthday_content', document 'main'
   try {
+    await ensureFirebaseLoaded();
     const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
     await setDoc(docRef, payload, { merge: true });
     console.log("[Firebase Firestore] Successfully persisted birthday content to document 'main':", payload);
@@ -1955,6 +2041,8 @@ function handleShowMeAction(e) {
 function bindShowMeInteraction() {
   window.__startBirthdayReveal = handleShowMeAction;
   window.startRevealSequence = startRevealSequence;
+  window.showChapter = showChapter;
+  window.triggerCelebration = triggerCelebration;
 
   const showMe = document.getElementById("showMeBtn");
   const wrapper = document.querySelector(".photo-sticker-btn-wrapper");
@@ -4639,6 +4727,7 @@ const loopMusic = ${loopMusic};`;
 
   if (adminSignInBtn) {
     adminSignInBtn.addEventListener("click", async () => {
+      await ensureFirebaseLoaded();
       const email = adminEmailInput ? adminEmailInput.value.trim() : "";
       const password = adminPasswordInput ? adminPasswordInput.value : "";
       if (!email || !password) {
@@ -4683,6 +4772,7 @@ const loopMusic = ${loopMusic};`;
 
   if (adminMagicLinkBtn) {
     adminMagicLinkBtn.addEventListener("click", async () => {
+      await ensureFirebaseLoaded();
       const email = adminEmailInput ? adminEmailInput.value.trim() : "";
       if (!email) {
         showStorageStatus("adminAuthStatus", "Please enter admin email to receive magic sign-in link.", "error", 4000);
@@ -4721,6 +4811,7 @@ const loopMusic = ${loopMusic};`;
 
   if (adminSignOutBtn) {
     adminSignOutBtn.addEventListener("click", async () => {
+      await ensureFirebaseLoaded();
       try {
         await signOut(auth);
       } catch (_) {}
