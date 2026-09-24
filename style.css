@@ -3404,6 +3404,9 @@ body {
   flex-direction: column;
   align-items: center;
   margin: 1.5rem auto 1rem auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .photo-sticker-btn {
@@ -3420,6 +3423,8 @@ body {
   position: relative;
   max-width: 220px;
   width: 100%;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .photo-sticker-btn:hover {
@@ -3441,6 +3446,7 @@ body {
   backdrop-filter: blur(4px);
   z-index: 5;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
 }
 
 .sticker-tape-left {
@@ -3534,6 +3540,9 @@ body {
   margin-top: 0.75rem;
   animation: bounceFingerTap 1.6s infinite ease-in-out;
   user-select: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .finger-emoji {

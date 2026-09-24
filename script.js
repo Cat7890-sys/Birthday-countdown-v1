@@ -1926,27 +1926,129 @@ const finaleBackToMemoriesBtn = document.getElementById("finaleBackToMemoriesBtn
 const finaleBackToNotesBtn = document.getElementById("finaleBackToNotesBtn");
 
 // ============================================================================
-// INITIALIZATION
+// FOOLPROOF OPENING SCREEN & SHOW ME INTERACTION ENGINE
 // ============================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  initSupabaseAuth();
-  initSiteTexts();
-  setupDynamicContent();
-  setupBackground();
-  initOpeningScreen();
-  initParticlesCanvas();
-  initConfettiCanvas();
-  setupEventListeners();
-  initScrapbookMemories();
-  initBackgroundMusic();
-  initGuestbook();
-  initLoveNotesSystem();
-  initChapterSystem();
-  initPhotoStorageAndBurstSettings();
-  setupAdminPanelControls();
-  loadBirthdayContentFromSupabase();
-  loadBirthdayPhotosFromSupabase();
-});
+let isRevealStarting = false;
+
+function handleShowMeAction(e) {
+  if (e) {
+    if (e.type === "touchend") {
+      try { e.preventDefault(); } catch (_) {}
+    }
+  }
+
+  if (isRevealStarting) return;
+  isRevealStarting = true;
+  console.log("[Opening Screen] SHOW ME triggered via", e ? e.type : "direct call");
+
+  try {
+    startRevealSequence();
+  } catch (err) {
+    console.error("[Opening Screen] Error in startRevealSequence:", err);
+  }
+
+  setTimeout(() => {
+    isRevealStarting = false;
+  }, 1500);
+}
+
+function bindShowMeInteraction() {
+  window.__startBirthdayReveal = handleShowMeAction;
+  window.startRevealSequence = startRevealSequence;
+
+  const showMe = document.getElementById("showMeBtn");
+  const wrapper = document.querySelector(".photo-sticker-btn-wrapper");
+  const fingerGuide = document.querySelector(".sticker-finger-guide");
+  const tapBadge = document.getElementById("tapBadgeText");
+  const stickerImg = document.getElementById("showMeStickerImg");
+  const stickerFrame = document.querySelector(".sticker-card-frame");
+  const tapBadgeWrap = document.querySelector(".sticker-tap-badge");
+
+  const elements = [showMe, wrapper, fingerGuide, tapBadge, stickerImg, stickerFrame, tapBadgeWrap].filter(Boolean);
+
+  elements.forEach(el => {
+    if (el._showMeBound) return;
+    el._showMeBound = true;
+    el.style.cursor = "pointer";
+
+    el.addEventListener("click", handleShowMeAction, { passive: false });
+    el.addEventListener("touchend", handleShowMeAction, { passive: false });
+  });
+
+  if (showMe) {
+    showMe.removeAttribute("disabled");
+    showMe.style.pointerEvents = "auto";
+  }
+}
+
+// Immediate invocation in case DOM is already parsed when module executes
+if (typeof document !== "undefined") {
+  bindShowMeInteraction();
+}
+
+// ============================================================================
+// INITIALIZATION & APPLICATION LIFECYCLE
+// ============================================================================
+function runSafeStep(name, fn) {
+  try {
+    fn();
+  } catch (err) {
+    console.error(`[Startup] Non-fatal error during '${name}':`, err);
+  }
+}
+
+function startApplication() {
+  console.log("[Startup] Initializing application...");
+
+  // 1. FIRST PRIORITY: Ensure Opening Screen and SHOW ME interaction are 100% interactive!
+  runSafeStep("initOpeningScreen", initOpeningScreen);
+  runSafeStep("bindShowMeInteraction", bindShowMeInteraction);
+
+  // 2. Setup public UI defaults and text mapping
+  runSafeStep("initSiteTexts", initSiteTexts);
+  runSafeStep("setupDynamicContent", setupDynamicContent);
+  runSafeStep("setupBackground", setupBackground);
+  runSafeStep("setupEventListeners", setupEventListeners);
+  runSafeStep("bindShowMeInteraction_reconfirm", bindShowMeInteraction);
+
+  // 3. Ambient visual effects (canvas resize, stars, confetti initialization)
+  runSafeStep("initParticlesCanvas", initParticlesCanvas);
+  runSafeStep("initConfettiCanvas", initConfettiCanvas);
+
+  // 4. Content modules & experience features
+  runSafeStep("initBackgroundMusic", initBackgroundMusic);
+  runSafeStep("initScrapbookMemories", initScrapbookMemories);
+  runSafeStep("initGuestbook", initGuestbook);
+  runSafeStep("initLoveNotesSystem", initLoveNotesSystem);
+  runSafeStep("initChapterSystem", initChapterSystem);
+  runSafeStep("initPhotoStorageAndBurstSettings", initPhotoStorageAndBurstSettings);
+
+  // 5. Admin Panel (isolated so failure never blocks public visitors)
+  runSafeStep("setupAdminPanelControls", setupAdminPanelControls);
+  runSafeStep("initSupabaseAuth", initSupabaseAuth);
+
+  // 6. Asynchronous remote content loading (background - will NEVER block opening screen)
+  setTimeout(() => {
+    runSafeStep("loadBirthdayContentFromFirebase", () => {
+      loadBirthdayContentFromFirebase().catch((err) => {
+        console.warn("[Startup] Non-fatal background Firebase content load error:", err);
+      });
+    });
+    runSafeStep("loadBirthdayPhotosFromSupabase", () => {
+      loadBirthdayPhotosFromSupabase().catch((err) => {
+        console.warn("[Startup] Non-fatal background Supabase photos sync error:", err);
+      });
+    });
+  }, 50);
+}
+
+// Robust DOM Ready Execution: handles both before and after DOMContentLoaded
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApplication);
+} else {
+  // DOM is already ready (module script deferred or fast DOM load)
+  startApplication();
+}
 
 function setupDynamicContent() {
   if (openingPersonName) {
@@ -2039,55 +2141,71 @@ function initOpeningScreen() {
 
   isCelebrationActive = false;
 
+  const targetOpening = openingScreen || document.getElementById("openingScreen");
   // Make sure opening screen is active and visible
-  if (openingScreen) {
-    openingScreen.style.display = "flex";
-    openingScreen.classList.add("active");
+  if (targetOpening) {
+    targetOpening.style.display = "flex";
+    targetOpening.classList.add("active");
   }
 
-  if (revealCountdownStage) {
-    revealCountdownStage.style.display = "none";
+  const targetCountdownStage = revealCountdownStage || document.getElementById("revealCountdownStage");
+  if (targetCountdownStage) {
+    targetCountdownStage.style.display = "none";
   }
 
-  if (tenSecondPhotoReveal) {
-    tenSecondPhotoReveal.classList.remove("active");
-    tenSecondPhotoReveal.style.display = "none";
+  const targetPhotoReveal = tenSecondPhotoReveal || document.getElementById("tenSecondPhotoReveal");
+  if (targetPhotoReveal) {
+    targetPhotoReveal.classList.remove("active");
+    targetPhotoReveal.style.display = "none";
   }
 
-  if (celebrationScreen) {
-    celebrationScreen.classList.remove("active");
+  const targetCelebration = celebrationScreen || document.getElementById("celebrationScreen");
+  if (targetCelebration) {
+    targetCelebration.classList.remove("active");
   }
 
   // Hide Chapter navigation bar on opening screen
-  if (chapterNavBar) {
-    chapterNavBar.style.display = "none";
+  const targetChapterNavBar = chapterNavBar || document.getElementById("chapterNavBar");
+  if (targetChapterNavBar) {
+    targetChapterNavBar.style.display = "none";
   }
 
   // Update recipient name in message
-  if (openingPersonName) {
-    openingPersonName.textContent = currentName;
+  const targetOpeningPerson = openingPersonName || document.getElementById("openingPersonName");
+  if (targetOpeningPerson) {
+    targetOpeningPerson.textContent = currentName;
   }
+
+  bindShowMeInteraction();
 }
 
 function startRevealSequence() {
+  const targetOpening = openingScreen || document.getElementById("openingScreen");
+  const targetCelebration = celebrationScreen || document.getElementById("celebrationScreen");
+  const targetPhotoReveal = tenSecondPhotoReveal || document.getElementById("tenSecondPhotoReveal");
+  const targetCountdownStage = revealCountdownStage || document.getElementById("revealCountdownStage");
+  const targetCountdownNum = revealCountdownNum || document.getElementById("revealCountdownNum");
+  const targetCountdownSub = revealCountdownSub || document.getElementById("revealCountdownSub");
+
   // Hide Opening Screen
-  if (openingScreen) {
-    openingScreen.classList.remove("active");
-    openingScreen.style.display = "none";
+  if (targetOpening) {
+    targetOpening.classList.remove("active");
+    targetOpening.style.display = "none";
   }
 
   // Hide any active celebration or overlay
-  if (celebrationScreen) {
-    celebrationScreen.classList.remove("active");
+  if (targetCelebration) {
+    targetCelebration.classList.remove("active");
   }
-  if (tenSecondPhotoReveal) {
-    tenSecondPhotoReveal.classList.remove("active");
-    tenSecondPhotoReveal.style.display = "none";
+  if (targetPhotoReveal) {
+    targetPhotoReveal.classList.remove("active");
+    targetPhotoReveal.style.display = "none";
   }
 
   // Prime audio playback state directly on user interaction (SHOW ME tap)
   // to authorize media playback under strict browser autoplay policies
-  if (bgAudio) {
+  const audioEl = bgAudio || document.getElementById("bgAudio");
+  if (audioEl) {
     // If audio is paused, calling play() then immediate pause (or keeping suspended context primed)
     // primes the HTML5 audio element for instant playback when countdown finishes.
     try {
@@ -2102,17 +2220,17 @@ function startRevealSequence() {
   }
 
   // Show 3 -> 2 -> 1 Reveal stage
-  if (revealCountdownStage) {
-    revealCountdownStage.style.display = "flex";
+  if (targetCountdownStage) {
+    targetCountdownStage.style.display = "flex";
   }
 
   let count = 3;
-  if (revealCountdownNum) {
-    revealCountdownNum.textContent = String(count);
-    revealCountdownNum.className = "reveal-countdown-number tick-pop";
+  if (targetCountdownNum) {
+    targetCountdownNum.textContent = String(count);
+    targetCountdownNum.className = "reveal-countdown-number tick-pop";
   }
-  if (revealCountdownSub) {
-    revealCountdownSub.textContent = "Getting your surprise ready...";
+  if (targetCountdownSub) {
+    targetCountdownSub.textContent = "Getting your surprise ready...";
   }
 
   if (revealCountdownTimer) clearInterval(revealCountdownTimer);
@@ -2120,22 +2238,22 @@ function startRevealSequence() {
   revealCountdownTimer = setInterval(() => {
     count--;
     if (count > 0) {
-      if (revealCountdownNum) {
-        revealCountdownNum.textContent = String(count);
-        revealCountdownNum.className = "reveal-countdown-number";
-        void revealCountdownNum.offsetWidth; // Restart CSS keyframe animation
-        revealCountdownNum.className = "reveal-countdown-number tick-pop";
+      if (targetCountdownNum) {
+        targetCountdownNum.textContent = String(count);
+        targetCountdownNum.className = "reveal-countdown-number";
+        void targetCountdownNum.offsetWidth; // Restart CSS keyframe animation
+        targetCountdownNum.className = "reveal-countdown-number tick-pop";
       }
-      if (revealCountdownSub) {
-        revealCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
+      if (targetCountdownSub) {
+        targetCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
       }
     } else {
       // Reached 0: Countdown finishes!
       clearInterval(revealCountdownTimer);
       revealCountdownTimer = null;
 
-      if (revealCountdownStage) {
-        revealCountdownStage.style.display = "none";
+      if (targetCountdownStage) {
+        targetCountdownStage.style.display = "none";
       }
 
       // STEP 8: Birthday music starts immediately
@@ -4298,24 +4416,8 @@ function setupEventListeners() {
     celebrateMoreBtn.addEventListener("click", () => startConfettiAnimation());
   }
 
-  // Show Me button / Photo Sticker on Opening Screen
-  if (showMeBtn) {
-    showMeBtn.addEventListener("click", () => {
-      startRevealSequence();
-    });
-  }
-  const showMeStickerContainer = document.getElementById("showMeStickerContainer");
-  if (showMeStickerContainer) {
-    showMeStickerContainer.addEventListener("click", () => {
-      startRevealSequence();
-    });
-  }
-  const stickerWrappers = document.querySelectorAll(".photo-sticker-wrapper");
-  stickerWrappers.forEach(w => {
-    w.addEventListener("click", () => {
-      startRevealSequence();
-    });
-  });
+  // Show Me button / Photo Sticker on Opening Screen (Comprehensive Mouse + Touch Binding)
+  bindShowMeInteraction();
 
   // Skip Reveal button on 10s Photo Reveal
   if (skipRevealBtn) {

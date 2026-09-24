@@ -8,10 +8,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email == 'matimbangobeni78@gmail.com' ||
-        (request.auth.token.keys().hasAll(['email']) && request.auth.token.email.matches('.*@.*'))
-      );
+      return isSignedIn() && request.auth.token.email == 'matimbangobeni78@gmail.com';
     }
 
     // Default deny
