@@ -1,10 +1,10 @@
 {
   "recipientName": "JOY",
   "opening": {
-    "badge": "✦ A SPECIAL SURPRISE AWAITS ✦",
-    "prefix": "I made something Just for you,",
-    "showMeButton": "Tap photo to reveal surprise",
-    "tapIndicator": "👇 Tap me",
+    "badge": "✦ I REALLY HOPE YOU LIKE IT✦",
+    "prefix": "I made THIS Just for you,",
+    "showMeButton": "tap here",
+    "tapIndicator": "Tap me",
     "countdownSub": "3-2-1 Countdown to celebration"
   },
   "chapter1": {
@@ -56,5 +56,5 @@
     "MY EVERYTHING ❤️"
   ],
   "birthdayMessage": "Happy Birthday, My Love ❤️",
-  "lastUpdated": "2026-09-24T16:02:48.175Z"
+  "lastUpdated": "2026-09-24T16:11:39.658Z"
 }
