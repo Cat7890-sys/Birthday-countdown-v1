@@ -7,103 +7,6 @@
  */
 
 // ============================================================================
-// FIREBASE CLIENT & DYNAMIC RESILIENT ADAPTER
-// ============================================================================
-// Supports local Vite development, static GitHub Pages hosting, and offline mode.
-// Guarantees script.js NEVER fails to parse, so the opening screen is ALWAYS interactive!
-let db = null;
-let auth = null;
-let storage = null;
-let doc = (...args) => ({ _path: args.slice(1).join("/") });
-let getDoc = async () => ({ exists: () => false, data: () => null });
-let setDoc = async () => {};
-let onSnapshot = () => () => {};
-let signInWithEmailAndPassword = async () => { throw new Error("Firebase Auth unavailable"); };
-let signOut = async () => {};
-let onAuthStateChanged = (authInstance, cb) => cb && cb(null);
-let sendSignInLinkToEmail = async () => { throw new Error("Firebase Auth unavailable"); };
-let ref = () => null;
-let uploadBytes = async () => ({ ref: null });
-let getDownloadURL = async () => "";
-
-let isFirebaseReady = false;
-
-async function ensureFirebaseLoaded() {
-  if (isFirebaseReady && db) return true;
-
-  try {
-    // 1. Try local src/firebase.js (works with Vite and full repository clones)
-    const fb = await import("./src/firebase.js");
-    db = fb.db;
-    auth = fb.auth;
-    storage = fb.storage;
-    doc = fb.doc || doc;
-    getDoc = fb.getDoc || getDoc;
-    setDoc = fb.setDoc || setDoc;
-    onSnapshot = fb.onSnapshot || onSnapshot;
-    signInWithEmailAndPassword = fb.signInWithEmailAndPassword || signInWithEmailAndPassword;
-    signOut = fb.signOut || signOut;
-    onAuthStateChanged = fb.onAuthStateChanged || onAuthStateChanged;
-    sendSignInLinkToEmail = fb.sendSignInLinkToEmail || sendSignInLinkToEmail;
-    ref = fb.ref || ref;
-    uploadBytes = fb.uploadBytes || uploadBytes;
-    getDownloadURL = fb.getDownloadURL || getDownloadURL;
-    isFirebaseReady = true;
-    console.log("[Firebase] Loaded successfully from local module");
-    return true;
-  } catch (localErr) {
-    console.warn("[Firebase] Local module not available (e.g. static GitHub Pages), connecting via official Google CDN...", localErr);
-    try {
-      // 2. Google Firebase Official CDN (Zero build step, 100% native on GitHub Pages)
-      const [appMod, firestoreMod, authMod, storageMod] = await Promise.all([
-        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
-        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"),
-        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"),
-        import("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js")
-      ]);
-
-      const firebaseConfig = {
-        projectId: "causal-truth-2dx1j",
-        appId: "1:230990850653:web:19902d386c03f70ca3fbb4",
-        apiKey: "AIzaSyC9iwyjkdx0xD9brLc-a7M5FynCOnPkI6k",
-        authDomain: "causal-truth-2dx1j.firebaseapp.com",
-        firestoreDatabaseId: "ai-studio-birthdaycountdow-a6c9d805-fc83-46a9-86c5-9bd152bd9882",
-        storageBucket: "causal-truth-2dx1j.firebasestorage.app",
-        messagingSenderId: "230990850653",
-        measurementId: "",
-        oAuthClientId: "230990850653-lhlbdle72fmcn5bhd5gi89kuhjopm90m.apps.googleusercontent.com",
-        recaptchaSiteKey: ""
-      };
-
-      const app = appMod.getApps().length === 0 ? appMod.initializeApp(firebaseConfig) : appMod.getApp();
-      db = firebaseConfig.firestoreDatabaseId 
-        ? firestoreMod.getFirestore(app, firebaseConfig.firestoreDatabaseId)
-        : firestoreMod.getFirestore(app);
-      auth = authMod.getAuth(app);
-      storage = storageMod.getStorage(app);
-
-      doc = firestoreMod.doc;
-      getDoc = firestoreMod.getDoc;
-      setDoc = firestoreMod.setDoc;
-      onSnapshot = firestoreMod.onSnapshot;
-      signInWithEmailAndPassword = authMod.signInWithEmailAndPassword;
-      signOut = authMod.signOut;
-      onAuthStateChanged = authMod.onAuthStateChanged;
-      sendSignInLinkToEmail = authMod.sendSignInLinkToEmail;
-      ref = storageMod.ref;
-      uploadBytes = storageMod.uploadBytes;
-      getDownloadURL = storageMod.getDownloadURL;
-      isFirebaseReady = true;
-      console.log("[Firebase] Successfully connected via official Google CDN on GitHub Pages!");
-      return true;
-    } catch (cdnErr) {
-      console.warn("[Firebase] CDN unavailable or offline. Falling back to Supabase and LocalStorage:", cdnErr);
-      return false;
-    }
-  }
-}
-
-// ============================================================================
 // ⚙️ BIRTHDAY CUSTOMIZATION (EDIT THESE VALUES FOR YOUR CELEBRATION)
 // ============================================================================
 
@@ -370,11 +273,8 @@ const defaultBurstPhotos = [
 // ============================================================================
 
 // ============================================================================
-// 🌐 FIREBASE PERSISTENT STORAGE CONFIGURATION
+// 🌐 SUPABASE PERSISTENT STORAGE CONFIGURATION
 // ============================================================================
-const FIREBASE_COLLECTION = "birthday_content";
-const FIREBASE_DOC_ID = "main";
-
 const SUPABASE_URL = "https://rqehrbituhykrmiujhuk.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_o5hbaYx5BDiX8kqzNV8nYw_4gQ05n3e";
 const SUPABASE_STORAGE_BUCKET = "Birthday-assets";
@@ -400,7 +300,7 @@ function updateDataSourceStatusUI(state, details = {}) {
   currentDataSourceState = state;
   dataSourceDetails = {
     isLive: state === "live",
-    sourceName: state === "live" ? "Live Firebase Database" : "Local Storage / Default Fallback",
+    sourceName: state === "live" ? "Live Supabase Database" : "Local Storage / Default Fallback",
     lastCheckedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     ...details
   };
@@ -413,14 +313,14 @@ function updateDataSourceStatusUI(state, details = {}) {
   if (pill && dot && label) {
     pill.className = `data-source-pill ${state}`;
     if (state === "live") {
-      label.textContent = "🟢 Live Firebase Database Connected";
-      pill.title = "Connected to live online Firebase Firestore database. Content updates are saved in the cloud.";
+      label.textContent = "🟢 Live Database Connected";
+      pill.title = "Connected to live online Supabase database. Content updates are saved in the cloud.";
     } else if (state === "fallback") {
       label.textContent = "🟡 Using Local Fallbacks";
       pill.title = "Offline / using local cached content and defaults. Live database was not reached.";
     } else {
       label.textContent = "🔵 Checking Data Source...";
-      pill.title = "Connecting to Firebase database...";
+      pill.title = "Connecting to database...";
     }
   }
 
@@ -431,9 +331,9 @@ function updateDataSourceStatusUI(state, details = {}) {
   if (pubDot && pubTxt) {
     if (state === "live") {
       pubDot.className = "publishing-status-dot saved";
-      pubTxt.textContent = "Live Firebase Database";
+      pubTxt.textContent = "Live Online Database";
       pubTxt.style.color = "#52c41a";
-      pubTxt.title = "Site content loaded from Firebase Firestore online database";
+      pubTxt.title = "Site content loaded from Supabase online database (row id=1)";
     } else if (state === "fallback") {
       pubDot.className = "publishing-status-dot unsaved";
       pubTxt.textContent = "Local Fallback / Cache";
@@ -702,9 +602,9 @@ async function loadSiteContentFromJSON() {
  * Updates the Website Publishing status badges and indicators
  */
 function updatePublishingStatusUI(type, state, details = null) {
-  if (type === "supabase" || type === "firebase") {
-    const dot = document.getElementById("firebaseSyncDot") || document.getElementById("supabaseSyncDot");
-    const txt = document.getElementById("firebaseSyncText") || document.getElementById("supabaseSyncText");
+  if (type === "supabase") {
+    const dot = document.getElementById("supabaseSyncDot");
+    const txt = document.getElementById("supabaseSyncText");
     if (dot && txt) {
       if (state === "saved") {
         dot.className = "publishing-status-dot saved";
@@ -1073,38 +973,28 @@ function openAdminLoginForm(reasonMessage) {
 }
 
 /**
- * Initialize Firebase Auth listener and retrieve existing admin session
+ * Initialize Supabase Auth listener and retrieve existing session
  */
 async function initSupabaseAuth() {
+  const client = getSupabaseClient();
+  if (!client || !client.auth) return;
+
   try {
-    await ensureFirebaseLoaded();
-    if (auth && typeof onAuthStateChanged === "function") {
-      onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const token = await user.getIdToken();
-        const session = {
-          access_token: token,
-          user: {
-            id: user.uid,
-            email: user.email,
-            displayName: user.displayName
-          }
-        };
-        updateAdminUI(session);
-        console.log("[Firebase Auth] Admin authenticated:", user.email);
-      } else {
-        updateAdminUI(null);
-        console.log("[Firebase Auth] Visitor read-only mode active");
-      }
-    });
+    const { data } = await client.auth.getSession();
+    if (data?.session) {
+      updateAdminUI(data.session);
     }
+
+    client.auth.onAuthStateChange((_event, session) => {
+      updateAdminUI(session);
+    });
   } catch (err) {
-    console.warn("[Firebase Auth] Session listener warning:", err);
+    console.warn("[Supabase Auth] Session init warning:", err);
   }
 }
 
 /**
- * Lazily initialize the Supabase client if the official SDK is available (kept for legacy/fallback)
+ * Lazily initialize the Supabase client if the official SDK is available
  */
 function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
@@ -1138,12 +1028,12 @@ function showStorageStatus(elementId, message, type = "success", duration = 5000
 }
 
 /**
- * Upload a file directly to Firebase Storage bucket.
- * Falls back to Supabase Storage if Firebase is unreachable.
+ * Upload a file directly to the Supabase Storage bucket 'Birthday-assets'
+ * under photos/, backgrounds/, or music/.
  * Protected: requires an authenticated admin account.
- * Returns { success: true, publicUrl, fileName, path } or { success: false, error }
+ * Returns { success: true, publicUrl, fileName } or { success: false, error }
  */
-async function uploadToFirebaseStorage(arg1, arg2) {
+async function uploadToSupabaseStorage(arg1, arg2) {
   let folder = "photos";
   let file = null;
 
@@ -1155,7 +1045,7 @@ async function uploadToFirebaseStorage(arg1, arg2) {
     if (typeof arg2 === "string") folder = arg2;
   }
 
-  if (!file || (!file.name && !file.type)) {
+  if (!file || !file.name) {
     return {
       success: false,
       error: "No valid file provided for upload."
@@ -1163,44 +1053,20 @@ async function uploadToFirebaseStorage(arg1, arg2) {
   }
 
   if (!isCurrentUserAdmin()) {
-    openAdminLoginForm("🔒 Admin sign-in required to upload files to Cloud Storage.");
+    openAdminLoginForm("🔒 Admin sign-in required to upload files to Supabase Storage.");
     return {
       success: false,
       error: "Admin authentication required. Sign in as admin to upload assets."
     };
   }
 
-  await ensureFirebaseLoaded();
-
-  const cleanExt = ((file.name || "media.bin").split('.').pop() || 'bin').toLowerCase();
-  const cleanBase = (file.name || "file").replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const bucket = SUPABASE_STORAGE_BUCKET;
+  const cleanExt = (file.name.split('.').pop() || 'bin').toLowerCase();
+  const cleanBase = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
   const fileName = `${Date.now()}_${cleanBase}.${cleanExt}`;
   const filePath = `${folder}/${fileName}`;
 
-  // 1. Primary: Upload to Firebase Storage
-  if (storage) {
-    try {
-      const storageRef = ref(storage, filePath);
-      const metadata = {
-        contentType: file.type || "application/octet-stream",
-        cacheControl: "public, max-age=31536000"
-      };
-      const snapshot = await uploadBytes(storageRef, file, metadata);
-      const publicUrl = await getDownloadURL(snapshot.ref);
-      console.log(`[Firebase Storage] Uploaded ${filePath} successfully:`, publicUrl);
-      return {
-        success: true,
-        publicUrl,
-        fileName,
-        path: filePath
-      };
-    } catch (fbStorageErr) {
-      console.warn("[Firebase Storage] Upload error, trying secondary fallback:", fbStorageErr);
-    }
-  }
-
-  // 2. Secondary fallback: Supabase Storage bucket 'Birthday-assets'
-  const bucket = SUPABASE_STORAGE_BUCKET;
+  // 1. Try official Supabase SDK (automatically attaches authenticated JWT session)
   const client = getSupabaseClient();
   if (client && client.storage) {
     try {
@@ -1222,12 +1088,22 @@ async function uploadToFirebaseStorage(arg1, arg2) {
           fileName
         };
       }
+
+      if (error) {
+        console.warn("[Supabase Storage SDK upload note]:", error);
+        if (error.message && error.message.toLowerCase().includes("row-level security")) {
+          return {
+            success: false,
+            error: "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
+          };
+        }
+      }
     } catch (sdkErr) {
-      console.warn("[Supabase Storage fallback error]:", sdkErr);
+      console.warn("[Supabase Storage SDK error]:", sdkErr);
     }
   }
 
-  // 3. Direct REST upload fallback to Supabase
+  // 2. Direct REST upload fallback with authenticated JWT
   try {
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`;
     const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
@@ -1249,20 +1125,19 @@ async function uploadToFirebaseStorage(arg1, arg2) {
         path: filePath,
         fileName
       };
+    } else {
+      const err = await res.json().catch(() => ({}));
+      const msg = err.message || err.error || res.statusText;
+      return {
+        success: false,
+        error: msg.includes("row-level security")
+          ? "Storage RLS notice: Ensure your admin user has an INSERT policy on bucket 'Birthday-assets'."
+          : msg
+      };
     }
-  } catch (_) {}
-
-  return {
-    success: false,
-    error: "Upload to cloud storage failed. Please check network and permissions."
-  };
-}
-
-/**
- * Backward compatibility alias for existing callers
- */
-async function uploadToSupabaseStorage(arg1, arg2) {
-  return await uploadToFirebaseStorage(arg1, arg2);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 /**
@@ -1348,60 +1223,40 @@ async function loadBirthdayPhotosFromSupabase(force = false) {
 }
 
 /**
- * Fetch the latest birthday content from Firebase Cloud Firestore.
- * Targets collection 'birthday_content', document 'main' as primary source of truth.
- * Keeps localStorage as fallback and updates UI status accordingly.
+ * Fetch the latest birthday content from Supabase.
+ * Targets public.birthday_content row id = 1 as primary source of truth.
+ * Tries the official Supabase SDK first, with a pure fetch REST fallback.
+ * Keeps localStorage as a fallback/cache without wiping out user changes.
  */
-async function loadBirthdayContentFromFirebase() {
+async function loadBirthdayContentFromSupabase() {
   isInitialSupabaseLoading = true;
   updateDataSourceStatusUI("checking");
   try {
-    await ensureFirebaseLoaded();
     let row = null;
     let fetchedFromLiveDatabase = false;
 
-    // 1. Primary: Load from Firebase Cloud Firestore
-    try {
-      const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
-      const docSnap = await getDoc(docRef);
+    // 1. Try official SDK targeting row id = 1
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        const { data, error } = await client
+          .from("birthday_content")
+          .select("*")
+          .eq("id", 1)
+          .limit(1);
 
-      if (docSnap.exists()) {
-        row = docSnap.data();
-        fetchedFromLiveDatabase = true;
-        console.log("[Firebase Firestore] Loaded birthday content:", row);
-      } else {
-        console.log("[Firebase Firestore] Document 'main' not found yet. Trying Supabase backup or defaults.");
-      }
-    } catch (fbErr) {
-      console.warn("[Firebase Firestore] Error fetching main document:", fbErr);
-    }
-
-    // 2. Secondary fallback: Load from Supabase row 1 if Firebase document has not been created yet
-    if (!row) {
-      const client = getSupabaseClient();
-      if (client) {
-        try {
-          const { data, error } = await client
-            .from("birthday_content")
-            .select("*")
-            .eq("id", 1)
-            .limit(1);
-
-          if (!error && Array.isArray(data) && data.length > 0) {
-            row = data[0];
-            fetchedFromLiveDatabase = true;
-            console.log("[Supabase Fallback] Found content in Supabase. Migrating to Firebase Firestore...");
-            // Automatically replicate to Firebase so future loads come from Firestore
-            try {
-              const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
-              await setDoc(docRef, { ...row, updated_at: new Date().toISOString() }, { merge: true });
-            } catch (_) {}
-          }
-        } catch (_) {}
+        if (!error && Array.isArray(data) && data.length > 0) {
+          row = data[0];
+          fetchedFromLiveDatabase = true;
+        } else if (error) {
+          console.warn("[Supabase SDK] Query notice:", error.message);
+        }
+      } catch (sdkErr) {
+        console.warn("[Supabase SDK] Fetch error:", sdkErr);
       }
     }
 
-    // 3. Third fallback: Direct Supabase REST
+    // 2. Direct REST fallback targeting row id = 1
     if (!row) {
       try {
         const response = await fetch(
@@ -1420,13 +1275,37 @@ async function loadBirthdayContentFromFirebase() {
             fetchedFromLiveDatabase = true;
           }
         }
+      } catch (restErr) {
+        console.warn("[Supabase REST] Offline or connection error:", restErr);
+      }
+    }
+
+    // 3. Additional fallback if row id=1 was not explicitly returned
+    if (!row) {
+      try {
+        const resFallback = await fetch(
+          `${SUPABASE_URL}/rest/v1/birthday_content?select=*&order=updated_at.desc&limit=1`,
+          {
+            headers: {
+              "apikey": SUPABASE_PUBLISHABLE_KEY,
+              "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+            }
+          }
+        );
+        if (resFallback.ok) {
+          const rows = await resFallback.json();
+          if (Array.isArray(rows) && rows.length > 0) {
+            row = rows[0];
+            fetchedFromLiveDatabase = true;
+          }
+        }
       } catch (_) {}
     }
 
-    // 4. Synchronize all database fields to application state
+    // 4. Synchronize all database columns to application state
     if (row) {
-      currentSupabaseRowId = 1;
-      updateDataSourceStatusUI("live", { rowId: FIREBASE_DOC_ID, updatedAt: row.updated_at });
+      currentSupabaseRowId = row.id || 1;
+      updateDataSourceStatusUI("live", { rowId: currentSupabaseRowId, updatedAt: row.updated_at });
 
       // Recipient Name
       if (row.recipient_name && typeof row.recipient_name === "string" && row.recipient_name.trim() !== "") {
@@ -1600,7 +1479,7 @@ async function loadBirthdayContentFromFirebase() {
         currentSiteTexts.finaleAuthorName = row.finale_author.trim();
       }
 
-      // Synchronize Site Texts
+      // Synchronize Site Texts from Supabase
       let loadedTexts = null;
       if (row.site_texts && typeof row.site_texts === "object") {
         loadedTexts = row.site_texts;
@@ -1629,29 +1508,29 @@ async function loadBirthdayContentFromFirebase() {
       applySiteTextsToDOM();
       updateAdminMediaCards();
       updateAdminRevealCards();
-      updatePublishingStatusUI("firebase", "saved");
+      updatePublishingStatusUI("supabase", "saved");
 
       setupDynamicContent();
-      console.log("[Firebase] Successfully loaded and synchronized online birthday content:", row);
+      console.log("[Supabase] Successfully loaded and synchronized online birthday content:", row);
     } else {
       updateDataSourceStatusUI("fallback", { reason: "No database rows found" });
-      console.log("[Firebase] No remote content found. Using local fallback.");
+      console.log("[Supabase] No remote content found for row id=1. Using local fallback.");
     }
   } catch (err) {
     updateDataSourceStatusUI("fallback", { reason: err?.message || "Offline" });
-    console.warn("[Firebase] Could not load online content, maintaining local fallback:", err);
+    console.warn("[Supabase] Could not load online content, maintaining local fallback:", err);
   } finally {
     isInitialSupabaseLoading = false;
   }
 }
 
 /**
- * Unified persistence function: saves all birthday content to Firebase Cloud Firestore collection 'birthday_content', document 'main'.
+ * Unified persistence function: saves all birthday content to Supabase public.birthday_content row id = 1.
  * Synchronizes: recipient_name, birthday_message, background_url, music_url,
  * reveal_photos, reveal_titles, memories, love_notes, and updated_at.
- * Persists changes so that page refreshes maintain all admin texts, pictures, and love notes.
+ * Requires admin authentication to write to remote database, protecting against unauthorized edits.
  */
-async function saveAllBirthdayContentToFirebase(overrides = {}, requireAdmin = false) {
+async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
   try {
     localStorage.setItem("birthday_site_texts_v1", JSON.stringify(currentSiteTexts));
     localStorage.setItem("birthday_reveal_photos_v1", JSON.stringify(currentRevealPhotos));
@@ -1694,60 +1573,67 @@ async function saveAllBirthdayContentToFirebase(overrides = {}, requireAdmin = f
     ...overrides
   };
 
-  let savedSuccessfully = false;
-
-  // 1. Primary: Save to Firebase Firestore collection 'birthday_content', document 'main'
-  try {
-    await ensureFirebaseLoaded();
-    const docRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOC_ID);
-    await setDoc(docRef, payload, { merge: true });
-    console.log("[Firebase Firestore] Successfully persisted birthday content to document 'main':", payload);
-    savedSuccessfully = true;
-    updatePublishingStatusUI("firebase", "saved");
-    updateDataSourceStatusUI("live", { rowId: FIREBASE_DOC_ID, updatedAt: payload.updated_at });
-  } catch (fbErr) {
-    console.warn("[Firebase Firestore] Error persisting document to Firestore:", fbErr);
-  }
-
-  // 2. Secondary backup: Also synchronize to Supabase if configured (for redundancy)
-  try {
-    const client = getSupabaseClient();
-    if (client) {
-      await client
+  // 1. Try official SDK
+  const client = getSupabaseClient();
+  if (client) {
+    try {
+      const { data, error } = await client
         .from("birthday_content")
         .update(payload)
-        .eq("id", 1);
-    }
-  } catch (_) {}
+        .eq("id", 1)
+        .select();
 
-  return savedSuccessfully;
+      if (!error && Array.isArray(data) && data.length > 0) {
+        console.log("[Supabase SDK] Successfully persisted birthday_content row id=1:", data[0]);
+        return true;
+      } else if (error) {
+        console.warn("[Supabase SDK] Update notice:", error.message);
+      }
+    } catch (sdkErr) {
+      console.warn("[Supabase SDK] Save error:", sdkErr);
+    }
+  }
+
+  // 2. Direct REST fallback with authenticated admin JWT
+  try {
+    const authToken = currentAdminSession?.access_token || SUPABASE_PUBLISHABLE_KEY;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/birthday_content?id=eq.1`, {
+      method: "PATCH",
+      headers: {
+        "apikey": SUPABASE_PUBLISHABLE_KEY,
+        "Authorization": `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows.length > 0) {
+        console.log("[Supabase REST] Successfully persisted birthday_content row id=1:", rows[0]);
+        return true;
+      }
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      console.warn("[Supabase REST] Update response status:", res.status, errData);
+    }
+  } catch (restErr) {
+    console.warn("[Supabase REST] Network error during save:", restErr);
+  }
+
+  return false;
 }
 
 /**
- * Universal & backward-compatible aliases
+ * Backward compatibility wrapper delegating to saveAllBirthdayContentToSupabase.
  */
-async function saveAllBirthdayContent(overrides = {}, requireAdmin = false) {
-  return await saveAllBirthdayContentToFirebase(overrides, requireAdmin);
-}
-
-async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = false) {
-  return await saveAllBirthdayContentToFirebase(overrides, requireAdmin);
-}
-
 async function saveBirthdayContentToSupabase(newMessage, newBgUrl, newMusicUrl, extraPayload = {}) {
   const overrides = { ...extraPayload };
   if (newMessage !== undefined && newMessage !== null) overrides.birthday_message = newMessage;
   if (newBgUrl !== undefined && newBgUrl !== null) overrides.background_url = newBgUrl;
   if (newMusicUrl !== undefined && newMusicUrl !== null) overrides.music_url = newMusicUrl;
-  return await saveAllBirthdayContentToFirebase(overrides);
-}
-
-async function loadBirthdayContent() {
-  return await loadBirthdayContentFromFirebase();
-}
-
-async function loadBirthdayContentFromSupabase() {
-  return await loadBirthdayContentFromFirebase();
+  return await saveAllBirthdayContentToSupabase(overrides);
 }
 
 // State
@@ -2012,131 +1898,27 @@ const finaleBackToMemoriesBtn = document.getElementById("finaleBackToMemoriesBtn
 const finaleBackToNotesBtn = document.getElementById("finaleBackToNotesBtn");
 
 // ============================================================================
-// FOOLPROOF OPENING SCREEN & SHOW ME INTERACTION ENGINE
+// INITIALIZATION
 // ============================================================================
-let isRevealStarting = false;
-
-function handleShowMeAction(e) {
-  if (e) {
-    if (e.type === "touchend") {
-      try { e.preventDefault(); } catch (_) {}
-    }
-  }
-
-  if (isRevealStarting) return;
-  isRevealStarting = true;
-  console.log("[Opening Screen] SHOW ME triggered via", e ? e.type : "direct call");
-
-  try {
-    startRevealSequence();
-  } catch (err) {
-    console.error("[Opening Screen] Error in startRevealSequence:", err);
-  }
-
-  setTimeout(() => {
-    isRevealStarting = false;
-  }, 1500);
-}
-
-function bindShowMeInteraction() {
-  window.__startBirthdayReveal = handleShowMeAction;
-  window.startRevealSequence = startRevealSequence;
-  window.showChapter = showChapter;
-  window.triggerCelebration = triggerCelebration;
-
-  const showMe = document.getElementById("showMeBtn");
-  const wrapper = document.querySelector(".photo-sticker-btn-wrapper");
-  const fingerGuide = document.querySelector(".sticker-finger-guide");
-  const tapBadge = document.getElementById("tapBadgeText");
-  const stickerImg = document.getElementById("showMeStickerImg");
-  const stickerFrame = document.querySelector(".sticker-card-frame");
-  const tapBadgeWrap = document.querySelector(".sticker-tap-badge");
-
-  const elements = [showMe, wrapper, fingerGuide, tapBadge, stickerImg, stickerFrame, tapBadgeWrap].filter(Boolean);
-
-  elements.forEach(el => {
-    if (el._showMeBound) return;
-    el._showMeBound = true;
-    el.style.cursor = "pointer";
-
-    el.addEventListener("click", handleShowMeAction, { passive: false });
-    el.addEventListener("touchend", handleShowMeAction, { passive: false });
-  });
-
-  if (showMe) {
-    showMe.removeAttribute("disabled");
-    showMe.style.pointerEvents = "auto";
-  }
-}
-
-// Immediate invocation in case DOM is already parsed when module executes
-if (typeof document !== "undefined") {
-  bindShowMeInteraction();
-}
-
-// ============================================================================
-// INITIALIZATION & APPLICATION LIFECYCLE
-// ============================================================================
-function runSafeStep(name, fn) {
-  try {
-    fn();
-  } catch (err) {
-    console.error(`[Startup] Non-fatal error during '${name}':`, err);
-  }
-}
-
-function startApplication() {
-  console.log("[Startup] Initializing application...");
-
-  // 1. FIRST PRIORITY: Ensure Opening Screen and SHOW ME interaction are 100% interactive!
-  runSafeStep("initOpeningScreen", initOpeningScreen);
-  runSafeStep("bindShowMeInteraction", bindShowMeInteraction);
-
-  // 2. Setup public UI defaults and text mapping
-  runSafeStep("initSiteTexts", initSiteTexts);
-  runSafeStep("setupDynamicContent", setupDynamicContent);
-  runSafeStep("setupBackground", setupBackground);
-  runSafeStep("setupEventListeners", setupEventListeners);
-  runSafeStep("bindShowMeInteraction_reconfirm", bindShowMeInteraction);
-
-  // 3. Ambient visual effects (canvas resize, stars, confetti initialization)
-  runSafeStep("initParticlesCanvas", initParticlesCanvas);
-  runSafeStep("initConfettiCanvas", initConfettiCanvas);
-
-  // 4. Content modules & experience features
-  runSafeStep("initBackgroundMusic", initBackgroundMusic);
-  runSafeStep("initScrapbookMemories", initScrapbookMemories);
-  runSafeStep("initGuestbook", initGuestbook);
-  runSafeStep("initLoveNotesSystem", initLoveNotesSystem);
-  runSafeStep("initChapterSystem", initChapterSystem);
-  runSafeStep("initPhotoStorageAndBurstSettings", initPhotoStorageAndBurstSettings);
-
-  // 5. Admin Panel (isolated so failure never blocks public visitors)
-  runSafeStep("setupAdminPanelControls", setupAdminPanelControls);
-  runSafeStep("initSupabaseAuth", initSupabaseAuth);
-
-  // 6. Asynchronous remote content loading (background - will NEVER block opening screen)
-  setTimeout(() => {
-    runSafeStep("loadBirthdayContentFromFirebase", () => {
-      loadBirthdayContentFromFirebase().catch((err) => {
-        console.warn("[Startup] Non-fatal background Firebase content load error:", err);
-      });
-    });
-    runSafeStep("loadBirthdayPhotosFromSupabase", () => {
-      loadBirthdayPhotosFromSupabase().catch((err) => {
-        console.warn("[Startup] Non-fatal background Supabase photos sync error:", err);
-      });
-    });
-  }, 50);
-}
-
-// Robust DOM Ready Execution: handles both before and after DOMContentLoaded
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", startApplication);
-} else {
-  // DOM is already ready (module script deferred or fast DOM load)
-  startApplication();
-}
+document.addEventListener("DOMContentLoaded", () => {
+  initSupabaseAuth();
+  initSiteTexts();
+  setupDynamicContent();
+  setupBackground();
+  initOpeningScreen();
+  initParticlesCanvas();
+  initConfettiCanvas();
+  setupEventListeners();
+  initScrapbookMemories();
+  initBackgroundMusic();
+  initGuestbook();
+  initLoveNotesSystem();
+  initChapterSystem();
+  initPhotoStorageAndBurstSettings();
+  setupAdminPanelControls();
+  loadBirthdayContentFromSupabase();
+  loadBirthdayPhotosFromSupabase();
+});
 
 function setupDynamicContent() {
   if (openingPersonName) {
@@ -2229,71 +2011,55 @@ function initOpeningScreen() {
 
   isCelebrationActive = false;
 
-  const targetOpening = openingScreen || document.getElementById("openingScreen");
   // Make sure opening screen is active and visible
-  if (targetOpening) {
-    targetOpening.style.display = "flex";
-    targetOpening.classList.add("active");
+  if (openingScreen) {
+    openingScreen.style.display = "flex";
+    openingScreen.classList.add("active");
   }
 
-  const targetCountdownStage = revealCountdownStage || document.getElementById("revealCountdownStage");
-  if (targetCountdownStage) {
-    targetCountdownStage.style.display = "none";
+  if (revealCountdownStage) {
+    revealCountdownStage.style.display = "none";
   }
 
-  const targetPhotoReveal = tenSecondPhotoReveal || document.getElementById("tenSecondPhotoReveal");
-  if (targetPhotoReveal) {
-    targetPhotoReveal.classList.remove("active");
-    targetPhotoReveal.style.display = "none";
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    tenSecondPhotoReveal.style.display = "none";
   }
 
-  const targetCelebration = celebrationScreen || document.getElementById("celebrationScreen");
-  if (targetCelebration) {
-    targetCelebration.classList.remove("active");
+  if (celebrationScreen) {
+    celebrationScreen.classList.remove("active");
   }
 
   // Hide Chapter navigation bar on opening screen
-  const targetChapterNavBar = chapterNavBar || document.getElementById("chapterNavBar");
-  if (targetChapterNavBar) {
-    targetChapterNavBar.style.display = "none";
+  if (chapterNavBar) {
+    chapterNavBar.style.display = "none";
   }
 
   // Update recipient name in message
-  const targetOpeningPerson = openingPersonName || document.getElementById("openingPersonName");
-  if (targetOpeningPerson) {
-    targetOpeningPerson.textContent = currentName;
+  if (openingPersonName) {
+    openingPersonName.textContent = currentName;
   }
-
-  bindShowMeInteraction();
 }
 
 function startRevealSequence() {
-  const targetOpening = openingScreen || document.getElementById("openingScreen");
-  const targetCelebration = celebrationScreen || document.getElementById("celebrationScreen");
-  const targetPhotoReveal = tenSecondPhotoReveal || document.getElementById("tenSecondPhotoReveal");
-  const targetCountdownStage = revealCountdownStage || document.getElementById("revealCountdownStage");
-  const targetCountdownNum = revealCountdownNum || document.getElementById("revealCountdownNum");
-  const targetCountdownSub = revealCountdownSub || document.getElementById("revealCountdownSub");
-
   // Hide Opening Screen
-  if (targetOpening) {
-    targetOpening.classList.remove("active");
-    targetOpening.style.display = "none";
+  if (openingScreen) {
+    openingScreen.classList.remove("active");
+    openingScreen.style.display = "none";
   }
 
   // Hide any active celebration or overlay
-  if (targetCelebration) {
-    targetCelebration.classList.remove("active");
+  if (celebrationScreen) {
+    celebrationScreen.classList.remove("active");
   }
-  if (targetPhotoReveal) {
-    targetPhotoReveal.classList.remove("active");
-    targetPhotoReveal.style.display = "none";
+  if (tenSecondPhotoReveal) {
+    tenSecondPhotoReveal.classList.remove("active");
+    tenSecondPhotoReveal.style.display = "none";
   }
 
   // Prime audio playback state directly on user interaction (SHOW ME tap)
   // to authorize media playback under strict browser autoplay policies
-  const audioEl = bgAudio || document.getElementById("bgAudio");
-  if (audioEl) {
+  if (bgAudio) {
     // If audio is paused, calling play() then immediate pause (or keeping suspended context primed)
     // primes the HTML5 audio element for instant playback when countdown finishes.
     try {
@@ -2308,17 +2074,17 @@ function startRevealSequence() {
   }
 
   // Show 3 -> 2 -> 1 Reveal stage
-  if (targetCountdownStage) {
-    targetCountdownStage.style.display = "flex";
+  if (revealCountdownStage) {
+    revealCountdownStage.style.display = "flex";
   }
 
   let count = 3;
-  if (targetCountdownNum) {
-    targetCountdownNum.textContent = String(count);
-    targetCountdownNum.className = "reveal-countdown-number tick-pop";
+  if (revealCountdownNum) {
+    revealCountdownNum.textContent = String(count);
+    revealCountdownNum.className = "reveal-countdown-number tick-pop";
   }
-  if (targetCountdownSub) {
-    targetCountdownSub.textContent = "Getting your surprise ready...";
+  if (revealCountdownSub) {
+    revealCountdownSub.textContent = "Getting your surprise ready...";
   }
 
   if (revealCountdownTimer) clearInterval(revealCountdownTimer);
@@ -2326,22 +2092,22 @@ function startRevealSequence() {
   revealCountdownTimer = setInterval(() => {
     count--;
     if (count > 0) {
-      if (targetCountdownNum) {
-        targetCountdownNum.textContent = String(count);
-        targetCountdownNum.className = "reveal-countdown-number";
-        void targetCountdownNum.offsetWidth; // Restart CSS keyframe animation
-        targetCountdownNum.className = "reveal-countdown-number tick-pop";
+      if (revealCountdownNum) {
+        revealCountdownNum.textContent = String(count);
+        revealCountdownNum.className = "reveal-countdown-number";
+        void revealCountdownNum.offsetWidth; // Restart CSS keyframe animation
+        revealCountdownNum.className = "reveal-countdown-number tick-pop";
       }
-      if (targetCountdownSub) {
-        targetCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
+      if (revealCountdownSub) {
+        revealCountdownSub.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
       }
     } else {
       // Reached 0: Countdown finishes!
       clearInterval(revealCountdownTimer);
       revealCountdownTimer = null;
 
-      if (targetCountdownStage) {
-        targetCountdownStage.style.display = "none";
+      if (revealCountdownStage) {
+        revealCountdownStage.style.display = "none";
       }
 
       // STEP 8: Birthday music starts immediately
@@ -2837,9 +2603,14 @@ function saveGuestbookMessages() {
     console.warn("Could not persist guestbook to localStorage:", err);
   }
 
-  // Persist to Firebase birthday_content document 'main' -> love_notes
+  // Persist to Supabase birthday_content.love_notes
   if (!isInitialSupabaseLoading) {
-    saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages });
+    if (isCurrentUserAdmin()) {
+      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages });
+    } else {
+      // Attempt visitor update with anon key (falls back cleanly to localStorage if unauthorized)
+      saveAllBirthdayContentToSupabase({ love_notes: guestbookMessages }, false);
+    }
   }
 }
 
@@ -4504,8 +4275,24 @@ function setupEventListeners() {
     celebrateMoreBtn.addEventListener("click", () => startConfettiAnimation());
   }
 
-  // Show Me button / Photo Sticker on Opening Screen (Comprehensive Mouse + Touch Binding)
-  bindShowMeInteraction();
+  // Show Me button / Photo Sticker on Opening Screen
+  if (showMeBtn) {
+    showMeBtn.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  }
+  const showMeStickerContainer = document.getElementById("showMeStickerContainer");
+  if (showMeStickerContainer) {
+    showMeStickerContainer.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  }
+  const stickerWrappers = document.querySelectorAll(".photo-sticker-wrapper");
+  stickerWrappers.forEach(w => {
+    w.addEventListener("click", () => {
+      startRevealSequence();
+    });
+  });
 
   // Skip Reveal button on 10s Photo Reveal
   if (skipRevealBtn) {
@@ -4727,7 +4514,6 @@ const loopMusic = ${loopMusic};`;
 
   if (adminSignInBtn) {
     adminSignInBtn.addEventListener("click", async () => {
-      await ensureFirebaseLoaded();
       const email = adminEmailInput ? adminEmailInput.value.trim() : "";
       const password = adminPasswordInput ? adminPasswordInput.value : "";
       if (!email || !password) {
@@ -4735,44 +4521,29 @@ const loopMusic = ${loopMusic};`;
         return;
       }
 
-      showStorageStatus("adminAuthStatus", "Authenticating with Firebase...", "loading", 0);
+      showStorageStatus("adminAuthStatus", "Authenticating with Supabase...", "loading", 0);
+      const client = getSupabaseClient();
+      if (!client || !client.auth) {
+        showStorageStatus("adminAuthStatus", "Supabase client not available. Check network connection.", "error", 4000);
+        return;
+      }
 
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const token = await user.getIdToken();
-        const session = {
-          access_token: token,
-          user: {
-            id: user.uid,
-            email: user.email,
-            displayName: user.displayName
-          }
-        };
-        updateAdminUI(session);
-        showStorageStatus("adminAuthStatus", "Admin authenticated successfully with Firebase! Online modifications enabled. ❤️", "success", 4000);
-      } catch (fbErr) {
-        console.warn("[Firebase Auth] Sign in failed, trying fallback:", fbErr);
-        // Fallback to Supabase if the account is in Supabase
-        const client = getSupabaseClient();
-        if (client && client.auth) {
-          try {
-            const { data, error } = await client.auth.signInWithPassword({ email, password });
-            if (!error && data?.session) {
-              updateAdminUI(data.session);
-              showStorageStatus("adminAuthStatus", "Admin authenticated successfully! Online modifications enabled. ❤️", "success", 4000);
-              return;
-            }
-          } catch (_) {}
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) {
+          showStorageStatus("adminAuthStatus", `Sign in failed: ${error.message}`, "error", 6000);
+        } else if (data?.session) {
+          updateAdminUI(data.session);
+          showStorageStatus("adminAuthStatus", "Admin authenticated successfully! Online modifications enabled. ❤️", "success", 4000);
         }
-        showStorageStatus("adminAuthStatus", `Sign in failed: ${fbErr.message}`, "error", 6000);
+      } catch (err) {
+        showStorageStatus("adminAuthStatus", `Sign in error: ${err.message}`, "error", 5000);
       }
     });
   }
 
   if (adminMagicLinkBtn) {
     adminMagicLinkBtn.addEventListener("click", async () => {
-      await ensureFirebaseLoaded();
       const email = adminEmailInput ? adminEmailInput.value.trim() : "";
       if (!email) {
         showStorageStatus("adminAuthStatus", "Please enter admin email to receive magic sign-in link.", "error", 4000);
@@ -4780,30 +4551,25 @@ const loopMusic = ${loopMusic};`;
       }
 
       showStorageStatus("adminAuthStatus", "Sending magic sign-in link...", "loading", 0);
+      const client = getSupabaseClient();
+      if (!client || !client.auth) {
+        showStorageStatus("adminAuthStatus", "Supabase client not available.", "error", 4000);
+        return;
+      }
 
       try {
-        const actionCodeSettings = {
-          url: window.location.href,
-          handleCodeInApp: true,
-        };
-        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-        window.localStorage.setItem('emailForSignIn', email);
-        showStorageStatus("adminAuthStatus", `Magic sign-in link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
-      } catch (err) {
-        console.warn("[Firebase Magic Link] Error:", err);
-        const client = getSupabaseClient();
-        if (client && client.auth) {
-          try {
-            const { error } = await client.auth.signInWithOtp({
-              email,
-              options: { emailRedirectTo: window.location.href }
-            });
-            if (!error) {
-              showStorageStatus("adminAuthStatus", `Magic link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
-              return;
-            }
-          } catch (_) {}
+        const { error } = await client.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: window.location.href
+          }
+        });
+        if (error) {
+          showStorageStatus("adminAuthStatus", `Magic link error: ${error.message}`, "error", 6000);
+        } else {
+          showStorageStatus("adminAuthStatus", `Magic link dispatched to ${email}! Check email to authenticate.`, "success", 7000);
         }
+      } catch (err) {
         showStorageStatus("adminAuthStatus", `Magic link error: ${err.message}`, "error", 5000);
       }
     });
@@ -4811,10 +4577,6 @@ const loopMusic = ${loopMusic};`;
 
   if (adminSignOutBtn) {
     adminSignOutBtn.addEventListener("click", async () => {
-      await ensureFirebaseLoaded();
-      try {
-        await signOut(auth);
-      } catch (_) {}
       const client = getSupabaseClient();
       if (client && client.auth) {
         await client.auth.signOut().catch(() => {});
@@ -5219,16 +4981,16 @@ function setupAdminPanelControls() {
     readAdminTextInputs();
     applySiteTextsToDOM();
 
-    showStorageStatus("adminTextSaveStatus", "Saving all website text to Firebase...", "loading", 0);
-    updatePublishingStatusUI("firebase", "saving");
+    showStorageStatus("adminTextSaveStatus", "Saving all website text to Supabase...", "loading", 0);
+    updatePublishingStatusUI("supabase", "saving");
 
     const saved = await saveAllBirthdayContentToSupabase();
     if (saved) {
-      updatePublishingStatusUI("firebase", "saved");
-      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated in Firebase)", "success", 4000);
+      updatePublishingStatusUI("supabase", "saved");
+      showStorageStatus("adminTextSaveStatus", "Saved successfully ❤️ (All website texts updated in database)", "success", 4000);
       updatePublishingStatusUI("github", "unsynced");
     } else {
-      updatePublishingStatusUI("firebase", "unsaved");
+      updatePublishingStatusUI("supabase", "unsaved");
       showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
     }
   }
@@ -5461,7 +5223,7 @@ function setupAdminPanelControls() {
 
       const saved = await saveAllBirthdayContentToSupabase();
       if (saved) {
-        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Firebase! ❤️`, "success", 4500);
+        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Supabase! ❤️`, "success", 4500);
       } else {
         showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated locally! (Admin sign-in required to sync online)`, "loading", 4000);
       }
@@ -5740,7 +5502,7 @@ function setupAdminPanelControls() {
 
         const saved = await saveAllBirthdayContentToSupabase({ music_url: currentMusicUrl });
         if (saved) {
-          showStorageStatus("musicUploadStatus", "Saved successfully ❤️ (Music synced with Firebase)", "success", 4500);
+          showStorageStatus("musicUploadStatus", "Saved successfully ❤️ (Music synced with Supabase)", "success", 4500);
         } else {
           showStorageStatus("musicUploadStatus", "Music updated locally! (Sign in to sync online)", "loading", 4000);
         }
@@ -6036,18 +5798,26 @@ async function handlePhotoFiles(files) {
 
   renderPhotoThumbnails();
 
-  // Persist updated reveal photos and celebration burst photos to Firebase
-  saveAllBirthdayContentToSupabase();
+  if (isCurrentUserAdmin()) {
+    saveAllBirthdayContentToSupabase();
+  }
 
   if (successCount > 0) {
     showStorageStatus(
       "photoUploadStatus",
-      `Saved successfully ❤️ (${successCount} photo${successCount > 1 ? "s" : ""} synced to cloud)`,
+      `Saved successfully ❤️ (${successCount} photo${successCount > 1 ? "s" : ""} in Supabase Storage)`,
       "success",
       5000
     );
+  } else if (rlsNotice) {
+    showStorageStatus(
+      "photoUploadStatus",
+      "Saved locally! (Note: Enable INSERT policy on bucket 'Birthday-assets' in Supabase Storage for online sync)",
+      "error",
+      8000
+    );
   } else {
-    showStorageStatus("photoUploadStatus", "Saved successfully to Firebase & browser ❤️", "success", 4000);
+    showStorageStatus("photoUploadStatus", "Saved locally in browser cache ❤️", "success", 4000);
   }
 }
 
@@ -6137,7 +5907,7 @@ async function deletePhoto(id) {
     localStorage.setItem("birthday_burst_photos_v1", JSON.stringify(currentPhotos));
   } catch {}
 
-  if (!isInitialSupabaseLoading) {
+  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
     saveAllBirthdayContentToSupabase();
   }
 }
@@ -6157,7 +5927,7 @@ async function clearAllPhotos() {
     localStorage.removeItem("birthday_burst_photos_v1");
   } catch {}
 
-  if (!isInitialSupabaseLoading) {
+  if (!isInitialSupabaseLoading && isCurrentUserAdmin()) {
     saveAllBirthdayContentToSupabase();
   }
 }
@@ -6976,17 +6746,11 @@ function initFinaleScene() {
   finaleAnimId = requestAnimationFrame(render2DFinale);
 }
 
-// Expose Firebase & persistence helpers and Chapter 4 Finale methods to window
+// Expose Supabase helpers and Chapter 4 Finale methods to window
 if (typeof window !== "undefined") {
-  window.loadBirthdayContent = loadBirthdayContent;
-  window.loadBirthdayContentFromFirebase = loadBirthdayContentFromFirebase;
   window.loadBirthdayContentFromSupabase = loadBirthdayContentFromSupabase;
-  window.saveAllBirthdayContent = saveAllBirthdayContent;
-  window.saveAllBirthdayContentToFirebase = saveAllBirthdayContentToFirebase;
-  window.saveAllBirthdayContentToSupabase = saveAllBirthdayContentToSupabase;
   window.saveBirthdayContentToSupabase = saveBirthdayContentToSupabase;
-  window.uploadToFirebaseStorage = uploadToFirebaseStorage;
-  window.uploadToSupabaseStorage = uploadToSupabaseStorage;
+  window.saveAllBirthdayContentToSupabase = saveAllBirthdayContentToSupabase;
   window.initFinaleScene = initFinaleScene;
   window.disposeFinaleThreeScene = disposeFinaleThreeScene;
 }
