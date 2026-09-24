@@ -3796,6 +3796,13 @@ let activeSpotlightElement = null;
 let isSpotlightLocked = false;
 let memoriesObserver = null;
 
+function updateMemoriesCounter() {
+  const panelMemoriesCount = document.getElementById("panelMemoriesCount");
+  if (panelMemoriesCount) {
+    panelMemoriesCount.textContent = String(activeMemories ? activeMemories.length : 0);
+  }
+}
+
 function initScrapbookMemories() {
   try {
     const saved = localStorage.getItem(MEMORIES_STORAGE_KEY);
@@ -3813,6 +3820,7 @@ function initScrapbookMemories() {
   renderMemories(); // Legacy grid support
   setupAdminMemories();
   initHighlightedMemoriesObserver();
+  updateMemoriesCounter();
 }
 
 function saveActiveMemories() {
@@ -3980,6 +3988,266 @@ function renderMemories() {
   });
 }
 
+/**
+ * Compresses and resizes large phone photos (max width 1600px, JPEG quality 0.8).
+ * Returns both a compressed File object suitable for Supabase Storage upload,
+ * and an optimized base64 DataURL fallback for local offline storage.
+ */
+function compressImageFile(file, maxWidth = 1600, quality = 0.8) {
+  return new Promise((resolve) => {
+    if (!file || !file.type || !file.type.startsWith("image/")) {
+      return resolve({ file, dataUrl: null });
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width;
+        let h = img.height;
+
+        if (w > maxWidth || h > maxWidth) {
+          if (w >= h) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          } else {
+            w = Math.round((w * maxWidth) / h);
+            h = maxWidth;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+
+        if (canvas.toBlob) {
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              return resolve({ file, dataUrl });
+            }
+            const cleanBase = (file.name || "memory").replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+            const compressedFile = new File([blob], `${cleanBase}.jpg`, {
+              type: "image/jpeg",
+              lastModified: Date.now()
+            });
+            resolve({ file: compressedFile, dataUrl });
+          }, "image/jpeg", quality);
+        } else {
+          resolve({ file, dataUrl });
+        }
+      };
+      img.onerror = () => resolve({ file, dataUrl: e.target?.result || null });
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve({ file, dataUrl: null });
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Handles multiple photo selection for Scrapbook Memories.
+ * Compresses large photos (max width ~1600px, JPEG quality ~0.8),
+ * uploads to Supabase Storage, and adds each as a memory entry.
+ */
+async function handleMemoryPhotoFiles(files) {
+  if (!isCurrentUserAdmin()) {
+    openAdminLoginForm("🔒 Admin sign-in required to upload photo memories.");
+    return;
+  }
+
+  const validFiles = Array.from(files).filter(f => f.type && f.type.startsWith("image/"));
+  if (validFiles.length === 0) return;
+
+  showStorageStatus(
+    "adminMemoriesUploadStatus",
+    `Optimizing & uploading ${validFiles.length} photo memor${validFiles.length > 1 ? "ies" : "y"}...`,
+    "loading",
+    0
+  );
+
+  let successCount = 0;
+  let rlsNotice = false;
+
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Optimizing & uploading photo ${i + 1} of ${validFiles.length}...`,
+      "loading",
+      0
+    );
+
+    try {
+      // 1. Compress / resize large phone photos (max 1600px, JPEG quality 0.8)
+      const { file: fileToUpload, dataUrl } = await compressImageFile(file, 1600, 0.8);
+
+      // 2. Upload to Supabase Storage bucket 'Birthday-assets' under memories/
+      const uploadRes = await uploadToSupabaseStorage("memories", fileToUpload || file);
+
+      let mediaUrl = "";
+      if (uploadRes && uploadRes.success) {
+        mediaUrl = uploadRes.publicUrl;
+        successCount++;
+      } else {
+        if (uploadRes?.error && uploadRes.error.toLowerCase().includes("row-level security")) {
+          rlsNotice = true;
+        }
+        mediaUrl = dataUrl || (await readFileAsOptimizedDataURL(file));
+      }
+
+      // 3. New memory entry with default title "A Special Memory" and spotlight off
+      const newMem = {
+        id: "mem-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
+        type: "photo",
+        title: "A Special Memory",
+        caption: "",
+        date: "Special Day",
+        image: mediaUrl,
+        mediaUrl: mediaUrl,
+        isHighlight: false,
+        style: "tape",
+        tilt: "slight",
+        size: "normal"
+      };
+
+      activeMemories.push(newMem);
+    } catch (err) {
+      console.error("Failed processing memory photo file:", err);
+    }
+  }
+
+  saveActiveMemories();
+  renderMemoriesScrapbook();
+  renderMemories();
+  renderAdminMemoriesList();
+  initHighlightedMemoriesObserver();
+  updateMemoriesCounter();
+
+  if (successCount > 0) {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Saved ${successCount} photo memor${successCount > 1 ? "ies" : "y"} to Supabase Storage ❤️`,
+      "success",
+      5000
+    );
+  } else if (rlsNotice) {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      "Saved locally! (Note: Enable INSERT policy on bucket 'Birthday-assets' for online storage)",
+      "error",
+      7500
+    );
+  } else {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Saved ${validFiles.length} photo memor${validFiles.length > 1 ? "ies" : "y"} locally ❤️`,
+      "success",
+      4000
+    );
+  }
+}
+
+/**
+ * Handles short video upload for Scrapbook Memories.
+ * Uploads to Supabase Storage and creates memory entries.
+ */
+async function handleMemoryVideoFiles(files) {
+  if (!isCurrentUserAdmin()) {
+    openAdminLoginForm("🔒 Admin sign-in required to upload video memories.");
+    return;
+  }
+
+  const validFiles = Array.from(files).filter(f => f.type && f.type.startsWith("video/"));
+  if (validFiles.length === 0) return;
+
+  showStorageStatus(
+    "adminMemoriesUploadStatus",
+    `Uploading ${validFiles.length} video memor${validFiles.length > 1 ? "ies" : "y"} to Supabase Storage...`,
+    "loading",
+    0
+  );
+
+  let successCount = 0;
+  let rlsNotice = false;
+
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Uploading video ${i + 1} of ${validFiles.length}...`,
+      "loading",
+      0
+    );
+
+    try {
+      const uploadRes = await uploadToSupabaseStorage("memories/videos", file);
+
+      let mediaUrl = "";
+      if (uploadRes && uploadRes.success) {
+        mediaUrl = uploadRes.publicUrl;
+        successCount++;
+      } else {
+        if (uploadRes?.error && uploadRes.error.toLowerCase().includes("row-level security")) {
+          rlsNotice = true;
+        }
+        mediaUrl = URL.createObjectURL(file);
+      }
+
+      const newMem = {
+        id: "mem-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
+        type: "video",
+        title: "A Special Memory",
+        caption: "",
+        date: "Special Day",
+        mediaUrl: mediaUrl,
+        image: "",
+        isHighlight: false,
+        style: "tape",
+        tilt: "slight",
+        size: "normal"
+      };
+
+      activeMemories.push(newMem);
+    } catch (err) {
+      console.error("Failed processing video memory file:", err);
+    }
+  }
+
+  saveActiveMemories();
+  renderMemoriesScrapbook();
+  renderMemories();
+  renderAdminMemoriesList();
+  initHighlightedMemoriesObserver();
+  updateMemoriesCounter();
+
+  if (successCount > 0) {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Uploaded ${successCount} video memor${successCount > 1 ? "ies" : "y"} to Supabase Storage ❤️`,
+      "success",
+      5000
+    );
+  } else if (rlsNotice) {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      "Saved locally! (Note: Enable INSERT policy on bucket 'Birthday-assets' for online storage)",
+      "error",
+      7500
+    );
+  } else {
+    showStorageStatus(
+      "adminMemoriesUploadStatus",
+      `Added ${validFiles.length} video memor${validFiles.length > 1 ? "ies" : "y"} ❤️`,
+      "success",
+      4000
+    );
+  }
+}
+
 // Admin Memories Tab Management (Reordering, Highlighting, Adding, Deleting)
 function setupAdminMemories() {
   const resetBtn = document.getElementById("adminResetMemoriesBtn");
@@ -3992,79 +4260,61 @@ function setupAdminMemories() {
         renderMemories();
         renderAdminMemoriesList();
         initHighlightedMemoriesObserver();
+        updateMemoriesCounter();
       }
     });
   }
 
   const addPhotoBtn = document.getElementById("adminAddMemoryPhotoBtn");
+  const photoFileInput = document.getElementById("adminMemoryPhotoFileInput");
   if (addPhotoBtn) {
     addPhotoBtn.addEventListener("click", () => {
-      const url = prompt("Enter photo image URL:");
-      if (!url || !url.trim()) return;
-      const title = prompt("Optional Title (press OK to leave blank):") || "";
-      const caption = prompt("Caption:") || "";
-      const date = prompt("Date or year:", "Special Day") || "";
-      const isHighlight = confirm("Highlight this memory with 3D spotlight?");
+      if (!isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to add photo memories.");
+        return;
+      }
+      if (photoFileInput) {
+        photoFileInput.click();
+      }
+    });
+  }
 
-      const newMem = {
-        id: "mem-" + Date.now(),
-        type: "photo",
-        title: title.trim(),
-        caption: caption.trim(),
-        date: date.trim(),
-        image: url.trim(),
-        mediaUrl: url.trim(),
-        isHighlight: Boolean(isHighlight),
-        style: "tape",
-        tilt: "slight",
-        size: "normal"
-      };
-
-      activeMemories.push(newMem);
-      saveActiveMemories();
-      renderMemoriesScrapbook();
-      renderMemories();
-      renderAdminMemoriesList();
-      initHighlightedMemoriesObserver();
+  if (photoFileInput) {
+    photoFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleMemoryPhotoFiles(Array.from(e.target.files));
+        photoFileInput.value = "";
+      }
     });
   }
 
   const addVideoBtn = document.getElementById("adminAddMemoryVideoBtn");
+  const videoFileInput = document.getElementById("adminMemoryVideoFileInput");
   if (addVideoBtn) {
     addVideoBtn.addEventListener("click", () => {
-      const url = prompt("Enter short video MP4/WebM URL:");
-      if (!url || !url.trim()) return;
-      const title = prompt("Optional Title (press OK to leave blank):") || "";
-      const caption = prompt("Caption:") || "";
-      const date = prompt("Date or year:", "Special Day") || "";
-      const isHighlight = confirm("Highlight this video with 3D spotlight?");
+      if (!isCurrentUserAdmin()) {
+        openAdminLoginForm("🔒 Admin sign-in required to add video memories.");
+        return;
+      }
+      if (videoFileInput) {
+        videoFileInput.click();
+      }
+    });
+  }
 
-      const newMem = {
-        id: "mem-" + Date.now(),
-        type: "video",
-        title: title.trim(),
-        caption: caption.trim(),
-        date: date.trim(),
-        mediaUrl: url.trim(),
-        image: "",
-        isHighlight: Boolean(isHighlight),
-        style: "tape",
-        tilt: "slight",
-        size: "normal"
-      };
-
-      activeMemories.push(newMem);
-      saveActiveMemories();
-      renderMemoriesScrapbook();
-      renderMemories();
-      renderAdminMemoriesList();
-      initHighlightedMemoriesObserver();
+  if (videoFileInput) {
+    videoFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleMemoryVideoFiles(Array.from(e.target.files));
+        videoFileInput.value = "";
+      }
     });
   }
 }
 
 function renderAdminMemoriesList() {
   const container = document.getElementById("adminMemoriesList");
+  updateMemoriesCounter();
   if (!container) return;
 
   container.innerHTML = "";
@@ -4076,19 +4326,37 @@ function renderAdminMemoriesList() {
 
   activeMemories.forEach((item, index) => {
     const row = document.createElement("div");
-    row.className = "admin-memory-item-row";
+    row.className = "admin-memory-item-row admin-memory-row";
 
-    const displayTitle = item.title && item.title.trim().length > 0 ? item.title : "(No title)";
+    const displayTitle = item.title && item.title.trim().length > 0 ? item.title : "A Special Memory";
     const typeIcon = item.type === "video" ? "🎥 Video" : "📸 Photo";
+    const mediaThumb = item.image || item.mediaUrl || "";
 
     row.innerHTML = `
-      <div class="memory-item-left">
-        <span class="memory-item-type">${typeIcon}</span>
-        <strong>${escapeHtml(displayTitle)}</strong>
-        <span style="font-size: 0.75rem; color: var(--color-text-secondary);">${escapeHtml(item.caption ? item.caption.slice(0, 30) + '...' : '')}</span>
+      <div class="memory-item-left admin-memory-row-left" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.75rem;">
+        ${mediaThumb && item.type !== "video"
+          ? `<img src="${escapeHtml(mediaThumb)}" class="admin-thumb-mini" alt="Thumb" loading="lazy" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" />`
+          : `<span class="memory-item-type" style="font-size: 0.85rem; font-weight: 600; padding: 4px 6px;">${typeIcon}</span>`
+        }
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input 
+              type="text" 
+              class="admin-memory-title-input form-input" 
+              value="${escapeHtml(item.title || '')}" 
+              placeholder="A Special Memory" 
+              title="Edit memory title (click to change)" 
+              style="font-size: 0.88rem; font-weight: 600; padding: 3px 8px; width: 100%; max-width: 260px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; color: #fff;"
+            />
+            <button type="button" class="admin-icon-btn edit-title-prompt-btn" title="Edit title in prompt dialog" style="font-size: 0.75rem; padding: 2px 5px; opacity: 0.7;">✏️</button>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${escapeHtml(item.caption ? item.caption : (item.date || 'Special Day'))}
+          </span>
+        </div>
       </div>
-      <div class="memory-item-actions">
-        <label class="memory-highlight-toggle">
+      <div class="memory-item-actions" style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+        <label class="memory-highlight-toggle" style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; cursor: pointer; color: #ffd700;">
           <input type="checkbox" class="toggle-highlight-checkbox" ${item.isHighlight ? 'checked' : ''} />
           <span>⭐ Spotlight</span>
         </label>
@@ -4098,7 +4366,39 @@ function renderAdminMemoriesList() {
       </div>
     `;
 
-    // Toggle highlight
+    // Title editing via inline input
+    const titleInput = row.querySelector(".admin-memory-title-input");
+    if (titleInput) {
+      titleInput.addEventListener("change", (e) => {
+        item.title = e.target.value.trim() || "A Special Memory";
+        saveActiveMemories();
+        renderMemoriesScrapbook();
+      });
+      titleInput.addEventListener("blur", (e) => {
+        const val = e.target.value.trim() || "A Special Memory";
+        if (item.title !== val) {
+          item.title = val;
+          saveActiveMemories();
+          renderMemoriesScrapbook();
+        }
+      });
+    }
+
+    // Title editing via prompt button
+    const editPencilBtn = row.querySelector(".edit-title-prompt-btn");
+    if (editPencilBtn) {
+      editPencilBtn.addEventListener("click", () => {
+        const promptVal = prompt("Edit Memory Title:", item.title || "A Special Memory");
+        if (promptVal !== null) {
+          item.title = promptVal.trim() || "A Special Memory";
+          if (titleInput) titleInput.value = item.title;
+          saveActiveMemories();
+          renderMemoriesScrapbook();
+        }
+      });
+    }
+
+    // Toggle highlight (Spotlight)
     const cb = row.querySelector(".toggle-highlight-checkbox");
     if (cb) {
       cb.addEventListener("change", (e) => {
@@ -4143,13 +4443,14 @@ function renderAdminMemoriesList() {
     const delBtn = row.querySelector(".delete-mem-btn");
     if (delBtn) {
       delBtn.addEventListener("click", () => {
-        if (confirm(`Remove memory "${displayTitle}"?`)) {
+        if (confirm(`Remove memory "${item.title || 'this memory'}"?`)) {
           activeMemories.splice(index, 1);
           saveActiveMemories();
           renderMemoriesScrapbook();
           renderMemories();
           renderAdminMemoriesList();
           initHighlightedMemoriesObserver();
+          updateMemoriesCounter();
         }
       });
     }

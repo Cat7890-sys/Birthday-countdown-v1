@@ -15,84 +15,6 @@
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Import map for native ES Module Firebase resolution on GitHub Pages & static web hosts -->
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-      "firebase/storage": "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"
-    }
-  }
-  </script>
-
-  <!-- Instant Fail-Safe Interactive Engine (Executes synchronously before external scripts) -->
-  <script>
-    (function() {
-      window.__startBirthdayReveal = function(e) {
-        if (e) {
-          if (e.preventDefault && e.type === 'touchend') e.preventDefault();
-          if (e.stopPropagation) e.stopPropagation();
-        }
-        if (typeof window.startRevealSequence === 'function') {
-          window.startRevealSequence();
-          return;
-        }
-        // Immediate visual response if script.js is still parsing
-        var opening = document.getElementById("openingScreen");
-        var countdownStage = document.getElementById("revealCountdownStage");
-        var celebration = document.getElementById("celebrationScreen");
-        if (opening) {
-          opening.classList.remove("active");
-          opening.style.display = "none";
-        }
-        if (countdownStage) {
-          countdownStage.style.display = "flex";
-          var count = 3;
-          var numEl = document.getElementById("revealCountdownNum");
-          var subEl = document.getElementById("revealCountdownSub");
-          if (numEl) numEl.textContent = "3";
-          var timer = setInterval(function() {
-            count--;
-            if (count > 0) {
-              if (numEl) numEl.textContent = String(count);
-              if (subEl) subEl.textContent = count === 2 ? "Almost there..." : "Here it comes! ❤️";
-            } else {
-              clearInterval(timer);
-              countdownStage.style.display = "none";
-              if (typeof window.triggerCelebration === "function") {
-                window.triggerCelebration();
-              } else if (celebration) {
-                celebration.classList.add("active");
-                celebration.style.display = "flex";
-              }
-            }
-          }, 1000);
-        } else if (celebration) {
-          celebration.classList.add("active");
-          celebration.style.display = "flex";
-        }
-      };
-
-      window.__advanceToChapter = function(chapterNum, e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (typeof window.showChapter === "function") {
-          window.showChapter(chapterNum);
-        } else {
-          for (var i = 1; i <= 4; i++) {
-            var page = document.getElementById("pageChapter" + i);
-            if (page) {
-              page.style.display = (i === chapterNum) ? "block" : "none";
-              if (i === chapterNum) page.classList.add("active");
-              else page.classList.remove("active");
-            }
-          }
-        }
-      };
-    })();
-  </script>
 </head>
 <body>
 
@@ -147,22 +69,22 @@
     <!-- CHAPTER NAVIGATION BAR -->
     <nav class="chapter-nav-bar" id="chapterNavBar" aria-label="Birthday Chapters Navigation">
       <div class="chapter-nav-container">
-        <button type="button" class="chapter-pill-btn active" id="navChapterBtn1" data-page="1" aria-label="Chapter 1: Main Celebration" onclick="window.__advanceToChapter && window.__advanceToChapter(1, event)">
+        <button type="button" class="chapter-pill-btn active" id="navChapterBtn1" data-page="1" aria-label="Chapter 1: Main Celebration">
           <span class="chapter-pill-num">1</span>
           <span class="chapter-pill-label" id="navChapterLabel1">Celebration</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
-        <button type="button" class="chapter-pill-btn" id="navChapterBtn2" data-page="2" aria-label="Chapter 2: Our Memories" onclick="window.__advanceToChapter && window.__advanceToChapter(2, event)">
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn2" data-page="2" aria-label="Chapter 2: Our Memories">
           <span class="chapter-pill-num">2</span>
           <span class="chapter-pill-label" id="navChapterLabel2">Our Memories ❤️</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
-        <button type="button" class="chapter-pill-btn" id="navChapterBtn3" data-page="3" aria-label="Chapter 3: Birthday Love Notes" onclick="window.__advanceToChapter && window.__advanceToChapter(3, event)">
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn3" data-page="3" aria-label="Chapter 3: Birthday Love Notes">
           <span class="chapter-pill-num">3</span>
           <span class="chapter-pill-label" id="navChapterLabel3">Love Notes 💌</span>
         </button>
         <span class="chapter-nav-divider" aria-hidden="true"></span>
-        <button type="button" class="chapter-pill-btn" id="navChapterBtn4" data-page="4" aria-label="Chapter 4: The Finale" onclick="window.__advanceToChapter && window.__advanceToChapter(4, event)">
+        <button type="button" class="chapter-pill-btn" id="navChapterBtn4" data-page="4" aria-label="Chapter 4: The Finale">
           <span class="chapter-pill-num">4</span>
           <span class="chapter-pill-label" id="navChapterLabel4">Finale ✨</span>
         </button>
@@ -192,8 +114,8 @@
 
             <!-- Physical / Photo-Sticker SHOW ME button with animated finger tap -->
             <div class="opening-action-wrapper">
-              <div class="photo-sticker-btn-wrapper" onclick="window.__startBirthdayReveal && window.__startBirthdayReveal(event)">
-                <button id="showMeBtn" class="photo-sticker-btn pulse-glow" aria-label="Tap this picture to open the surprise" onclick="window.__startBirthdayReveal && window.__startBirthdayReveal(event)">
+              <div class="photo-sticker-btn-wrapper">
+                <button id="showMeBtn" class="photo-sticker-btn pulse-glow" aria-label="Tap this picture to open the surprise">
                   <div class="sticker-washi-tape sticker-tape-left" aria-hidden="true"></div>
                   <div class="sticker-washi-tape sticker-tape-right" aria-hidden="true"></div>
                   <div class="sticker-card-frame">
@@ -205,7 +127,7 @@
                     </div>
                   </div>
                 </button>
-                <div class="sticker-finger-guide" aria-hidden="true" onclick="window.__startBirthdayReveal && window.__startBirthdayReveal(event)">
+                <div class="sticker-finger-guide" aria-hidden="true">
                   <span class="finger-emoji">👆</span>
                   <span class="finger-label" id="fingerGuideText">Tap this picture</span>
                 </div>
@@ -257,7 +179,7 @@
 
             <!-- Subtle Page 1 Continue Banner -->
             <div class="page-continue-banner" id="page1ContinueBanner">
-              <button type="button" class="continue-page-btn" id="goToPage2Btn" onclick="window.__advanceToChapter && window.__advanceToChapter(2, event)">
+              <button type="button" class="continue-page-btn" id="goToPage2Btn">
                 <span class="continue-text-title" id="page1ContinueTitle">Explore Our Memories ❤️</span>
                 <span class="continue-arrow" id="page1ContinueArrow">Tap to continue →</span>
               </button>
@@ -274,7 +196,7 @@
         <div class="page-chapter-card">
           <div class="chapter-card-header">
             <div class="chapter-back-nav">
-              <button type="button" class="chapter-back-btn" id="backToPage1Btn" onclick="window.__advanceToChapter && window.__advanceToChapter(1, event)">
+              <button type="button" class="chapter-back-btn" id="backToPage1Btn">
                 <span id="page2BackBtnText">← Celebration</span>
               </button>
             </div>
@@ -292,7 +214,7 @@
 
           <!-- Page 2 Continue Banner -->
           <div class="page-continue-banner" id="page2ContinueBanner">
-            <button type="button" class="continue-page-btn" id="goToPage3Btn" onclick="window.__advanceToChapter && window.__advanceToChapter(3, event)">
+            <button type="button" class="continue-page-btn" id="goToPage3Btn">
               <span class="continue-text-title" id="page2ContinueTitle">Read Birthday Love Notes & Wishes 💌</span>
               <span class="continue-arrow" id="page2ContinueArrow">Tap to continue →</span>
             </button>
@@ -341,11 +263,11 @@
 
           <!-- Continue to Finale or Back to Celebration Banner -->
           <div class="page-continue-banner" id="page3ContinueBanner">
-            <button type="button" class="continue-page-btn primary-finale-btn" id="goToFinaleBtn" onclick="window.__advanceToChapter && window.__advanceToChapter(4, event)">
+            <button type="button" class="continue-page-btn primary-finale-btn" id="goToFinaleBtn">
               <span class="continue-text-title" id="page3ContinueTitle">Experience The Finale Scene ✨</span>
               <span class="continue-arrow">A final message just for you →</span>
             </button>
-            <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn" style="margin-top: 0.75rem;" onclick="window.__advanceToChapter && window.__advanceToChapter(1, event)">
+            <button type="button" class="continue-page-btn secondary-continue" id="backToPage1From3Btn" style="margin-top: 0.75rem;">
               <span>← Back to Celebration</span>
             </button>
           </div>
@@ -468,7 +390,7 @@
 
       <!-- Graceful action to explore celebration anytime -->
       <div class="photo-reveal-footer">
-        <button id="skipRevealBtn" class="skip-reveal-btn" type="button" aria-label="Skip to Celebration" onclick="window.triggerCelebration ? window.triggerCelebration() : (window.__startBirthdayReveal && window.__startBirthdayReveal(event))">
+        <button id="skipRevealBtn" class="skip-reveal-btn" type="button" aria-label="Skip to Celebration">
           <span>Explore Main Surprise →</span>
         </button>
       </div>
@@ -605,10 +527,10 @@
 
             <!-- Status area -->
             <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; font-size: 0.85rem;">
-              <div id="statusFirebaseIndicator" style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="color: rgba(255, 255, 255, 0.6);">Firebase:</span>
-                <span id="firebaseSyncDot" class="publishing-status-dot saved"></span>
-                <strong id="firebaseSyncText" style="color: #52c41a;">Saved</strong>
+              <div id="statusSupabaseIndicator" style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="color: rgba(255, 255, 255, 0.6);">Supabase:</span>
+                <span id="supabaseSyncDot" class="publishing-status-dot saved"></span>
+                <strong id="supabaseSyncText" style="color: #52c41a;">Saved</strong>
               </div>
 
               <!-- Database Source Details -->
@@ -1281,6 +1203,8 @@
               <p class="pane-subheading">Manage photos & short videos in Chapter 2. Add titles, mark highlights for 3D spotlights, reorder, or delete.</p>
             </div>
             <div class="pane-actions-row">
+              <input type="file" id="adminMemoryPhotoFileInput" multiple accept="image/*" style="display: none;" />
+              <input type="file" id="adminMemoryVideoFileInput" multiple accept="video/*" style="display: none;" />
               <button type="button" id="adminAddMemoryPhotoBtn" class="primary-btn">
                 <span>+ Add Photo Memory</span>
               </button>
@@ -1292,6 +1216,9 @@
               </button>
             </div>
           </div>
+
+          <!-- Memory Upload Progress / Status -->
+          <div id="adminMemoriesUploadStatus" class="storage-upload-status" style="display: none;"></div>
 
           <!-- Add Memory Form (Collapsible/Inline) -->
           <div id="adminNewMemoryForm" class="admin-subform-box" style="display: none;">
