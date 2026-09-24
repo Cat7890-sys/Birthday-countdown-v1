@@ -1,15 +1,15 @@
 {
-  "recipientName": "Joy",
+  "recipientName": "JOY",
   "opening": {
     "badge": "✦ A SPECIAL SURPRISE AWAITS ✦",
     "prefix": "I made something Just for you,",
     "showMeButton": "Tap photo to reveal surprise",
-    "tapIndicator": "👇 Tap me to open",
+    "tapIndicator": "👇 Tap me",
     "countdownSub": "3-2-1 Countdown to celebration"
   },
   "chapter1": {
     "headline": "HAPPY BIRTHDAY, JOY! 🎉",
-    "eyebrow": "IT'S FINALLY HERE!",
+    "eyebrow": "I made this little surprise just for you.",
     "intro": "I made this little surprise just for you.",
     "heroTag": "✨ Our Cherished Memories Together ✨",
     "replayButton": "💥 Replay Photo Burst",
@@ -55,6 +55,6 @@
     "MY LOVE",
     "MY EVERYTHING ❤️"
   ],
-  "birthdayMessage": "Happy Birthday to the most wonderful person in my life. Thank you for filling every single day with warmth, laughter, and so much happiness. Being with you is my favorite thing in the world, and I wanted to make this little surprise just to remind you how deeply loved and cherished you are. Here's to you, all our sweetest memories, and all the adventures still ahead of us. I love you endlessly! ❤️✨",
-  "lastUpdated": "2026-09-21T03:30:00.000Z"
+  "birthdayMessage": "Happy Birthday, My Love ❤️",
+  "lastUpdated": "2026-09-24T21:00:33.583Z"
 }
