@@ -1589,14 +1589,15 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
         lastSupabaseError = null;
         return true;
       } else if (error) {
-        lastSupabaseError = error.message || error.details || "Supabase SDK update error";
-        console.warn("[Supabase SDK] Update notice:", error.message);
+        lastSupabaseError = error.message || error.details || error.hint || `Supabase SDK error: ${JSON.stringify(error)}`;
+        console.error("[Supabase SDK] Update rejected:", error);
       } else if (Array.isArray(data) && data.length === 0) {
-        lastSupabaseError = "No rows returned by birthday_content update (id=1 not found or unauthorized).";
+        lastSupabaseError = "Supabase update returned 0 modified rows for id=1. Permission denied by RLS policy or session expired.";
+        console.warn("[Supabase SDK] 0 rows modified:", lastSupabaseError);
       }
     } catch (sdkErr) {
       lastSupabaseError = sdkErr?.message || "Supabase SDK exception";
-      console.warn("[Supabase SDK] Save error:", sdkErr);
+      console.error("[Supabase SDK] Save exception:", sdkErr);
     }
   }
 
@@ -1628,18 +1629,19 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
       }
       // If rows is empty array, row was not updated due to RLS or missing id
       if (!lastSupabaseError) {
-        lastSupabaseError = "Update was rejected or row id=1 was not modified by the database.";
+        lastSupabaseError = "Supabase REST update returned 0 modified rows. Update rejected by database RLS.";
+        console.warn("[Supabase REST] 0 rows returned:", lastSupabaseError);
       }
     } else {
       const errData = await res.json().catch(() => ({}));
       lastSupabaseError = errData?.message || errData?.hint || errData?.details || `HTTP ${res.status}: ${res.statusText}`;
-      console.warn("[Supabase REST] Update response status:", res.status, errData);
+      console.error("[Supabase REST] Update failed:", res.status, errData);
     }
   } catch (restErr) {
     if (!lastSupabaseError) {
       lastSupabaseError = restErr?.message || "Network error during Supabase save";
     }
-    console.warn("[Supabase REST] Network error during save:", restErr);
+    console.error("[Supabase REST] Network exception during save:", restErr);
   }
 
   if (!lastSupabaseError) {
@@ -5015,11 +5017,7 @@ function setupAdminPanelControls() {
       updatePublishingStatusUI("github", "unsynced");
     } else {
       updatePublishingStatusUI("supabase", "unsaved");
-      if (isCurrentUserAdmin()) {
-        showStorageStatus("adminTextSaveStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 6000);
-      } else {
-        showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
-      }
+      showStorageStatus("adminTextSaveStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 6000);
     }
   }
 
@@ -5331,11 +5329,7 @@ function setupAdminPanelControls() {
           if (saved) {
             showStorageStatus("adminRevealStatus", `Reveal Photo #${slotIndex + 1} saved successfully! ❤️`, "success", 3500);
           } else {
-            if (isCurrentUserAdmin()) {
-              showStorageStatus("adminRevealStatus", `Saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
-            } else {
-              showStorageStatus("adminRevealStatus", `Saved locally! (Admin sign-in required to sync online)`, "loading", 3500);
-            }
+            showStorageStatus("adminRevealStatus", `Supabase save failed: ${lastSupabaseError || "Database update rejected"}`, "error", 5000);
           }
         });
       }
@@ -5397,11 +5391,7 @@ function setupAdminPanelControls() {
     if (saved) {
       showStorageStatus("adminRevealStatus", "Saved successfully ❤️ (Reveal Sequence updated)", "success", 4000);
     } else {
-      if (isCurrentUserAdmin()) {
-        showStorageStatus("adminRevealStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 5000);
-      } else {
-        showStorageStatus("adminRevealStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
-      }
+      showStorageStatus("adminRevealStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 5000);
     }
   }
 
