@@ -16,7 +16,7 @@ const REPO_OWNER = "Cat7890-sys";
 const REPO_NAME = "Birthday-countdown-v1";
 const TARGET_FILE_PATH = "site-content.json";
 const TARGET_BRANCH = "main";
-const AUTHORIZED_ADMIN_EMAIL = "matimbangobeni78@gmail.com";
+const AUTHORIZED_ADMIN_EMAIL = "coolcatpower7@gmail.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
