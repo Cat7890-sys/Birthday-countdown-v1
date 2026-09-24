@@ -282,6 +282,7 @@ const SUPABASE_STORAGE_BUCKET = "Birthday-assets";
 let supabaseClient = null;
 let currentSupabaseRowId = 1;
 let isInitialSupabaseLoading = true;
+let lastSupabaseError = null;
 let currentRevealTitles = ["MY BABY", "MY LOVE", "MY EVERYTHING ❤️"];
 let currentRevealPhotos = ["", "", ""];
 
@@ -1554,12 +1555,10 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
   const revealTitles = [
     (currentRevealTitles[0] || "MY BABY").trim(),
     (currentRevealTitles[1] || "MY LOVE").trim(),
-    (burstConfig.revealThirdTitle || currentRevealTitles[2] || "MY EVERYTHING ❤️").trim(),
-    { site_texts: currentSiteTexts }
+    (burstConfig.revealThirdTitle || currentRevealTitles[2] || "MY EVERYTHING ❤️").trim()
   ];
 
   const payload = {
-    id: 1,
     recipient_name: (currentName || "").trim(),
     birthday_message: (currentMessage || "").trim(),
     background_url: (currentBgImage || "").trim(),
@@ -1573,6 +1572,8 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
     ...overrides
   };
 
+  lastSupabaseError = null;
+
   // 1. Try official SDK
   const client = getSupabaseClient();
   if (client) {
@@ -1585,11 +1586,16 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
 
       if (!error && Array.isArray(data) && data.length > 0) {
         console.log("[Supabase SDK] Successfully persisted birthday_content row id=1:", data[0]);
+        lastSupabaseError = null;
         return true;
       } else if (error) {
+        lastSupabaseError = error.message || error.details || "Supabase SDK update error";
         console.warn("[Supabase SDK] Update notice:", error.message);
+      } else if (Array.isArray(data) && data.length === 0) {
+        lastSupabaseError = "No rows returned by birthday_content update (id=1 not found or unauthorized).";
       }
     } catch (sdkErr) {
+      lastSupabaseError = sdkErr?.message || "Supabase SDK exception";
       console.warn("[Supabase SDK] Save error:", sdkErr);
     }
   }
@@ -1609,17 +1615,35 @@ async function saveAllBirthdayContentToSupabase(overrides = {}, requireAdmin = f
     });
 
     if (res.ok) {
-      const rows = await res.json();
+      if (res.status === 204) {
+        console.log("[Supabase REST] Successfully updated birthday_content row id=1 (204 No Content)");
+        lastSupabaseError = null;
+        return true;
+      }
+      const rows = await res.json().catch(() => []);
       if (Array.isArray(rows) && rows.length > 0) {
         console.log("[Supabase REST] Successfully persisted birthday_content row id=1:", rows[0]);
+        lastSupabaseError = null;
         return true;
+      }
+      // If rows is empty array, row was not updated due to RLS or missing id
+      if (!lastSupabaseError) {
+        lastSupabaseError = "Update was rejected or row id=1 was not modified by the database.";
       }
     } else {
       const errData = await res.json().catch(() => ({}));
+      lastSupabaseError = errData?.message || errData?.hint || errData?.details || `HTTP ${res.status}: ${res.statusText}`;
       console.warn("[Supabase REST] Update response status:", res.status, errData);
     }
   } catch (restErr) {
+    if (!lastSupabaseError) {
+      lastSupabaseError = restErr?.message || "Network error during Supabase save";
+    }
     console.warn("[Supabase REST] Network error during save:", restErr);
+  }
+
+  if (!lastSupabaseError) {
+    lastSupabaseError = "Database update failed. Please verify Supabase connection and admin privileges.";
   }
 
   return false;
@@ -4991,7 +5015,11 @@ function setupAdminPanelControls() {
       updatePublishingStatusUI("github", "unsynced");
     } else {
       updatePublishingStatusUI("supabase", "unsaved");
-      showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+      if (isCurrentUserAdmin()) {
+        showStorageStatus("adminTextSaveStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 6000);
+      } else {
+        showStorageStatus("adminTextSaveStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+      }
     }
   }
 
@@ -5016,7 +5044,8 @@ function setupAdminPanelControls() {
     const saved = await saveAllBirthdayContentToSupabase();
     if (!saved) {
       updatePublishingStatusUI("supabase", "unsaved");
-      showStorageStatus(statusId, "Supabase save failed. GitHub commit aborted to prevent desynchronization.", "error", 6000);
+      const errDetail = lastSupabaseError ? ` (${lastSupabaseError})` : "";
+      showStorageStatus(statusId, `Supabase save failed${errDetail}. GitHub commit aborted to prevent desynchronization.`, "error", 7000);
       return;
     }
     updatePublishingStatusUI("supabase", "saved");
@@ -5225,7 +5254,11 @@ function setupAdminPanelControls() {
       if (saved) {
         showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated and synced with Supabase! ❤️`, "success", 4500);
       } else {
-        showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated locally! (Admin sign-in required to sync online)`, "loading", 4000);
+        if (isCurrentUserAdmin()) {
+          showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+        } else {
+          showStorageStatus(statusId, `Reveal Photo #${slotIndex + 1} updated locally! (Admin sign-in required to sync online)`, "loading", 4000);
+        }
       }
     } catch (err) {
       console.error("Reveal photo upload failed:", err);
@@ -5298,7 +5331,11 @@ function setupAdminPanelControls() {
           if (saved) {
             showStorageStatus("adminRevealStatus", `Reveal Photo #${slotIndex + 1} saved successfully! ❤️`, "success", 3500);
           } else {
-            showStorageStatus("adminRevealStatus", `Saved locally! (Admin sign-in required to sync online)`, "loading", 3500);
+            if (isCurrentUserAdmin()) {
+              showStorageStatus("adminRevealStatus", `Saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+            } else {
+              showStorageStatus("adminRevealStatus", `Saved locally! (Admin sign-in required to sync online)`, "loading", 3500);
+            }
           }
         });
       }
@@ -5360,7 +5397,11 @@ function setupAdminPanelControls() {
     if (saved) {
       showStorageStatus("adminRevealStatus", "Saved successfully ❤️ (Reveal Sequence updated)", "success", 4000);
     } else {
-      showStorageStatus("adminRevealStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+      if (isCurrentUserAdmin()) {
+        showStorageStatus("adminRevealStatus", `Supabase save failed: ${lastSupabaseError || "Database update failed"}`, "error", 5000);
+      } else {
+        showStorageStatus("adminRevealStatus", "Saved locally! (Admin sign-in required to sync online)", "loading", 4000);
+      }
     }
   }
 
@@ -5421,7 +5462,11 @@ function setupAdminPanelControls() {
         if (saved) {
           showStorageStatus("bgUploadStatus", "Saved successfully ❤️ (Background synced)", "success", 4500);
         } else {
-          showStorageStatus("bgUploadStatus", "Background updated locally! (Sign in to sync online)", "loading", 4000);
+          if (isCurrentUserAdmin()) {
+            showStorageStatus("bgUploadStatus", `Background saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+          } else {
+            showStorageStatus("bgUploadStatus", "Background updated locally! (Sign in to sync online)", "loading", 4000);
+          }
         }
       } catch (err) {
         console.error("Background upload failed:", err);
@@ -5455,7 +5500,11 @@ function setupAdminPanelControls() {
       if (saved) {
         showStorageStatus("bgUploadStatus", "Background saved successfully! ❤️", "success", 3500);
       } else {
-        showStorageStatus("bgUploadStatus", "Background saved locally! (Sign in to sync online)", "loading", 3500);
+        if (isCurrentUserAdmin()) {
+          showStorageStatus("bgUploadStatus", `Background saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+        } else {
+          showStorageStatus("bgUploadStatus", "Background saved locally! (Sign in to sync online)", "loading", 3500);
+        }
       }
     });
   }
@@ -5504,7 +5553,11 @@ function setupAdminPanelControls() {
         if (saved) {
           showStorageStatus("musicUploadStatus", "Saved successfully ❤️ (Music synced with Supabase)", "success", 4500);
         } else {
-          showStorageStatus("musicUploadStatus", "Music updated locally! (Sign in to sync online)", "loading", 4000);
+          if (isCurrentUserAdmin()) {
+            showStorageStatus("musicUploadStatus", `Music saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+          } else {
+            showStorageStatus("musicUploadStatus", "Music updated locally! (Sign in to sync online)", "loading", 4000);
+          }
         }
       } catch (err) {
         console.error("Music upload failed:", err);
@@ -5548,7 +5601,11 @@ function setupAdminPanelControls() {
       if (saved) {
         showStorageStatus("musicUploadStatus", "Music saved successfully! ❤️", "success", 3500);
       } else {
-        showStorageStatus("musicUploadStatus", "Music saved locally! (Sign in to sync online)", "loading", 3500);
+        if (isCurrentUserAdmin()) {
+          showStorageStatus("musicUploadStatus", `Music saved locally! Supabase error: ${lastSupabaseError || "Sync failed"}`, "error", 5000);
+        } else {
+          showStorageStatus("musicUploadStatus", "Music saved locally! (Sign in to sync online)", "loading", 3500);
+        }
       }
     });
   }
