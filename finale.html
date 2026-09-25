@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>I Love You | Finale</title>
+  
+  <!-- Google Fonts: Great Vibes for glowing script header & JetBrains Mono for syntax highlighting -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       RESET & ROOT VARIABLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-color: #02050e;
+      --glow-blue: #00d9ff;
+      --glow-blue-deep: #0051ff;
+      --glow-cyan: #5ef3ff;
+      --code-bg: rgba(10, 15, 29, 0.72);
+      --code-border: rgba(0, 217, 255, 0.22);
+      --code-border-hover: rgba(0, 217, 255, 0.45);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: var(--bg-color);
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       1. BACKGROUND & AMBIENT GLOWING BLUE LIGHT / AURA (TOP & BOTTOM)
+       ========================================================================== */
+    .ambient-glow-top {
+      position: fixed;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85vw;
+      max-width: 1100px;
+      height: 380px;
+      background: radial-gradient(ellipse at 50% 20%, rgba(0, 200, 255, 0.24) 0%, rgba(0, 100, 255, 0.12) 45%, rgba(2, 5, 14, 0) 75%);
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(40px);
+      animation: ambientAuraPulse 7s ease-in-out infinite alternate;
+    }
+
+    .ambient-glow-bottom {
+      position: fixed;
+      bottom: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95vw;
+      max-width: 1200px;
+      height: 420px;
+      background: radial-gradient(ellipse at 50% 80%, rgba(0, 217, 255, 0.28) 0%, rgba(0, 80, 240, 0.14) 45%, rgba(2, 5, 14, 0) 80%);
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(45px);
+      animation: ambientAuraPulse 8s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes ambientAuraPulse {
+      0% {
+        opacity: 0.75;
+        transform: translateX(-50%) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.05);
+      }
+    }
+
+    /* Ambient stars layer in deep background */
+    .bg-starfield {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image: 
+        radial-gradient(1.5px 1.5px at 20px 30px, rgba(255, 255, 255, 0.75), transparent),
+        radial-gradient(1px 1px at 150px 80px, rgba(94, 243, 255, 0.8), transparent),
+        radial-gradient(1.5px 1.5px at 280px 220px, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1px 1px at 400px 140px, rgba(0, 217, 255, 0.7), transparent),
+        radial-gradient(2px 2px at 550px 320px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1px 1px at 700px 90px, rgba(94, 243, 255, 0.5), transparent),
+        radial-gradient(1.5px 1.5px at 850px 260px, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1px 1px at 980px 180px, rgba(0, 217, 255, 0.85), transparent);
+      background-size: 650px 650px;
+      opacity: 0.65;
+    }
+
+    /* Main Container */
+    .main-viewport {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(1rem, 3vh, 2rem) 1rem clamp(1.2rem, 3vh, 2.5rem);
+    }
+
+    /* ==========================================================================
+       2. MAIN HEADER ("I Love You" in glowing, elegant script font)
+       ========================================================================== */
+    .header-wrapper {
+      text-align: center;
+      z-index: 10;
+      margin-top: 0.25rem;
+      user-select: none;
+    }
+
+    .main-title {
+      font-family: 'Great Vibes', 'Brush Script MT', 'Sacramento', cursive;
+      font-size: clamp(3rem, 8.5vw, 6rem);
+      font-weight: 400;
+      line-height: 1.1;
+      color: #f0faff;
+      letter-spacing: 2px;
+      text-shadow:
+        0 0 6px rgba(94, 243, 255, 0.95),
+        0 0 16px rgba(0, 217, 255, 0.85),
+        0 0 35px rgba(0, 160, 255, 0.75),
+        0 0 65px rgba(0, 100, 255, 0.5),
+        0 0 100px rgba(0, 60, 220, 0.35);
+      animation: titleGlow 4s ease-in-out infinite alternate;
+      transition: text-shadow 0.3s ease;
+    }
+
+    @keyframes titleGlow {
+      0% {
+        text-shadow:
+          0 0 6px rgba(94, 243, 255, 0.9),
+          0 0 16px rgba(0, 217, 255, 0.8),
+          0 0 35px rgba(0, 150, 255, 0.65),
+          0 0 65px rgba(0, 90, 255, 0.45);
+      }
+      100% {
+        text-shadow:
+          0 0 10px rgba(180, 250, 255, 1),
+          0 0 24px rgba(0, 225, 255, 0.95),
+          0 0 50px rgba(0, 180, 255, 0.85),
+          0 0 85px rgba(0, 120, 255, 0.65),
+          0 0 130px rgba(0, 70, 255, 0.45);
+      }
+    }
+
+    /* Optional back navigation badge for integration */
+    .top-meta-nav {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 20;
+    }
+
+    .nav-ghost-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(12, 20, 42, 0.55);
+      border: 1px solid rgba(0, 217, 255, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .nav-ghost-badge:hover {
+      color: #ffffff;
+      border-color: rgba(0, 217, 255, 0.6);
+      background: rgba(0, 217, 255, 0.12);
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       3. CENTRAL ANIMATION: 3D PARTICLE HEART & GLOWING PLATFORM / PORTAL
+       ========================================================================== */
+    .center-stage {
+      position: relative;
+      width: 100%;
+      max-width: 780px;
+      height: clamp(340px, 48vh, 520px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    /* HTML5 Canvas for the 3D heart particle simulation */
+    #heartCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    #heartCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Glowing Portal / Platform below the 3D heart */
+    .portal-platform-stage {
+      position: absolute;
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(240px, 62vw, 480px);
+      height: clamp(65px, 14vw, 110px);
+      pointer-events: none;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Conical upward blue beam cast from the portal onto the particles */
+    .portal-upward-light {
+      position: absolute;
+      bottom: 45%;
+      width: 80%;
+      height: 300px;
+      background: linear-gradient(to top, rgba(0, 217, 255, 0.35) 0%, rgba(0, 160, 255, 0.15) 45%, rgba(0, 90, 255, 0.04) 75%, transparent 100%);
+      clip-path: polygon(25% 100%, 75% 100%, 100% 0%, 0% 0%);
+      filter: blur(14px);
+      transform-origin: bottom center;
+      animation: lightBeamBreathe 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes lightBeamBreathe {
+      0% {
+        opacity: 0.65;
+        transform: scaleX(0.92);
+      }
+      100% {
+        opacity: 0.95;
+        transform: scaleX(1.08);
+      }
+    }
+
+    /* Outer glowing elliptical ring */
+    .portal-ring-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 217, 255, 0.7);
+      box-shadow: 
+        0 0 20px rgba(0, 217, 255, 0.8),
+        0 0 45px rgba(0, 140, 255, 0.55),
+        inset 0 0 25px rgba(0, 217, 255, 0.6);
+      transform: rotateX(74deg);
+      animation: portalRingPulse 3.5s ease-in-out infinite alternate;
+    }
+
+    /* Middle rotating concentric ring */
+    .portal-ring-middle {
+      position: absolute;
+      width: 78%;
+      height: 78%;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(94, 243, 255, 0.65);
+      box-shadow: 0 0 15px rgba(94, 243, 255, 0.5);
+      transform: rotateX(74deg);
+      animation: portalRingSpin 16s linear infinite;
+    }
+
+    /* Core bright focal beacon of the portal */
+    .portal-core-glow {
+      position: absolute;
+      width: 58%;
+      height: 58%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(180, 250, 255, 0.9) 0%, rgba(0, 217, 255, 0.7) 40%, rgba(0, 100, 255, 0.3) 70%, transparent 95%);
+      box-shadow: 
+        0 0 30px rgba(0, 217, 255, 0.9),
+        0 0 60px rgba(0, 150, 255, 0.65);
+      transform: rotateX(74deg);
+    }
+
+    @keyframes portalRingPulse {
+      0% {
+        box-shadow: 
+          0 0 15px rgba(0, 217, 255, 0.65),
+          0 0 35px rgba(0, 140, 255, 0.4),
+          inset 0 0 18px rgba(0, 217, 255, 0.45);
+      }
+      100% {
+        box-shadow: 
+          0 0 28px rgba(0, 217, 255, 0.95),
+          0 0 65px rgba(0, 160, 255, 0.75),
+          inset 0 0 35px rgba(0, 217, 255, 0.8);
+      }
+    }
+
+    @keyframes portalRingSpin {
+      from {
+        transform: rotateX(74deg) rotateZ(0deg);
+      }
+      to {
+        transform: rotateX(74deg) rotateZ(360deg);
+      }
+    }
+
+    /* Subtle touch / interaction hint */
+    .interaction-hint {
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      color: rgba(94, 243, 255, 0.75);
+      background: rgba(10, 16, 32, 0.4);
+      border: 1px solid rgba(0, 217, 255, 0.18);
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0.85;
+      transition: opacity 0.5s ease;
+    }
+
+    /* ==========================================================================
+       4. CODE OVERLAY: FLOATING TERMINAL / VS CODE EDITOR WINDOW
+       ========================================================================== */
+    .terminal-container {
+      width: 100%;
+      max-width: 580px;
+      z-index: 10;
+      margin-bottom: 0.5rem;
+      user-select: text;
+    }
+
+    .code-editor-window {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      box-shadow: 
+        0 14px 45px rgba(0, 0, 0, 0.75),
+        0 0 35px rgba(0, 217, 255, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .code-editor-window:hover {
+      border-color: var(--code-border-hover);
+      box-shadow: 
+        0 18px 50px rgba(0, 0, 0, 0.85),
+        0 0 45px rgba(0, 217, 255, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Window Titlebar (VS Code style with mac window dots) */
+    .editor-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 36px;
+      padding: 0 14px;
+      background: rgba(6, 10, 22, 0.85);
+      border-bottom: 1px solid rgba(0, 217, 255, 0.14);
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .control-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .control-dot:hover {
+      transform: scale(1.15);
+    }
+
+    .dot-close {
+      background-color: #ff5f56;
+      box-shadow: 0 0 6px rgba(255, 95, 86, 0.6);
+    }
+
+    .dot-minimize {
+      background-color: #ffbd2e;
+      box-shadow: 0 0 6px rgba(255, 189, 46, 0.6);
+    }
+
+    .dot-maximize {
+      background-color: #27c93f;
+      box-shadow: 0 0 6px rgba(39, 201, 63, 0.6);
+    }
+
+    .editor-tab-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(15, 23, 42, 0.7);
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tab-lang-icon {
+      color: #f7df1e; /* JavaScript yellow */
+      font-weight: 700;
+      font-size: 0.68rem;
+    }
+
+    .editor-actions-placeholder {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 1px;
+    }
+
+    /* Code Body */
+    .editor-body {
+      display: flex;
+      padding: 14px 10px 14px 0;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+      line-height: 1.62;
+      overflow-x: auto;
+    }
+
+    /* Line Numbers Gutter */
+    .line-numbers-col {
+      display: flex;
+      flex-direction: column;
+      padding: 0 14px 0 16px;
+      text-align: right;
+      color: rgba(255, 255, 255, 0.28);
+      user-select: none;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .code-snippet-pre {
+      margin: 0;
+      padding-left: 16px;
+      flex: 1;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* SYNTAX HIGHLIGHTING COLORS */
+    .syn-keyword {
+      color: #c678dd; /* var, function, return, new, typeof */
+      font-weight: 500;
+    }
+
+    .syn-entity {
+      color: #e5c07b; /* Point */
+      font-weight: 600;
+    }
+
+    .syn-prop {
+      color: #61afef; /* prototype, clone, x, y */
+    }
+
+    .syn-var {
+      color: #e06c75; /* this, parameters */
+    }
+
+    .syn-str {
+      color: #98c379; /* 'undefined' */
+    }
+
+    .syn-num {
+      color: #d19a66; /* 0 */
+    }
+
+    .syn-punct {
+      color: #abb2bf; /* =, !==, ?, :, ;, (), {} */
+    }
+
+    /* Subtle glowing typing cursor */
+    .cursor-caret {
+      display: inline-block;
+      width: 2px;
+      height: 1.15em;
+      vertical-align: -0.18em;
+      background-color: var(--glow-cyan);
+      box-shadow: 0 0 8px var(--glow-cyan);
+      animation: cursorBlink 1.1s steps(2, start) infinite;
+      margin-left: 1px;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Small footer note or return prompt */
+    .footer-quote {
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.45);
+      text-align: center;
+      letter-spacing: 0.4px;
+      margin-top: 0.4rem;
+      user-select: none;
+    }
+
+    .footer-quote .heart-icon {
+      color: #00d9ff;
+      display: inline-block;
+      animation: heartIconBeat 1.4s ease-in-out infinite;
+    }
+
+    @keyframes heartIconBeat {
+      0%, 100% { transform: scale(1); }
+      14% { transform: scale(1.22); }
+      28% { transform: scale(1.05); }
+      42% { transform: scale(1.2); }
+      56% { transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       RESPONSIVE ADJUSTMENTS
+       ========================================================================== */
+    @media (max-width: 600px) {
+      .main-viewport {
+        padding: 0.8rem 0.65rem 1.2rem;
+      }
+      .center-stage {
+        height: 330px;
+      }
+      .terminal-container {
+        max-width: 100%;
+      }
+      .editor-body {
+        padding: 10px 6px 10px 0;
+        font-size: 0.72rem;
+        line-height: 1.5;
+      }
+      .line-numbers-col {
+        padding: 0 8px 0 10px;
+      }
+      .code-snippet-pre {
+        padding-left: 10px;
+      }
+      .interaction-hint {
+        display: none; /* Keep clean on small phones */
+      }
+    }
+
+    @media (max-height: 680px) {
+      .center-stage {
+        height: 270px;
+      }
+      .main-title {
+        font-size: 2.8rem;
+      }
+      .editor-body {
+        padding: 8px 4px 8px 0;
+        font-size: 0.68rem;
+        line-height: 1.45;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Ambient Glowing Blue Light Aura (Top & Bottom) -->
+  <div class="ambient-glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow-bottom" aria-hidden="true"></div>
+  <div class="bg-starfield" aria-hidden="true"></div>
+
+  <!-- Main Viewport Layout -->
+  <main class="main-viewport">
+
+    <!-- Top Navigation / Return Link -->
+    <div class="top-meta-nav">
+      <a href="index.html" class="nav-ghost-badge" aria-label="Return to Birthday Celebration">
+        <span>←</span>
+        <span>Birthday Experience</span>
+      </a>
+    </div>
+
+    <!-- 2. Main Header: Glowing Elegant Script "I Love You" -->
+    <header class="header-wrapper">
+      <h1 class="main-title">I Love You</h1>
+    </header>
+
+    <!-- 3. Central Animation Stage: 3D Particle Heart & Glowing Portal Platform -->
+    <section class="center-stage" aria-label="Animated 3D Glowing Particle Heart">
+      <!-- Subtle interaction indicator -->
+      <div class="interaction-hint">
+        <span>✦</span>
+        <span>Drag to rotate 3D heart</span>
+      </div>
+
+      <!-- HTML5 Canvas rendering glowing blue 3D particle heart -->
+      <canvas id="heartCanvas"></canvas>
+
+      <!-- Glowing platform / portal effect below the heart casting upward blue light -->
+      <div class="portal-platform-stage" aria-hidden="true">
+        <div class="portal-upward-light"></div>
+        <div class="portal-ring-outer"></div>
+        <div class="portal-ring-middle"></div>
+        <div class="portal-core-glow"></div>
+      </div>
+    </section>
+
+    <!-- 4. Footer Quote -->
+    <section class="terminal-container" aria-label="Closing Sentiment">
+      <div class="footer-quote">
+        <span>Every heartbeat in this universe beats for you</span>
+        <span class="heart-icon">💙</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       CANVAS 3D PARTICLE HEART & FLOATING PORTAL BEAM SCRIPT
+       ========================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      const canvas = document.getElementById("heartCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      // State & Animation Variables
+      let animId = null;
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+
+      // 3D Particles array
+      const particles = [];
+      const particleCount = window.innerWidth < 640 ? 1200 : 2100;
+
+      // Rising portal sparks
+      const portalSparks = [];
+      const sparkCount = 38;
+
+      // 3D Camera & Orientation Parameters
+      let rotY = 0;
+      let rotX = 0;
+      let targetRotY = 0;
+      let targetRotX = 0;
+      let rotVelY = 0.005; // Gentle continuous auto-rotation
+      let rotVelX = 0;
+
+      // Drag / Touch Interaction
+      let isDragging = false;
+      let prevMouseX = 0;
+      let prevMouseY = 0;
+      let lastInteraction = performance.now();
+
+      // Parametric Heart 3D Formulation
+      // Based on 3D volumetric heart distribution
+      function createHeartParticles() {
+        particles.length = 0;
+
+        for (let i = 0; i < particleCount; i++) {
+          // Angle around the heart perimeter
+          const t = Math.random() * Math.PI * 2;
+          
+          // Classic parametric heart coordinates
+          const x0 = 16 * Math.pow(Math.sin(t), 3);
+          const y0 = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+          
+          // Thickness profile: the heart is thicker at the top lobes and tapers to a point at the bottom
+          // y0 ranges from approx -17 (top) to +12 (bottom tip)
+          const normY = (y0 + 17) / 29; // 0 (top) to 1 (bottom)
+          const maxThickness = Math.sin(normY * Math.PI) * 9.5 * (1 - normY * 0.45);
+          
+          // Depth distribution (concentric shells and inner starlight glow)
+          const zAngle = (Math.random() - 0.5) * Math.PI;
+          const radialDist = Math.random();
+          // Heavily bias towards outer shell for crisp 3D heart definition, with soft interior volume
+          const shellFactor = radialDist > 0.4 ? (0.85 + Math.random() * 0.15) : Math.pow(radialDist, 0.6);
+
+          const x = x0 * shellFactor;
+          const y = y0 * shellFactor;
+          const z = Math.sin(zAngle) * maxThickness * shellFactor;
+
+          // Velocity & oscillation
+          const twinkleSpeed = Math.random() * 0.04 + 0.02;
+          const twinklePhase = Math.random() * Math.PI * 2;
+          const size = Math.random() * 1.8 + 0.8;
+
+          // Color palette: Glowing neon blues and radiant electric cyans
+          // Some particles lean toward bright ice-white, others deep luminous sapphire
+          const colorRand = Math.random();
+          let r = 0, g = 217, b = 255;
+          if (colorRand > 0.75) {
+            // Bright white-cyan highlight
+            r = 190; g = 245; b = 255;
+          } else if (colorRand < 0.25) {
+            // Deep royal electric blue
+            r = 0; g = 110; b = 255;
+          }
+
+          particles.push({
+            origX: x,
+            origY: y,
+            origZ: z,
+            x: x,
+            y: y,
+            z: z,
+            size: size,
+            r: r,
+            g: g,
+            b: b,
+            baseAlpha: Math.random() * 0.45 + 0.55,
+            alpha: 1,
+            twinkleSpeed: twinkleSpeed,
+            twinklePhase: twinklePhase
+          });
+        }
+
+        // Initialize portal ascending sparks
+        portalSparks.length = 0;
+        for (let i = 0; i < sparkCount; i++) {
+          resetPortalSpark(i, true);
+        }
+      }
+
+      function resetPortalSpark(index, initial) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 90;
+        portalSparks[index] = {
+          x: Math.cos(angle) * radius,
+          y: (initial ? Math.random() * 100 : 0) + 120, // starts at platform level
+          z: Math.sin(angle) * (radius * 0.35),
+          vy: -(Math.random() * 1.8 + 0.9), // rising upward towards heart
+          vx: (Math.random() - 0.5) * 0.4,
+          alpha: Math.random() * 0.6 + 0.4,
+          size: Math.random() * 1.6 + 0.6,
+          life: Math.random() * 60 + 40
+        };
+      }
+
+      // Handle Resize with HiDPI support
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        width = rect.width || 600;
+        height = rect.height || 420;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+      });
+
+      // Pointer Interactivity (Drag to rotate 3D heart)
+      function onPointerDown(x, y) {
+        isDragging = true;
+        prevMouseX = x;
+        prevMouseY = y;
+        lastInteraction = performance.now();
+      }
+
+      function onPointerMove(x, y) {
+        if (!isDragging) return;
+        const dx = x - prevMouseX;
+        const dy = y - prevMouseY;
+
+        targetRotY += dx * 0.0075;
+        targetRotX += dy * 0.0065;
+
+        // Clamp vertical pitch tilt to avoid upside-down flip
+        targetRotX = Math.max(-0.6, Math.min(0.6, targetRotX));
+
+        rotVelY = dx * 0.004;
+        rotVelX = dy * 0.004;
+
+        prevMouseX = x;
+        prevMouseY = y;
+        lastInteraction = performance.now();
+      }
+
+      function onPointerUp() {
+        isDragging = false;
+      }
+
+      // Mouse events
+      canvas.addEventListener("mousedown", (e) => {
+        onPointerDown(e.clientX, e.clientY);
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+          onPointerMove(e.clientX, e.clientY);
+        }
+      });
+
+      window.addEventListener("mouseup", onPointerUp);
+
+      // Touch events (Non-hijacking swipe)
+      canvas.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      window.addEventListener("touchmove", (e) => {
+        if (isDragging && e.touches.length === 1) {
+          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      window.addEventListener("touchend", onPointerUp, { passive: true });
+
+      // Main Render Loop
+      let startTime = performance.now();
+
+      function render(now) {
+        animId = requestAnimationFrame(render);
+
+        const elapsed = (now - startTime) / 1000;
+        const idleTime = now - lastInteraction;
+
+        // Auto-rotation when not interacting
+        if (!isDragging) {
+          if (idleTime > 1500) {
+            // Gentle continuous 3D spin and pitch breathing
+            rotVelY = 0.0055;
+            targetRotY += rotVelY;
+            targetRotX = Math.sin(elapsed * 0.8) * 0.12;
+          } else {
+            // Momentum decay
+            targetRotY += rotVelY;
+            targetRotX += rotVelX;
+            rotVelY *= 0.94;
+            rotVelX *= 0.94;
+          }
+        }
+
+        // Smooth interpolation
+        rotY += (targetRotY - rotY) * 0.1;
+        rotX += (targetRotX - rotX) * 0.1;
+
+        // Heartbeat rhythmic pulsation (double beat: lub-dub every 1.25s)
+        const cycle = (elapsed % 1.25) / 1.25;
+        let pulseScale = 1.0;
+        if (cycle < 0.15) {
+          pulseScale = 1.0 + 0.08 * Math.sin((cycle / 0.15) * Math.PI);
+        } else if (cycle > 0.22 && cycle < 0.38) {
+          pulseScale = 1.0 + 0.05 * Math.sin(((cycle - 0.22) / 0.16) * Math.PI);
+        }
+
+        // Floating vertical bobbing
+        const floatY = Math.sin(elapsed * 1.6) * 7;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Responsive Scale & 3D Center
+        const isSmallScreen = width < 600;
+        const baseScale = isSmallScreen ? (width / 44) : 14.5;
+        const scale = baseScale * pulseScale;
+        const centerX = width / 2;
+        // Positioned slightly above center to leave room for the glowing portal platform below
+        const centerY = height * 0.44 + floatY;
+
+        const cosY = Math.cos(rotY);
+        const sinY = Math.sin(rotY);
+        const cosX = Math.cos(rotX);
+        const sinX = Math.sin(rotX);
+
+        // Perspective Projection Camera
+        const fov = 380;
+        const cameraZ = 320;
+
+        // Ambient radial light emanating from heart center
+        const ambientRadial = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, scale * 26);
+        ambientRadial.addColorStop(0, "rgba(0, 217, 255, 0.22)");
+        ambientRadial.addColorStop(0.45, "rgba(0, 100, 255, 0.08)");
+        ambientRadial.addColorStop(1, "rgba(2, 5, 14, 0)");
+        ctx.fillStyle = ambientRadial;
+        ctx.fillRect(0, 0, width, height);
+
+        // Update & Render Rising Portal Sparks
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+
+        for (let i = 0; i < portalSparks.length; i++) {
+          const spark = portalSparks[i];
+          spark.y += spark.vy;
+          spark.x += spark.vx;
+          spark.life--;
+
+          if (spark.life <= 0 || spark.y < -30) {
+            resetPortalSpark(i, false);
+            continue;
+          }
+
+          // 3D projection for portal spark
+          const xRot = spark.x * cosY + spark.z * sinY;
+          const zRot = -spark.x * sinY + spark.z * cosY;
+          const pScale = fov / (cameraZ + zRot);
+
+          const screenX = centerX + xRot * pScale;
+          const screenY = centerY + (spark.y + 30) * (pScale * 0.65);
+
+          const curAlpha = (spark.life / 60) * spark.alpha;
+          ctx.fillStyle = `rgba(94, 243, 255, ${curAlpha})`;
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, spark.size * pScale * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Project and Sort Heart Particles (Depth sorting for realistic 3D volume)
+        const projectedParticles = [];
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+
+          // 3D Rotation
+          // 1. Yaw rotation around Y axis
+          const x1 = p.origX * cosY + p.origZ * sinY;
+          const z1 = -p.origX * sinY + p.origZ * cosY;
+
+          // 2. Pitch rotation around X axis
+          const y2 = p.origY * cosX - z1 * sinX;
+          const z2 = p.origY * sinX + z1 * cosX;
+
+          // Perspective depth calculation
+          const projScale = fov / (cameraZ + z2 * (scale * 0.12));
+          const screenX = centerX + x1 * scale * (projScale / 2.2);
+          const screenY = centerY + y2 * scale * (projScale / 2.2);
+
+          // Twinkle effect
+          p.twinklePhase += p.twinkleSpeed;
+          const twinkle = 0.75 + 0.25 * Math.sin(p.twinklePhase);
+          const alpha = p.baseAlpha * twinkle * Math.min(Math.max((z2 + 25) / 50, 0.4), 1.2);
+
+          projectedParticles.push({
+            screenX,
+            screenY,
+            z: z2,
+            size: p.size * (projScale / 2.2) * (pulseScale > 1.03 ? 1.15 : 1.0),
+            r: p.r,
+            g: p.g,
+            b: p.b,
+            alpha: alpha
+          });
+        }
+
+        // Draw Heart Particles with luminous glow
+        for (let i = 0; i < projectedParticles.length; i++) {
+          const p = projectedParticles[i];
+
+          // 1. Outer radiant glow halo
+          ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.28})`;
+          ctx.beginPath();
+          ctx.arc(p.screenX, p.screenY, p.size * 2.8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 2. Core bright star dot
+          ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.screenX, p.screenY, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      // Initialize
+      createHeartParticles();
+      resizeCanvas();
+      animId = requestAnimationFrame(render);
+
+    })();
+  </script>
+</body>
+</html>

@@ -18,6 +18,11 @@
   <meta property="og:image" content="images/background.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <!-- Google Fonts for Birthday Theme & Glowing Script Finale -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -283,46 +288,49 @@
            =================================================================== -->
       <section id="pageChapter4" class="experience-page finale-page" data-chapter="4" style="display: none;">
         <div class="finale-atmosphere-wrap">
-          <!-- Floating Romantic Backdrop Glows -->
-          <div class="finale-glow-radial finale-glow-top"></div>
-          <div class="finale-glow-radial finale-glow-bottom"></div>
+          <!-- Ambient Glowing Blue Light Aura (Top & Bottom) -->
+          <div class="finale-glow-radial finale-ambient-aura-top"></div>
+          <div class="finale-glow-radial finale-ambient-aura-bottom"></div>
 
           <!-- Main Cinematic Finale Card -->
           <div class="finale-card-stage">
-            <!-- Subtle chapter back control -->
+            <!-- Subtle chapter back control & Standalone link -->
             <div class="finale-back-nav">
               <button type="button" class="finale-back-btn" id="backToPage3FromFinaleBtn" aria-label="Back to Love Notes">
                 <span id="finaleBackBtnText">← Back to Love Notes</span>
               </button>
+              <a href="finale.html" target="_blank" class="finale-standalone-link" title="Open Full Single-File Finale Page">
+                <span>⛶ Open Standalone Page</span>
+              </a>
             </div>
 
             <div class="finale-content-center">
-              <!-- Top Title & Subtitle (Positioned cleanly above the 3D Canvas) -->
+              <!-- 2. Main Header: Glowing, elegant script font "I Love You" -->
               <div class="finale-header-group">
-                <div class="finale-sparkle-pill">
-                  <span class="sparkle-icon">✨</span>
-                  <span id="finaleSparklePillText">My Endless Birthday Wish For You</span>
-                  <span class="sparkle-icon">✨</span>
-                </div>
-                <div class="finale-title-block">
-                  <h1 class="finale-title-text" id="finaleMainTitle">I LOVE YOU</h1>
-                  <span class="finale-infinity-badge" id="finaleInfinityBadgeText">∞ ALWAYS & FOREVER ∞</span>
-                </div>
+                <h1 class="finale-script-title" id="finaleMainTitle">I Love You</h1>
               </div>
 
-              <!-- Interactive Flat Glowing Particle-Burst Heart Centerpiece -->
+              <!-- 3. Central Animation: 3D-Style Heart & Glowing Platform / Portal Effect -->
               <div class="finale-3d-heart-container" id="finale3DHeartContainer">
-                <div class="finale-heart-halo"></div>
-                <canvas id="finaleCanvas" class="finale-3d-canvas" aria-label="Interactive Glowing Heart"></canvas>
+                <!-- Glowing platform / portal effect below the heart casting upward blue light -->
+                <div class="finale-portal-platform" aria-hidden="true">
+                  <div class="finale-portal-upward-light"></div>
+                  <div class="finale-portal-ring-outer"></div>
+                  <div class="finale-portal-ring-middle"></div>
+                  <div class="finale-portal-core-glow"></div>
+                </div>
+
+                <canvas id="finaleCanvas" class="finale-3d-canvas" aria-label="Interactive 3D Glowing Particle Heart"></canvas>
+
                 <!-- Subtle touch/drag interaction hint badge -->
                 <div class="finale-interactive-hint" id="finaleInteractiveHint">
                   <span class="hint-icon">✦</span>
-                  <span class="hint-text">Drag or swipe to tilt • Tap to pulse</span>
+                  <span class="hint-text">Drag to rotate 3D heart</span>
                   <span class="hint-icon">✦</span>
                 </div>
               </div>
 
-              <!-- Emotional Closing Passage (Positioned cleanly below the 3D Canvas) -->
+              <!-- Emotional Closing Passage (Positioned cleanly below the 3D heart) -->
               <div class="finale-quote-box">
                 <p class="finale-quote-text" id="finaleClosingQuote">
                   "No matter how many birthdays come and go, every single second with you will always remain my favorite chapter. Thank you for being my peace, my smile, and my greatest adventure. Happy Birthday, my love."
@@ -1027,11 +1035,11 @@
             </div>
 
             <div class="form-group">
-              <label for="confettiAmountSelect">Confetti Amount</label>
+              <label for="confettiAmountSelect">Confetti Amount & Density</label>
               <select id="confettiAmountSelect" class="form-input">
-                <option value="low">Subtle (70 confetti)</option>
-                <option value="normal" selected>Festive (180 confetti)</option>
-                <option value="high">Grand Confetti Blast (350 confetti)</option>
+                <option value="low">Subtle (30 confetti - High Readability)</option>
+                <option value="normal" selected>Balanced Margins & Sides (55 confetti)</option>
+                <option value="high">Celebration Shower (90 confetti)</option>
               </select>
             </div>
 

@@ -24,13 +24,13 @@
   --glow-blue: 0 0 25px rgba(0, 210, 255, 0.5), 0 0 50px rgba(0, 210, 255, 0.25);
   --glow-hybrid: 0 0 35px rgba(255, 42, 122, 0.35), 0 0 45px rgba(0, 210, 255, 0.35);
 
-  /* Glassmorphism */
-  --glass-bg: rgba(11, 17, 44, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-highlight: rgba(255, 255, 255, 0.22);
+  /* Glassmorphism - Translucent to let background photo shine through */
+  --glass-bg: rgba(11, 17, 44, 0.40);
+  --glass-border: rgba(255, 255, 255, 0.20);
+  --glass-highlight: rgba(255, 255, 255, 0.28);
   
-  /* Configurable Intensity & Opacity */
-  --overlay-opacity: 0.72;
+  /* Configurable Intensity & Opacity - Transparent default so background photo is visible */
+  --overlay-opacity: 0.32;
   --gradient-intensity: 1;
 
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -93,25 +93,33 @@ body {
   background-repeat: no-repeat;
   transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s ease;
   will-change: transform, opacity;
+  z-index: 1;
 }
 
-/* Dreamy Animated Mesh Gradient (Used alone or as blend overlay) */
+/* Dreamy Animated Mesh Gradient (Transparent color glimmers that do NOT occlude the photo) */
 .bg-gradient-mesh {
   position: absolute;
   top: -20%;
   left: -20%;
   width: 140%;
   height: 140%;
-  background: radial-gradient(circle at 20% 25%, rgba(255, 42, 122, 0.85) 0%, transparent 45%),
-              radial-gradient(circle at 80% 30%, rgba(0, 210, 255, 0.8) 0%, transparent 45%),
-              radial-gradient(circle at 50% 75%, rgba(121, 40, 202, 0.75) 0%, transparent 55%),
-              radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.6) 0%, transparent 40%),
-              radial-gradient(circle at 15% 80%, rgba(56, 189, 248, 0.6) 0%, transparent 40%),
-              linear-gradient(135deg, #090e24 0%, #10163a 50%, #060919 100%);
+  background: radial-gradient(circle at 20% 25%, rgba(255, 42, 122, 0.55) 0%, transparent 45%),
+              radial-gradient(circle at 80% 30%, rgba(0, 210, 255, 0.5) 0%, transparent 45%),
+              radial-gradient(circle at 50% 75%, rgba(121, 40, 202, 0.45) 0%, transparent 55%),
+              radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.35) 0%, transparent 40%),
+              radial-gradient(circle at 15% 80%, rgba(56, 189, 248, 0.35) 0%, transparent 40%);
   filter: blur(55px);
   animation: meshDrift 22s ease-in-out infinite alternate;
-  opacity: 0.95;
+  opacity: 0.65;
   transition: opacity 0.8s ease;
+  z-index: 2;
+  mix-blend-mode: screen;
+}
+
+/* When a background picture is active, make the mesh gradient a soft celestial accent */
+body.has-bg-image .bg-gradient-mesh,
+#bgWrapper.has-bg-image .bg-gradient-mesh {
+  opacity: 0.28;
 }
 
 @keyframes meshDrift {
@@ -126,7 +134,7 @@ body {
   }
 }
 
-/* Semi-transparent Pink/Blue Gradient Overlay */
+/* Transparent Tint Overlay (Crisp & Translucent so photo is clearly visible) */
 .bg-overlay {
   position: absolute;
   top: 0;
@@ -135,14 +143,15 @@ body {
   height: 100%;
   background: linear-gradient(
     145deg,
-    rgba(11, 17, 44, calc(var(--overlay-opacity) * 1.15)) 0%,
-    rgba(25, 18, 52, calc(var(--overlay-opacity) * 0.95)) 40%,
-    rgba(11, 26, 56, calc(var(--overlay-opacity) * 1.05)) 75%,
-    rgba(9, 14, 36, calc(var(--overlay-opacity) * 1.2)) 100%
+    rgba(8, 12, 32, calc(var(--overlay-opacity) * 0.75)) 0%,
+    rgba(18, 12, 38, calc(var(--overlay-opacity) * 0.55)) 40%,
+    rgba(8, 18, 42, calc(var(--overlay-opacity) * 0.65)) 75%,
+    rgba(6, 10, 26, calc(var(--overlay-opacity) * 0.8)) 100%
   );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: opacity 0.6s ease;
+  z-index: 3;
 }
 
 /* Glowing floating orbs */
@@ -151,8 +160,9 @@ body {
   border-radius: 50%;
   filter: blur(60px);
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.45;
   animation: floatOrb 18s ease-in-out infinite;
+  z-index: 4;
 }
 
 .orb-pink {
@@ -194,7 +204,8 @@ body {
   }
 }
 
-/* Canvas for Particles & Confetti */
+/* Canvas for Ambient Particles & Celebration Confetti
+   Positioned in the background layer (z-index: 1) so words & cards (z-index: 2+) remain 100% readable! */
 #particlesCanvas,
 #confettiCanvas {
   position: fixed;
@@ -203,14 +214,7 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-
-#particlesCanvas {
   z-index: 1;
-}
-
-#confettiCanvas {
-  z-index: 99;
 }
 
 /* ==========================================================================
@@ -519,6 +523,37 @@ body {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-pink-primary), var(--color-blue-primary), transparent);
   opacity: 0.85;
+}
+
+/* Translucent Card Glassmorphism for Background Photo Visibility */
+body.has-bg-image .countdown-card,
+body.has-bg-image .page-chapter-card,
+body.has-bg-image .finale-atmosphere-wrap {
+  background: rgba(8, 13, 34, 0.38);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+body.has-bg-image .celebration-card-inner,
+body.has-bg-image .love-note-letter-card,
+body.has-bg-image .memory-card {
+  background: rgba(10, 16, 42, 0.38);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Crystal-clear typography contrast over transparent backgrounds */
+.opening-message,
+.celebration-title,
+.celebration-message,
+.chapter-header-center h2,
+.memory-card-title,
+.memory-card-caption,
+.love-note-text,
+.finale-title-text,
+.finale-quote-text {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 0, 0, 0.55);
 }
 
 /* ==========================================================================
@@ -4375,10 +4410,49 @@ body {
   touch-action: pan-y pinch-zoom;
   user-select: none;
   -webkit-user-select: none;
+  transform-origin: center center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
 }
 
 .finale-3d-heart-container:active {
   cursor: grabbing;
+}
+
+/* Tactile Pulse Scale Animation on Tap */
+.finale-3d-heart-container.heart-tapped-pulse,
+#finale3DHeartContainer.heart-tapped-pulse {
+  animation: heartContainerTapPulse 0.58s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes heartContainerTapPulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 42, 122, 0));
+  }
+  25% {
+    transform: scale(1.085);
+    filter: drop-shadow(0 0 35px rgba(255, 42, 122, 0.75)) drop-shadow(0 0 50px rgba(0, 210, 255, 0.55));
+  }
+  50% {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.45));
+  }
+  75% {
+    transform: scale(1.025);
+    filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.35));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 42, 122, 0));
+  }
+}
+
+.finale-3d-heart-container.heart-tapped-pulse .finale-heart-halo,
+#finale3DHeartContainer.heart-tapped-pulse .finale-heart-halo {
+  opacity: 0.95;
+  transform: scale(1.35);
+  filter: blur(45px) brightness(1.5);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .finale-3d-canvas {

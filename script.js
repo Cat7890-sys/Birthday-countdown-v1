@@ -38,9 +38,9 @@ const backgroundImage = "images/background.jpg";
 
 /**
  * 5. Background Overlay Opacity (0.0 = completely clear, 1.0 = dark & opaque)
- * Default: 0.65 provides optimal text contrast over photos.
+ * Default: 0.32 provides beautiful transparent photo visibility while keeping text crisp.
  */
-const overlayOpacity = 0.65;
+const overlayOpacity = 0.32;
 
 /**
  * 6. Background Music Path
@@ -1995,6 +1995,7 @@ function setupBackground() {
 
   // Apply overlay opacity
   document.documentElement.style.setProperty("--overlay-opacity", String(currentOverlayOpacity));
+  const bgWrapper = document.getElementById("bgWrapper");
 
   if (currentBgImage && currentBgImage.trim() !== "") {
     // Pre-test image to avoid broken icon
@@ -2003,13 +2004,19 @@ function setupBackground() {
     imgTest.onload = () => {
       bgImageEl.style.backgroundImage = `url("${currentBgImage}")`;
       bgImageEl.style.opacity = "1";
+      document.body.classList.add("has-bg-image");
+      if (bgWrapper) bgWrapper.classList.add("has-bg-image");
     };
     imgTest.onerror = () => {
       // Graceful fallback to pure animated gradient mesh
       bgImageEl.style.opacity = "0";
+      document.body.classList.remove("has-bg-image");
+      if (bgWrapper) bgWrapper.classList.remove("has-bg-image");
     };
   } else {
     bgImageEl.style.opacity = "0";
+    document.body.classList.remove("has-bg-image");
+    if (bgWrapper) bgWrapper.classList.remove("has-bg-image");
   }
 }
 
@@ -3613,31 +3620,60 @@ function startConfettiAnimation() {
 
   confettiPieces = [];
   
-  // Dynamic piece count based on burstConfig setting
+  // Dynamic piece count with reduced density for crystal-clear readability
   let countFactor = 1.0;
-  if (burstConfig.confettiAmount === "low") countFactor = 0.5;
-  if (burstConfig.confettiAmount === "high") countFactor = 2.0;
-  const pieceCount = Math.min(Math.floor((window.innerWidth / 4) * countFactor), 350);
+  if (burstConfig.confettiAmount === "low") countFactor = 0.55;
+  if (burstConfig.confettiAmount === "high") countFactor = 1.6;
+
+  // Base count reduced so words are never overwhelmed
+  const baseCount = window.innerWidth < 640 ? 36 : 56;
+  const pieceCount = Math.round(baseCount * countFactor);
 
   // Dynamic speed based on burstConfig setting
   let speedMultiplier = 1.0;
   if (burstConfig.confettiSpeed === "slow") speedMultiplier = 0.55;
-  if (burstConfig.confettiSpeed === "fast") speedMultiplier = 1.6;
+  if (burstConfig.confettiSpeed === "fast") speedMultiplier = 1.4;
+
+  function spawnPiece(initialY = null) {
+    const isFlank = Math.random() < 0.82; // 82% of confetti flows along the left and right flanks
+    let x, alpha, w, h;
+
+    if (isFlank) {
+      // Position on left 26% or right 26% of viewport
+      x = Math.random() < 0.5
+        ? Math.random() * (canvas.width * 0.26)
+        : canvas.width * 0.74 + Math.random() * (canvas.width * 0.26);
+      alpha = Math.random() * 0.3 + 0.65;
+      w = Math.random() * 6 + 6;
+      h = Math.random() * 4 + 4;
+    } else {
+      // In the central area where words are, keep confetti minimal, faint, and small
+      x = canvas.width * 0.26 + Math.random() * (canvas.width * 0.48);
+      alpha = Math.random() * 0.15 + 0.20; // Very soft and translucent so words stand out
+      w = Math.random() * 3 + 4;
+      h = Math.random() * 2 + 3;
+    }
+
+    const y = initialY !== null ? initialY : Math.random() * -canvas.height * 0.8;
+
+    return {
+      x,
+      y,
+      w,
+      h,
+      alpha,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speedY: (Math.random() * 3.2 + 1.8) * speedMultiplier,
+      speedX: (Math.random() * 2 - 1) * speedMultiplier,
+      angle: Math.random() * 360,
+      angularSpeed: (Math.random() - 0.5) * 6 * speedMultiplier,
+      flutterSpeed: Math.random() * 0.08 + 0.04,
+      flutterPhase: Math.random() * Math.PI * 2
+    };
+  }
 
   for (let i = 0; i < pieceCount; i++) {
-    confettiPieces.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * -canvas.height * 0.8,
-      w: Math.random() * 10 + 6,
-      h: Math.random() * 6 + 4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      speedY: (Math.random() * 4 + 2.5) * speedMultiplier,
-      speedX: (Math.random() * 3 - 1.5) * speedMultiplier,
-      angle: Math.random() * 360,
-      angularSpeed: (Math.random() - 0.5) * 8 * speedMultiplier,
-      flutterSpeed: Math.random() * 0.1 + 0.05,
-      flutterPhase: Math.random() * Math.PI * 2
-    });
+    confettiPieces.push(spawnPiece(Math.random() * canvas.height));
   }
 
   function renderConfetti() {
@@ -3645,22 +3681,25 @@ function startConfettiAnimation() {
 
     for (let p of confettiPieces) {
       p.y += p.speedY;
-      p.x += p.speedX + Math.sin(p.flutterPhase) * 1.5;
+      p.x += p.speedX + Math.sin(p.flutterPhase) * 1.2;
       p.flutterPhase += p.flutterSpeed;
       p.angle += p.angularSpeed;
 
-      // Wrap to top with fresh blast
-      if (p.y > canvas.height + 20) {
-        p.y = -20;
-        p.x = Math.random() * canvas.width;
+      // Wrap to top: re-spawn predominantly at the sides
+      if (p.y > canvas.height + 25) {
+        const fresh = spawnPiece(-20);
+        Object.assign(p, fresh);
       }
 
       ctx.save();
+      ctx.globalAlpha = p.alpha;
       ctx.translate(p.x, p.y);
       ctx.rotate((p.angle * Math.PI) / 180);
       ctx.fillStyle = p.color;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = p.color;
+      if (p.alpha > 0.4) {
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = p.color;
+      }
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
     }
@@ -6632,6 +6671,7 @@ let finaleParticles = [];
 let finaleTrails = [];
 let finaleStars = [];
 let finaleConstellationLines = [];
+let finaleBloomWaves = [];
 let finaleCenterBurstTime = 0;
 
 function disposeFinaleThreeScene() {
@@ -6648,6 +6688,7 @@ function disposeFinaleThreeScene() {
   finaleTrails = [];
   finaleStars = [];
   finaleConstellationLines = [];
+  finaleBloomWaves = [];
   if (finaleCtx && finaleCanvasEl) {
     finaleCtx.clearRect(0, 0, finaleCanvasEl.width, finaleCanvasEl.height);
   }
@@ -6770,6 +6811,9 @@ function initFinaleScene() {
       twinkleSpeed: Math.random() * 0.05 + 0.02,
       twinklePhase: Math.random() * Math.PI * 2,
       depthLayer: depthLayer,
+      bloomOffX: 0,
+      bloomOffY: 0,
+      bloomAlphaBoost: 0,
       // Wispy trail emitter probability (from lower heart edges/taper)
       isTrailEmitter: (rawY > 4 && r > 0.75 && Math.random() < 0.18)
     });
@@ -6844,42 +6888,127 @@ function initFinaleScene() {
     finaleLastInteractionTime = Date.now();
   }
 
-  function onPointerUp() {
+  function onPointerUp(clientX, clientY) {
     if (!finaleIsDragging) return;
     finaleIsDragging = false;
 
     // Tap to pulse if tap without dragging
-    if (finaleTotalDragDistance < 8) {
-      triggerHeartPulse();
+    if (finaleTotalDragDistance < 10) {
+      const rect = container.getBoundingClientRect();
+      const tapX = typeof clientX === "number" ? clientX - rect.left : (containerW / 2);
+      const tapY = typeof clientY === "number" ? clientY - rect.top : (containerH * 0.48);
+      triggerHeartPulse(tapX, tapY);
     }
     finaleLastInteractionTime = Date.now();
   }
 
-  function triggerHeartPulse() {
+  let lastPulseTriggerTime = 0;
+  function triggerHeartPulse(originX, originY) {
+    const now = Date.now();
+    if (now - lastPulseTriggerTime < 80) return;
+    lastPulseTriggerTime = now;
+
+    const w = container.clientWidth || 540;
+    const h = container.clientHeight || 400;
+    const centerX = (typeof originX === "number" && !isNaN(originX)) ? originX : w / 2;
+    const centerY = (typeof originY === "number" && !isNaN(originY)) ? originY : h * 0.48;
+
+    // 1. Trigger CSS Scale Pulse Animation on #finale3DHeartContainer DOM element
+    container.classList.remove("heart-tapped-pulse");
+    void container.offsetWidth; // Force reflow to immediately replay animation
+    container.classList.add("heart-tapped-pulse");
+
+    // Remove animation class after completion to keep DOM clean
+    container.addEventListener("animationend", () => {
+      container.classList.remove("heart-tapped-pulse");
+    }, { once: true });
+
+    hideHint();
+
+    // 2. Set Canvas Tap Pulse Scale Progress (decayed in render loop)
     finaleTapPulseProgress = 1.0;
-    // Spawn a burst of shooting spark trails on tap
-    for (let i = 0; i < 20; i++) {
-      spawnTapSpark(heartCenterX, heartCenterY);
+
+    // 3. Dual Expanding Radiant Particle Bloom Shockwaves
+    const isSmall = window.innerWidth < 640;
+    finaleBloomWaves.push({
+      x: centerX,
+      y: centerY,
+      radius: 6,
+      maxRadius: Math.max(w, h) * 0.75,
+      speed: isSmall ? 10 : 15,
+      alpha: 0.95,
+      lineWidth: 3.5,
+      r: 255,
+      g: 42,
+      b: 122
+    });
+    finaleBloomWaves.push({
+      x: centerX,
+      y: centerY,
+      radius: 2,
+      maxRadius: Math.max(w, h) * 0.65,
+      speed: isSmall ? 7.5 : 11.5,
+      alpha: 0.85,
+      lineWidth: 2.5,
+      r: 0,
+      g: 225,
+      b: 255
+    });
+
+    // 4. Elastic Outward Radial Bloom Impulse on Heart Particles
+    const bloomRadius = isSmall ? 190 : 250;
+    const maxImpulse = isSmall ? 15 : 22;
+    for (let i = 0; i < finaleParticles.length; i++) {
+      const p = finaleParticles[i];
+      const pX = p.renderedX || p.targetX;
+      const pY = p.renderedY || p.targetY;
+      const dx = pX - centerX;
+      const dy = pY - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      if (dist < bloomRadius) {
+        const factor = Math.pow(1 - dist / bloomRadius, 1.25);
+        const impulse = factor * maxImpulse;
+        p.bloomOffX = (dx / dist) * impulse;
+        p.bloomOffY = (dy / dist) * impulse;
+        p.bloomAlphaBoost = 0.55 * factor;
+      }
     }
+
+    // 5. Spawn Burst of Radiant Shooting Spark Trails
+    const sparkCount = isSmall ? 28 : 42;
+    for (let i = 0; i < sparkCount; i++) {
+      spawnTapSpark(centerX, centerY);
+    }
+
+    // 6. Tactile Device Vibration
     if (navigator.vibrate) {
-      try { navigator.vibrate(30); } catch (e) {}
+      try { navigator.vibrate([20, 35, 20]); } catch (e) {}
     }
   }
 
   function spawnTapSpark(cx, cy) {
     const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 5 + 2.5;
+    const speed = Math.random() * 6.5 + 2.5;
+    const colorPick = Math.random();
+    let r = 255, g = 42, b = 122; // vibrant pink
+    if (colorPick < 0.35) {
+      r = 0; g = 240; b = 255; // electric cyan
+    } else if (colorPick < 0.6) {
+      r = 255; g = 215; b = 0; // radiant gold
+    } else if (colorPick < 0.75) {
+      r = 255; g = 255; b = 255; // diamond white
+    }
     finaleTrails.push({
-      x: cx + (Math.random() - 0.5) * 40,
-      y: cy + (Math.random() - 0.5) * 40,
+      x: cx + (Math.random() - 0.5) * 25,
+      y: cy + (Math.random() - 0.5) * 25,
       vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed + 1.2,
-      length: Math.random() * 12 + 6,
+      vy: Math.sin(angle) * speed + 0.8,
+      length: Math.random() * 16 + 8,
       alpha: 1.0,
       decay: Math.random() * 0.035 + 0.02,
-      r: Math.random() > 0.5 ? 0 : 255,
-      g: Math.random() > 0.5 ? 240 : 100,
-      b: 255,
+      r: r,
+      g: g,
+      b: b,
       depthLayer: 1.0
     });
   }
@@ -6895,9 +7024,17 @@ function initFinaleScene() {
     }
   });
 
-  window.addEventListener("mouseup", () => {
+  window.addEventListener("mouseup", (e) => {
     if (finaleIsDragging) {
-      onPointerUp();
+      onPointerUp(e.clientX, e.clientY);
+    }
+  });
+
+  // Direct click handler reinforcement
+  container.addEventListener("click", (e) => {
+    if (finaleTotalDragDistance < 10) {
+      const rect = container.getBoundingClientRect();
+      triggerHeartPulse(e.clientX - rect.left, e.clientY - rect.top);
     }
   });
 
@@ -6919,9 +7056,9 @@ function initFinaleScene() {
     }
   }, { passive: false });
 
-  container.addEventListener("touchend", (e) => {
-    if (e.touches.length === 0) {
-      onPointerUp();
+  container.addEventListener("touchend", () => {
+    if (finaleIsDragging) {
+      onPointerUp(finalePrevPointer.x, finalePrevPointer.y);
     }
   }, { passive: true });
 
@@ -6950,8 +7087,10 @@ function initFinaleScene() {
 
     // Ambient radial glow behind the heart
     const radialGlow = ctx.createRadialGradient(curHeartX, curHeartY, 20, curHeartX, curHeartY, w * 0.55);
-    radialGlow.addColorStop(0, "rgba(0, 210, 255, 0.16)");
-    radialGlow.addColorStop(0.45, "rgba(255, 42, 122, 0.08)");
+    const glowPinkAlpha = 0.16 + (finaleTapPulseProgress > 0 ? finaleTapPulseProgress * 0.35 : 0);
+    const glowBlueAlpha = 0.08 + (finaleTapPulseProgress > 0 ? finaleTapPulseProgress * 0.25 : 0);
+    radialGlow.addColorStop(0, `rgba(255, 42, 122, ${glowPinkAlpha})`);
+    radialGlow.addColorStop(0.45, `rgba(0, 210, 255, ${glowBlueAlpha})`);
     radialGlow.addColorStop(1, "rgba(3, 10, 25, 0)");
     ctx.fillStyle = radialGlow;
     ctx.fillRect(0, 0, w, h);
@@ -6968,10 +7107,11 @@ function initFinaleScene() {
       heartbeatScale = 1.0 + 0.042 * Math.sin(((cycleTime - 0.22) / 0.16) * Math.PI);
     }
 
-    // Additive tap pulse bump
+    // Additive tap pulse bump with spring bounce
     if (finaleTapPulseProgress > 0) {
-      heartbeatScale += finaleTapPulseProgress * 0.14;
-      finaleTapPulseProgress = Math.max(0, finaleTapPulseProgress - 0.032);
+      const tapScaleBonus = Math.sin(finaleTapPulseProgress * Math.PI) * 0.22;
+      heartbeatScale += tapScaleBonus;
+      finaleTapPulseProgress = Math.max(0, finaleTapPulseProgress - 0.038);
     }
 
     // Interactivity: Tilt Parallax & Inertia
@@ -7050,25 +7190,31 @@ function initFinaleScene() {
       const offsetX = finaleTiltX * depthOffset;
       const offsetY = finaleTiltY * depthOffset;
 
-      // Heartbeat pulse applied radially from heart center
+      // Elastic spring decay for tap bloom displacement back towards natural shape
+      p.bloomOffX = (p.bloomOffX || 0) * 0.88;
+      p.bloomOffY = (p.bloomOffY || 0) * 0.88;
+      p.bloomAlphaBoost = Math.max(0, (p.bloomAlphaBoost || 0) - 0.035);
+
+      // Heartbeat pulse + tap bloom offset applied radially from heart center
       const dxFromCenter = (p.targetX - curHeartX);
       const dyFromCenter = (p.targetY - curHeartY);
-      const pulsedX = curHeartX + dxFromCenter * heartbeatScale + offsetX;
-      const pulsedY = curHeartY + dyFromCenter * heartbeatScale + offsetY;
+      const pulsedX = curHeartX + dxFromCenter * heartbeatScale + offsetX + p.bloomOffX;
+      const pulsedY = curHeartY + dyFromCenter * heartbeatScale + offsetY + p.bloomOffY;
 
-      // Draw particle dot with soft glowing aura
-      const drawSize = p.size * (heartbeatScale > 1.02 ? 1.15 : 1.0);
+      // Draw particle dot with soft glowing aura and tap flash boost
+      const curAlpha = Math.min(1.0, p.alpha + p.bloomAlphaBoost);
+      const drawSize = p.size * (heartbeatScale > 1.02 ? 1.2 : 1.0);
 
       // Core bright dot
-      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha})`;
+      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${curAlpha})`;
       ctx.beginPath();
       ctx.arc(pulsedX, pulsedY, drawSize, 0, Math.PI * 2);
       ctx.fill();
 
       // Soft luminous outer halo
-      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.28})`;
+      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${curAlpha * 0.35})`;
       ctx.beginPath();
-      ctx.arc(pulsedX, pulsedY, drawSize + p.glowRadius * 0.45, 0, Math.PI * 2);
+      ctx.arc(pulsedX, pulsedY, drawSize + p.glowRadius * 0.5, 0, Math.PI * 2);
       ctx.fill();
 
       p.renderedX = pulsedX;
@@ -7094,6 +7240,28 @@ function initFinaleScene() {
           });
         }
       }
+    }
+
+    // 2.5 DRAW EXPANDING BLOOM SHOCKWAVES
+    for (let i = finaleBloomWaves.length - 1; i >= 0; i--) {
+      const wave = finaleBloomWaves[i];
+      wave.radius += wave.speed;
+      wave.alpha *= 0.935;
+      wave.lineWidth = Math.max(1, wave.lineWidth * 0.97);
+
+      if (wave.alpha <= 0.015 || wave.radius >= wave.maxRadius) {
+        finaleBloomWaves.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.strokeStyle = `rgba(${wave.r}, ${wave.g}, ${wave.b}, ${wave.alpha})`;
+      ctx.lineWidth = wave.lineWidth;
+      ctx.beginPath();
+      ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     // 3. DRAW FAINT CONSTELLATION WEB THREADS
