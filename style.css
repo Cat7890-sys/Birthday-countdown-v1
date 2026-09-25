@@ -3645,7 +3645,9 @@ body {
   padding: 1rem;
 }
 
-.memory-media-wrap {
+.memory-media-wrap,
+.memory-img-wrap,
+.memory-video-wrap {
   width: 100%;
   border-radius: 14px;
   overflow: hidden;
@@ -3654,11 +3656,19 @@ body {
   aspect-ratio: 4 / 3;
 }
 
-.memory-card.size-tall .memory-media-wrap {
+.memory-card.size-tall .memory-media-wrap,
+.memory-card.size-tall .memory-img-wrap,
+.memory-card.size-tall .memory-video-wrap {
   aspect-ratio: 3 / 4;
 }
 
-.memory-img {
+.memory-card.size-square .memory-media-wrap,
+.memory-card.size-square .memory-img-wrap {
+  aspect-ratio: 1 / 1;
+}
+
+.memory-img,
+.memory-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -3667,11 +3677,13 @@ body {
   transition: transform 0.4s ease;
 }
 
-.memory-card:hover .memory-img {
+.memory-card:hover .memory-img,
+.memory-card:hover .memory-img-wrap img {
   transform: scale(1.04);
 }
 
-.memory-video {
+.memory-video,
+.memory-video-wrap video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -4045,13 +4057,78 @@ body {
 }
 
 /* Admin lists */
-.admin-memories-list, .admin-love-notes-list {
+.admin-memories-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem;
+}
+
+.admin-love-notes-list {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
   margin-top: 1rem;
   max-height: 480px;
   overflow-y: auto;
+}
+
+.admin-memory-grid-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  position: relative;
+}
+
+.admin-memory-grid-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-pink-primary);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 18px rgba(255, 42, 122, 0.25);
+}
+
+.admin-memory-media-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #060919;
+  position: relative;
+}
+
+.admin-memory-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.admin-memory-media-img:hover {
+  transform: scale(1.05);
+}
+
+.admin-memory-media-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+.admin-memory-card-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
 }
 
 .admin-memory-row, .admin-love-note-row {

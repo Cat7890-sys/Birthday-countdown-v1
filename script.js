@@ -3866,15 +3866,15 @@ function renderMemoriesScrapbook() {
     let mediaHtml = "";
     if (item.type === "video") {
       mediaHtml = `
-        <div class="memory-video-wrap">
+        <div class="memory-video-wrap memory-media-wrap">
           <video class="memory-video" src="${item.mediaUrl}" controls playsinline preload="metadata"></video>
         </div>
       `;
     } else {
       const src = item.mediaUrl || item.image;
       mediaHtml = `
-        <div class="memory-img-wrap">
-          <img src="${src}" alt="${escapeHtml(item.title || 'Scrapbook photo')}" loading="lazy" />
+        <div class="memory-img-wrap memory-media-wrap">
+          <img src="${src}" class="memory-img" alt="${escapeHtml(item.title || 'Scrapbook photo')}" loading="lazy" />
         </div>
       `;
     }
@@ -4319,55 +4319,118 @@ function renderAdminMemoriesList() {
 
   container.innerHTML = "";
 
+  // Apply uniform grid layout with aspect-ratio: 1/1 and object-fit: cover for all photo cards
+  container.className = "admin-memories-list admin-memories-grid";
+  container.style.display = "grid";
+  container.style.gridTemplateColumns = "repeat(auto-fill, minmax(180px, 1fr))";
+  container.style.gap = "1rem";
+  container.style.maxHeight = "540px";
+  container.style.overflowY = "auto";
+  container.style.padding = "0.5rem 0.25rem";
+
   if (activeMemories.length === 0) {
-    container.innerHTML = `<p style="color: var(--color-text-secondary); font-size: 0.85rem; padding: 0.8rem;">No memories currently added.</p>`;
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.18); border-radius: 12px;">
+        <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 0.35rem;">🎞️ No memories currently added.</p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Click <strong>"+ Add Photo Memory"</strong> to pick pictures from your device!</p>
+      </div>
+    `;
     return;
   }
 
   activeMemories.forEach((item, index) => {
-    const row = document.createElement("div");
-    row.className = "admin-memory-item-row admin-memory-row";
+    const card = document.createElement("div");
+    card.className = "admin-memory-grid-card admin-memory-item-row";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.background = "rgba(255, 255, 255, 0.05)";
+    card.style.border = "1px solid rgba(255, 255, 255, 0.15)";
+    card.style.borderRadius = "14px";
+    card.style.overflow = "hidden";
+    card.style.position = "relative";
+    card.style.transition = "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease";
 
     const displayTitle = item.title && item.title.trim().length > 0 ? item.title : "A Special Memory";
-    const typeIcon = item.type === "video" ? "🎥 Video" : "📸 Photo";
     const mediaThumb = item.image || item.mediaUrl || "";
 
-    row.innerHTML = `
-      <div class="memory-item-left admin-memory-row-left" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.75rem;">
-        ${mediaThumb && item.type !== "video"
-          ? `<img src="${escapeHtml(mediaThumb)}" class="admin-thumb-mini" alt="Thumb" loading="lazy" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" />`
-          : `<span class="memory-item-type" style="font-size: 0.85rem; font-weight: 600; padding: 4px 6px;">${typeIcon}</span>`
-        }
-        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <input 
-              type="text" 
-              class="admin-memory-title-input form-input" 
-              value="${escapeHtml(item.title || '')}" 
-              placeholder="A Special Memory" 
-              title="Edit memory title (click to change)" 
-              style="font-size: 0.88rem; font-weight: 600; padding: 3px 8px; width: 100%; max-width: 260px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; color: #fff;"
-            />
-            <button type="button" class="admin-icon-btn edit-title-prompt-btn" title="Edit title in prompt dialog" style="font-size: 0.75rem; padding: 2px 5px; opacity: 0.7;">✏️</button>
-          </div>
-          <span style="font-size: 0.72rem; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            ${escapeHtml(item.caption ? item.caption : (item.date || 'Special Day'))}
-          </span>
+    // Uniform square media container with object-fit: cover and aspect-ratio: 1/1
+    let mediaMarkup = "";
+    if (item.type === "video") {
+      mediaMarkup = `
+        <div class="admin-memory-media-container" style="position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #060919;">
+          <video src="${escapeHtml(item.mediaUrl)}" class="admin-memory-media-video" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1; display: block;" muted playsinline preload="metadata"></video>
+          <span style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; font-weight: 600;">🎥 Video</span>
+          <button type="button" class="admin-preview-video-btn" style="position: absolute; inset: 0; background: transparent; border: none; cursor: pointer; width: 100%; height: 100%;" title="Click to play/preview video"></button>
         </div>
-      </div>
-      <div class="memory-item-actions" style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-        <label class="memory-highlight-toggle" style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; cursor: pointer; color: #ffd700;">
-          <input type="checkbox" class="toggle-highlight-checkbox" ${item.isHighlight ? 'checked' : ''} />
-          <span>⭐ Spotlight</span>
-        </label>
-        <button type="button" class="admin-icon-btn move-up-btn" ${index === 0 ? 'disabled' : ''} title="Move earlier in story">▲</button>
-        <button type="button" class="admin-icon-btn move-down-btn" ${index === activeMemories.length - 1 ? 'disabled' : ''} title="Move later in story">▼</button>
-        <button type="button" class="admin-danger-btn delete-mem-btn" title="Delete memory">🗑️</button>
+      `;
+    } else if (mediaThumb) {
+      mediaMarkup = `
+        <div class="admin-memory-media-container" style="position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #060919; cursor: pointer;">
+          <img src="${escapeHtml(mediaThumb)}" class="admin-memory-media-img" alt="${escapeHtml(displayTitle)}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1; display: block; transition: transform 0.3s ease;" />
+          <span style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: #ffd700; font-size: 0.68rem; padding: 2px 6px; border-radius: 6px; font-weight: 600;">#${index + 1}</span>
+          ${item.isHighlight ? `<span style="position: absolute; top: 8px; left: 8px; background: rgba(255, 215, 0, 0.25); border: 1px solid rgba(255, 215, 0, 0.55); backdrop-filter: blur(4px); color: #ffd700; font-size: 0.65rem; padding: 2px 6px; border-radius: 9999px; font-weight: 700;">⭐ Star</span>` : ''}
+        </div>
+      `;
+    } else {
+      mediaMarkup = `
+        <div class="admin-memory-media-container" style="position: relative; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); color: var(--color-text-secondary); font-size: 2rem;">
+          📷
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      ${mediaMarkup}
+      <div class="admin-memory-card-body" style="padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <input 
+            type="text" 
+            class="admin-memory-title-input form-input" 
+            value="${escapeHtml(item.title || '')}" 
+            placeholder="A Special Memory" 
+            title="Edit memory title (click to change)" 
+            style="font-size: 0.82rem; font-weight: 600; padding: 4px 7px; width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; color: #fff;"
+          />
+          <button type="button" class="admin-icon-btn edit-title-prompt-btn" title="Edit title in prompt dialog" style="font-size: 0.72rem; padding: 3px 5px; opacity: 0.75; flex-shrink: 0;">✏️</button>
+        </div>
+        <div class="admin-memory-card-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 0.35rem; margin-top: auto; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.08);">
+          <label class="memory-highlight-toggle" style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.76rem; cursor: pointer; color: #ffd700; user-select: none;">
+            <input type="checkbox" class="toggle-highlight-checkbox" ${item.isHighlight ? 'checked' : ''} />
+            <span>⭐ Star</span>
+          </label>
+          <div style="display: flex; align-items: center; gap: 3px;">
+            <button type="button" class="admin-icon-btn move-up-btn" ${index === 0 ? 'disabled' : ''} title="Move earlier in story" style="padding: 2px 6px; font-size: 0.75rem;">▲</button>
+            <button type="button" class="admin-icon-btn move-down-btn" ${index === activeMemories.length - 1 ? 'disabled' : ''} title="Move later in story" style="padding: 2px 6px; font-size: 0.75rem;">▼</button>
+            <button type="button" class="admin-danger-btn delete-mem-btn" title="Delete memory" style="padding: 2px 6px; font-size: 0.75rem;">🗑️</button>
+          </div>
+        </div>
       </div>
     `;
 
+    // Click on photo container to open lightbox
+    if (item.type !== "video" && mediaThumb) {
+      const mediaContainer = card.querySelector(".admin-memory-media-container");
+      if (mediaContainer) {
+        mediaContainer.addEventListener("click", () => {
+          openLightbox(mediaThumb, item.title || "A Special Memory");
+        });
+      }
+    } else if (item.type === "video") {
+      const previewBtn = card.querySelector(".admin-preview-video-btn");
+      const videoEl = card.querySelector(".admin-memory-media-video");
+      if (previewBtn && videoEl) {
+        previewBtn.addEventListener("click", () => {
+          if (videoEl.paused) {
+            videoEl.play();
+          } else {
+            videoEl.pause();
+          }
+        });
+      }
+    }
+
     // Title editing via inline input
-    const titleInput = row.querySelector(".admin-memory-title-input");
+    const titleInput = card.querySelector(".admin-memory-title-input");
     if (titleInput) {
       titleInput.addEventListener("change", (e) => {
         item.title = e.target.value.trim() || "A Special Memory";
@@ -4385,7 +4448,7 @@ function renderAdminMemoriesList() {
     }
 
     // Title editing via prompt button
-    const editPencilBtn = row.querySelector(".edit-title-prompt-btn");
+    const editPencilBtn = card.querySelector(".edit-title-prompt-btn");
     if (editPencilBtn) {
       editPencilBtn.addEventListener("click", () => {
         const promptVal = prompt("Edit Memory Title:", item.title || "A Special Memory");
@@ -4399,7 +4462,7 @@ function renderAdminMemoriesList() {
     }
 
     // Toggle highlight (Spotlight)
-    const cb = row.querySelector(".toggle-highlight-checkbox");
+    const cb = card.querySelector(".toggle-highlight-checkbox");
     if (cb) {
       cb.addEventListener("change", (e) => {
         item.isHighlight = e.target.checked;
@@ -4410,7 +4473,7 @@ function renderAdminMemoriesList() {
     }
 
     // Move Up
-    const upBtn = row.querySelector(".move-up-btn");
+    const upBtn = card.querySelector(".move-up-btn");
     if (upBtn && index > 0) {
       upBtn.addEventListener("click", () => {
         const temp = activeMemories[index];
@@ -4425,7 +4488,7 @@ function renderAdminMemoriesList() {
     }
 
     // Move Down
-    const downBtn = row.querySelector(".move-down-btn");
+    const downBtn = card.querySelector(".move-down-btn");
     if (downBtn && index < activeMemories.length - 1) {
       downBtn.addEventListener("click", () => {
         const temp = activeMemories[index];
@@ -4440,7 +4503,7 @@ function renderAdminMemoriesList() {
     }
 
     // Delete
-    const delBtn = row.querySelector(".delete-mem-btn");
+    const delBtn = card.querySelector(".delete-mem-btn");
     if (delBtn) {
       delBtn.addEventListener("click", () => {
         if (confirm(`Remove memory "${item.title || 'this memory'}"?`)) {
@@ -4455,7 +4518,7 @@ function renderAdminMemoriesList() {
       });
     }
 
-    container.appendChild(row);
+    container.appendChild(card);
   });
 }
 
