@@ -4321,12 +4321,8 @@ function renderAdminMemoriesList() {
 
   // Apply uniform grid layout with aspect-ratio: 1/1 and object-fit: cover for all photo cards
   container.className = "admin-memories-list admin-memories-grid";
-  container.style.display = "grid";
-  container.style.gridTemplateColumns = "repeat(auto-fill, minmax(180px, 1fr))";
-  container.style.gap = "1rem";
-  container.style.maxHeight = "540px";
-  container.style.overflowY = "auto";
-  container.style.padding = "0.5rem 0.25rem";
+  container.style.display = "";
+  container.style.gridTemplateColumns = "";
 
   if (activeMemories.length === 0) {
     container.innerHTML = `
