@@ -213,6 +213,10 @@
               <span class="chapter-tag-pill" id="page2Tag">CHAPTER 2</span>
               <h2 class="chapter-title" id="page2Title">OUR MEMORIES ❤️</h2>
               <p class="chapter-subtitle" id="page2Subtitle">A visual scrapbook of every smile, road trip, and sweet adventure we've shared</p>
+              <div class="memories-drag-hint" id="memoriesDragHint">
+                <span class="drag-hint-icon">✋</span>
+                <span>Drag & drop any photo to organize and rearrange your scrapbook!</span>
+              </div>
             </div>
           </div>
 
@@ -1438,11 +1442,19 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX MODAL FOR MEMORIES -->
-  <div id="lightboxModal" class="lightbox-modal">
+  <!-- LIGHTBOX MODAL FOR MEMORIES (Frameless pop-up with messages below) -->
+  <div id="lightboxModal" class="lightbox-modal" role="dialog" aria-modal="true" aria-label="Memory photo preview">
+    <button type="button" id="closeLightboxBtn" class="lightbox-close-btn" aria-label="Close preview">&times;</button>
     <div class="lightbox-content">
       <img id="lightboxImg" class="lightbox-img" src="" alt="Memory preview" />
-      <div id="lightboxCaption" class="lightbox-caption"></div>
+      <div id="lightboxInfo" class="lightbox-info-box">
+        <div class="lightbox-badge-row">
+          <span id="lightboxHighlightBadge" class="lightbox-highlight-badge" style="display: none;">⭐ Highlighted Memory</span>
+          <span id="lightboxDate" class="lightbox-date-pill" style="display: none;"></span>
+        </div>
+        <h3 id="lightboxTitle" class="lightbox-title"></h3>
+        <p id="lightboxCaption" class="lightbox-caption"></p>
+      </div>
     </div>
   </div>
 

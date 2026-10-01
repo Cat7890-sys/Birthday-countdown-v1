@@ -1969,7 +1969,11 @@ function setupDynamicContent() {
 
   const celebrationEyebrow = document.getElementById("celebrationEyebrow");
   if (celebrationEyebrow) {
-    celebrationEyebrow.textContent = burstConfig.headline || "Happy Birthday, My Love ❤️";
+    if (burstConfig.headline && burstConfig.headline.trim() !== "" && burstConfig.headline !== "Happy Birthday, My Love ❤️") {
+      celebrationEyebrow.textContent = burstConfig.headline;
+    } else {
+      celebrationEyebrow.textContent = "✨ A VERY SPECIAL CELEBRATION ✨";
+    }
   }
   if (celebrationTitle) {
     celebrationTitle.textContent = "Happy Birthday, My Love ❤️";
@@ -2359,7 +2363,11 @@ function triggerCelebration() {
 
   const celebrationEyebrow = document.getElementById("celebrationEyebrow");
   if (celebrationEyebrow) {
-    celebrationEyebrow.textContent = burstConfig.headline || "Happy Birthday, My Love ❤️";
+    if (burstConfig.headline && burstConfig.headline.trim() !== "" && burstConfig.headline !== "Happy Birthday, My Love ❤️") {
+      celebrationEyebrow.textContent = burstConfig.headline;
+    } else {
+      celebrationEyebrow.textContent = "✨ A VERY SPECIAL CELEBRATION ✨";
+    }
   }
 
   if (celebrationTitle) {
@@ -3891,6 +3899,7 @@ function renderMemoriesScrapbook() {
     card.className = `memory-card ${styleClass} ${sizeClass} ${tiltClass} ${highlightClass}`.trim();
     card.id = `memCard_${item.id || index}`;
     card.setAttribute("data-index", String(index));
+    card.setAttribute("draggable", "true");
     if (item.isHighlight) {
       card.setAttribute("data-is-highlight", "true");
     }
@@ -3914,11 +3923,16 @@ function renderMemoriesScrapbook() {
       mediaHtml = `
         <div class="memory-img-wrap memory-media-wrap">
           <img src="${src}" class="memory-img" alt="${escapeHtml(item.title || 'Scrapbook photo')}" loading="lazy" />
+          <div class="memory-click-hint"><span>🔍 Full View</span></div>
         </div>
       `;
     }
 
     card.innerHTML = `
+      <div class="memory-drag-handle" title="Drag to rearrange photos in scrapbook">
+        <span class="drag-icon">⋮⋮</span>
+        <span class="drag-label">Drag</span>
+      </div>
       ${highlightBadge}
       ${mediaHtml}
       <div class="memory-content-box">
@@ -3928,15 +3942,100 @@ function renderMemoriesScrapbook() {
       </div>
     `;
 
-    // Click photo to open lightbox
-    if (item.type !== "video") {
-      const imgWrap = card.querySelector(".memory-img-wrap");
-      if (imgWrap) {
-        imgWrap.addEventListener("click", () => {
-          openLightbox(item.mediaUrl || item.image, `${item.title ? item.title + ' — ' : ''}${item.caption || ''}`);
-        });
+    // 1. Drag & Drop Reordering (Desktop HTML5 Drag API)
+    card.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", String(index));
+      e.dataTransfer.effectAllowed = "move";
+      card.classList.add("is-dragging");
+    });
+
+    card.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      card.classList.add("drag-over");
+    });
+
+    card.addEventListener("dragleave", () => {
+      card.classList.remove("drag-over");
+    });
+
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+      const toIndex = index;
+      if (!isNaN(fromIndex) && fromIndex !== toIndex) {
+        const [moved] = activeMemories.splice(fromIndex, 1);
+        activeMemories.splice(toIndex, 0, moved);
+        saveActiveMemories();
+        renderMemoriesScrapbook();
       }
+    });
+
+    card.addEventListener("dragend", () => {
+      document.querySelectorAll(".memory-card").forEach((c) => {
+        c.classList.remove("is-dragging", "drag-over");
+      });
+    });
+
+    // 2. Touch Drag & Reorder Support for Mobile/Tablet users
+    const dragHandle = card.querySelector(".memory-drag-handle");
+    if (dragHandle) {
+      let isTouching = false;
+      let currentHoveredCard = null;
+
+      dragHandle.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) return;
+        isTouching = true;
+        card.classList.add("is-dragging");
+      }, { passive: true });
+
+      dragHandle.addEventListener("touchmove", (e) => {
+        if (!isTouching || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetCard = el ? el.closest(".memory-card") : null;
+        if (currentHoveredCard && currentHoveredCard !== targetCard) {
+          currentHoveredCard.classList.remove("drag-over");
+        }
+        if (targetCard && targetCard !== card) {
+          targetCard.classList.add("drag-over");
+          currentHoveredCard = targetCard;
+        }
+      }, { passive: true });
+
+      dragHandle.addEventListener("touchend", () => {
+        if (!isTouching) return;
+        isTouching = false;
+        card.classList.remove("is-dragging");
+        if (currentHoveredCard) {
+          currentHoveredCard.classList.remove("drag-over");
+          const toIndex = parseInt(currentHoveredCard.getAttribute("data-index"), 10);
+          if (!isNaN(toIndex) && toIndex !== index) {
+            const [moved] = activeMemories.splice(index, 1);
+            activeMemories.splice(toIndex, 0, moved);
+            saveActiveMemories();
+            renderMemoriesScrapbook();
+          }
+          currentHoveredCard = null;
+        }
+      });
     }
+
+    // 3. Pop Up Mode: Picture pops up in full with NO frame holding it & written words below
+    card.addEventListener("click", (e) => {
+      // Ignore clicks on drag handle, video controls, or buttons
+      if (
+        e.target.closest(".memory-drag-handle") ||
+        e.target.closest("video") ||
+        e.target.closest("button")
+      ) {
+        return;
+      }
+      if (item.type !== "video") {
+        openLightbox(item);
+      }
+    });
 
     scrapbook.appendChild(card);
   });
@@ -4022,7 +4121,7 @@ function renderMemories() {
       <div class="polaroid-caption">${escapeHtml(item.caption || '')}</div>
       <div class="polaroid-date">${escapeHtml(item.date || '')}</div>
     `;
-    card.addEventListener("click", () => openLightbox(src, `${item.title ? item.title + ' — ' : ''}${item.caption || ''}`));
+    card.addEventListener("click", () => openLightbox(item));
     container.appendChild(card);
   });
 }
@@ -4447,7 +4546,7 @@ function renderAdminMemoriesList() {
       const mediaContainer = card.querySelector(".admin-memory-media-container");
       if (mediaContainer) {
         mediaContainer.addEventListener("click", () => {
-          openLightbox(mediaThumb, item.title || "A Special Memory");
+          openLightbox(item);
         });
       }
     } else if (item.type === "video") {
@@ -4557,16 +4656,78 @@ function renderAdminMemoriesList() {
   });
 }
 
-function openLightbox(imgSrc, caption) {
-  if (!lightboxModal) return;
+function openLightbox(mediaOrItem, caption = "", title = "", date = "", isHighlight = false) {
+  if (!lightboxModal || !lightboxImg) return;
+
+  let imgSrc = "";
+  let itemTitle = "";
+  let itemCaption = "";
+  let itemDate = "";
+  let itemHighlight = false;
+
+  if (mediaOrItem && typeof mediaOrItem === "object") {
+    imgSrc = mediaOrItem.mediaUrl || mediaOrItem.image || "";
+    itemTitle = mediaOrItem.title || "";
+    itemCaption = mediaOrItem.caption || "";
+    itemDate = mediaOrItem.date || "";
+    itemHighlight = Boolean(mediaOrItem.isHighlight);
+  } else {
+    imgSrc = mediaOrItem || "";
+    itemCaption = caption || "";
+    itemTitle = title || "";
+    itemDate = date || "";
+    itemHighlight = Boolean(isHighlight);
+  }
+
   lightboxImg.src = imgSrc;
-  lightboxCaption.textContent = caption;
+  lightboxImg.alt = itemTitle || "Memory photo in full";
+
+  const titleEl = document.getElementById("lightboxTitle");
+  if (titleEl) {
+    if (itemTitle && itemTitle.trim().length > 0) {
+      titleEl.textContent = itemTitle.trim();
+      titleEl.style.display = "block";
+    } else {
+      titleEl.textContent = "";
+      titleEl.style.display = "none";
+    }
+  }
+
+  const captionEl = document.getElementById("lightboxCaption");
+  if (captionEl) {
+    if (itemCaption && itemCaption.trim().length > 0) {
+      captionEl.textContent = itemCaption.trim();
+      captionEl.style.display = "block";
+    } else {
+      captionEl.textContent = "";
+      captionEl.style.display = "none";
+    }
+  }
+
+  const dateEl = document.getElementById("lightboxDate");
+  if (dateEl) {
+    if (itemDate && itemDate.trim().length > 0) {
+      dateEl.textContent = `📅 ${itemDate.trim()}`;
+      dateEl.style.display = "inline-flex";
+    } else {
+      dateEl.textContent = "";
+      dateEl.style.display = "none";
+    }
+  }
+
+  const badgeEl = document.getElementById("lightboxHighlightBadge");
+  if (badgeEl) {
+    badgeEl.style.display = itemHighlight ? "inline-flex" : "none";
+  }
+
   lightboxModal.classList.add("active");
+  document.body.style.overflow = "hidden";
 }
 
 function closeLightbox() {
   if (!lightboxModal) return;
   lightboxModal.classList.remove("active");
+  document.body.style.overflow = "";
 }
 
 // ============================================================================
@@ -4739,9 +4900,16 @@ function setupEventListeners() {
   }
   if (lightboxModal) {
     lightboxModal.addEventListener("click", (e) => {
-      if (e.target === lightboxModal) closeLightbox();
+      if (e.target === lightboxModal || e.target.classList.contains("lightbox-close-btn")) {
+        closeLightbox();
+      }
     });
   }
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightboxModal && lightboxModal.classList.contains("active")) {
+      closeLightbox();
+    }
+  });
 
   // Tabs for last day section
   if (tabMemories && tabVideos) {
