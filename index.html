@@ -298,13 +298,21 @@
 
           <!-- Main Cinematic Finale Card -->
           <div class="finale-card-stage">
-            <!-- Subtle chapter back control & Standalone link -->
+            <!-- Top Chapter Controls: Back navigation & Standalone Page button -->
             <div class="finale-back-nav">
               <button type="button" class="finale-back-btn" id="backToPage3FromFinaleBtn" aria-label="Back to Love Notes">
                 <span id="finaleBackBtnText">← Back to Love Notes</span>
               </button>
-              <a href="finale.html" target="_blank" class="finale-standalone-link" title="Open Full Single-File Finale Page">
-                <span>⛶ Open Standalone Page</span>
+              <a href="finale.html" target="_blank" rel="noopener noreferrer" class="finale-standalone-btn" id="finaleStandaloneTopBtn" title="Open Fullscreen 3D Scene in a Dedicated Page">
+                <span class="standalone-btn-icon" aria-hidden="true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </span>
+                <span class="standalone-btn-text">Open Standalone Page</span>
+                <span class="standalone-btn-badge">FULLSCREEN</span>
               </a>
             </div>
 
@@ -354,6 +362,15 @@
                 </button>
               </div>
 
+              <!-- Dedicated Callout for Standalone Page -->
+              <div class="finale-standalone-action-wrap">
+                <a href="finale.html" target="_blank" rel="noopener noreferrer" class="finale-standalone-hero-btn" id="finaleStandaloneHeroBtn" title="Open Fullscreen 3D Scene in a Dedicated Window">
+                  <span class="hero-standalone-icon">✨</span>
+                  <span class="hero-standalone-label">Open Standalone 3D Finale Page</span>
+                  <span class="hero-standalone-arrow">↗</span>
+                </a>
+              </div>
+
               <div class="finale-mini-options">
                 <button type="button" class="finale-ghost-btn" id="finaleBackToMemoriesBtn">
                   <span>Explore Scrapbook Memories</span>
@@ -375,6 +392,18 @@
       <span id="siteFooterText">Made with all my love, just for you ❤️</span>
     </footer>
 
+  </div>
+
+  <!-- ===================================================================
+       NEW CINEMATIC BLACK HEART RAIN REVEAL OVERLAY
+       Triggered by SHOW ME tap -> Black screen -> Pink/Blue heart digital rain -> Word reveal
+       =================================================================== -->
+  <div id="cinematicHeartRainOverlay" class="cinematic-heart-rain-overlay" style="display: none;" aria-hidden="true">
+    <canvas id="heartRainCanvas" class="heart-rain-canvas"></canvas>
+    <div class="heart-rain-vignette" aria-hidden="true"></div>
+    <div id="heartRainWordContainer" class="heart-rain-word-container" aria-live="polite">
+      <span id="heartRainWord" class="heart-rain-word"></span>
+    </div>
   </div>
 
   <!-- 10-SECOND CINEMATIC THREE-PHOTO HOVERING REVEAL OVERLAY -->

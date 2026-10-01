@@ -1923,6 +1923,12 @@ const replayExperienceBtn = document.getElementById("replayExperienceBtn");
 const finaleBackToMemoriesBtn = document.getElementById("finaleBackToMemoriesBtn");
 const finaleBackToNotesBtn = document.getElementById("finaleBackToNotesBtn");
 
+// Cinematic Heart Rain Overlay State
+let isHeartSequenceActive = false;
+let heartRainAnimFrame = null;
+let heartWordTimeouts = [];
+let heartRainResizeListener = null;
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
@@ -2054,6 +2060,9 @@ function initOpeningScreen() {
     openingScreen.classList.add("active");
   }
 
+  // Stop any active heart rain animation
+  stopHeartRainAnimation();
+
   if (revealCountdownStage) {
     revealCountdownStage.style.display = "none";
   }
@@ -2078,27 +2087,433 @@ function initOpeningScreen() {
   }
 }
 
-function startRevealSequence() {
-  // Hide Opening Screen
+// Characters and palettes for the Matrix digital heart rain curtain
+const MATRIX_HEART_CHARS = ["♥", "♡", "❤", "♥", "♥", "♡", "1", "0", "♥", "*", "♥"];
+const MATRIX_PINK_COLORS = ["#ff2a7a", "#ff1493", "#ff007f", "#ff69b4", "#e0218a", "#ff80bf", "#f43f5e"];
+const MATRIX_BLUE_COLORS = ["#00d2ff", "#00f0ff", "#38bdf8", "#7dd3fc"];
+
+/**
+ * Fine-Tuning Parameters for Digital Heart Rain Animation
+ * Allows fine-tuning of trail decay rate, particle opacity, and high-resolution screen density.
+ */
+const HEART_RAIN_CONFIG = {
+  // Trail Decay Rate (0.03 to 0.18):
+  // Lower values leave longer, richer, persistent digital ghosting trails.
+  // Higher values clear trails more rapidly. Calibrated to 0.068 for an immersive matrix look.
+  trailDecayRate: 0.068,
+
+  // Base Particle Opacity (0.1 to 1.0):
+  // Global opacity multiplier applied to all falling hearts.
+  baseParticleOpacity: 0.95,
+
+  // Minimum Particle Opacity (0.02 to 0.20):
+  // Preserves subtle delicate visibility at the very tail of each column.
+  minParticleOpacity: 0.06,
+
+  // Lead Particle Opacity (0.8 to 1.0):
+  // Luminance of the leading head heart in each stream.
+  leadParticleOpacity: 1.0,
+
+  // Column Density Factor (higher = more columns across screen width):
+  // Calibrated for high-density curtains across desktop, tablet, and mobile.
+  columnDensityFactor: 98,
+
+  // High-Resolution Screen Compensation:
+  // On high-DPI screens (Retina, 2x, 3x displays), boosts opacity and scales font size
+  // to ensure delicate heart glyphs render dense, rich, and saturated rather than faint.
+  highDpiOpacityBoost: 1.15,
+  minFontSize: 11,
+  maxFontSize: 16,
+
+  // Trail Length range:
+  minTrailLength: 20,
+  trailLengthSpan: 14 // 20 to 34 hearts per column
+};
+
+// Expose configuration globally for live inspection & adjustments
+window.HEART_RAIN_CONFIG = HEART_RAIN_CONFIG;
+
+// Clean, glowing neon pink vector heart matching the exact shade and bloom of the typography (NOT an OS emoji)
+const NEON_HEART_SVG = `<svg class="neon-heart-svg" viewBox="0 0 24 24" fill="#ff2a7a" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+
+/**
+ * Executes the full cinematic black screen + high-density digital raining hearts curtain +
+ * countdown (3 -> 2 -> 1) -> words (HAPPY -> BIRTHDAY -> TO -> YOU -> JOY) ->
+ * glowing neon pink heart, matching the exact neon shade and video flow.
+ */
+function startCinematicHeartSequence() {
+  if (isHeartSequenceActive) return;
+  isHeartSequenceActive = true;
+
+  const overlay = document.getElementById("cinematicHeartRainOverlay");
+  const canvas = document.getElementById("heartRainCanvas");
+  const wordEl = document.getElementById("heartRainWord");
+
+  if (!overlay || !canvas || !wordEl) {
+    // If elements missing, proceed directly to existing countdown
+    isHeartSequenceActive = false;
+    proceedToExistingCountdown();
+    return;
+  }
+
+  // Smoothly hide Opening Screen
   if (openingScreen) {
     openingScreen.classList.remove("active");
     openingScreen.style.display = "none";
   }
-
-  // Hide any active celebration or overlay
   if (celebrationScreen) {
     celebrationScreen.classList.remove("active");
   }
-  if (tenSecondPhotoReveal) {
-    tenSecondPhotoReveal.classList.remove("active");
-    tenSecondPhotoReveal.style.display = "none";
+
+  // 1. FADE TO BLACK: Smoothly transition into pure black background
+  overlay.style.display = "flex";
+  void overlay.offsetWidth;
+  overlay.classList.add("active");
+
+  // Reset center word state
+  wordEl.innerHTML = "";
+  wordEl.className = "heart-rain-word";
+
+  // Canvas setup with high-DPI scaling
+  const ctx = canvas.getContext("2d");
+  let dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  let logicalWidth = window.innerWidth;
+  let logicalHeight = window.innerHeight;
+
+  function resizeCanvas() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    logicalWidth = window.innerWidth;
+    logicalHeight = window.innerHeight;
+    canvas.width = Math.floor(logicalWidth * dpr);
+    canvas.height = Math.floor(logicalHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // Prime audio playback state directly on user interaction (SHOW ME tap)
-  // to authorize media playback under strict browser autoplay policies
+  resizeCanvas();
+
+  heartRainResizeListener = () => {
+    resizeCanvas();
+  };
+  window.addEventListener("resize", heartRainResizeListener, { passive: true });
+
+  // Initial solid pure black fill
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+  // 2. & 3. HIGH-DENSITY DIGITAL MATRIX HEART RAIN COLUMNS (Ultra-immersive curtain)
+  const colSpacing = Math.max(9, Math.min(13, Math.floor(logicalWidth / HEART_RAIN_CONFIG.columnDensityFactor)));
+  const fontSize = Math.max(HEART_RAIN_CONFIG.minFontSize, Math.min(HEART_RAIN_CONFIG.maxFontSize, Math.floor(colSpacing * 0.94)));
+  const colCount = Math.floor(logicalWidth / colSpacing) + 1;
+  const streams = [];
+
+  // Multi-wave dense cascade during build-up:
+  for (let i = 0; i < colCount; i++) {
+    const isPinkTheme = Math.random() < 0.76;
+    
+    // Wave 1: 0 - 250ms (35% of streams immediately fall from top)
+    // Wave 2: 250 - 750ms (35% more join)
+    // Wave 3: 750 - 1500ms (remaining 30% fill the screen into rich immersive curtains)
+    let activationTime = 0;
+    const tier = Math.random();
+    if (tier < 0.35) {
+      activationTime = Math.random() * 250;
+    } else if (tier < 0.70) {
+      activationTime = 250 + Math.random() * 500;
+    } else {
+      activationTime = 750 + Math.random() * 750;
+    }
+
+    streams.push({
+      x: i * colSpacing + colSpacing / 2,
+      y: -Math.random() * 80 - 10,
+      speed: Math.random() * 3.4 + 2.6,
+      spacing: fontSize + 1,
+      trailLength: Math.floor(Math.random() * HEART_RAIN_CONFIG.trailLengthSpan) + HEART_RAIN_CONFIG.minTrailLength,
+      isPink: isPinkTheme,
+      palette: isPinkTheme ? MATRIX_PINK_COLORS : MATRIX_BLUE_COLORS,
+      brightness: Math.random() * 0.35 + 0.65,
+      activationTime: activationTime,
+      chars: Array.from({ length: 36 }, () => MATRIX_HEART_CHARS[Math.floor(Math.random() * MATRIX_HEART_CHARS.length)])
+    });
+  }
+
+  const startTime = performance.now();
+  let lastTimestamp = performance.now();
+  let speedMultiplier = 1.0;
+  let isRunning = true;
+
+  function renderHeartRain(currentTime) {
+    if (!isRunning) return;
+
+    // Delta time ensures consistent high performance across 60Hz and high-refresh displays
+    const delta = Math.min((currentTime - lastTimestamp) / 16.67, 2.0);
+    lastTimestamp = currentTime;
+    const elapsed = currentTime - startTime;
+
+    // Fading trail effect: configurable decay rate ensures optimal density and ghosting on all screens
+    const decayRate = Math.max(0.03, Math.min(0.2, HEART_RAIN_CONFIG.trailDecayRate));
+    ctx.fillStyle = `rgba(0, 0, 0, ${decayRate})`;
+    ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+    const centerX = logicalWidth / 2;
+    const centerY = logicalHeight / 2;
+    const dpiBoost = dpr > 1.2 ? HEART_RAIN_CONFIG.highDpiOpacityBoost : 1.0;
+
+    ctx.font = `bold ${fontSize}px "Courier New", monospace, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (let i = 0; i < streams.length; i++) {
+      const s = streams[i];
+      if (elapsed < s.activationTime) continue;
+
+      // Smooth density ramp-in for each column
+      const timeSinceActivation = elapsed - s.activationTime;
+      const densityRamp = Math.min(1.0, timeSinceActivation / 280);
+
+      s.y += s.speed * speedMultiplier * delta;
+
+      // Draw subtle vertical trailing pattern of hearts
+      const trailCount = s.trailLength;
+      for (let j = 0; j <= trailCount; j++) {
+        const py = s.y - j * s.spacing;
+        if (py < -20 || py > logicalHeight + 20) continue;
+
+        const isHead = j === 0;
+        const char = s.chars[j % s.chars.length];
+
+        // Subtle vertical falloff calibrated with HEART_RAIN_CONFIG
+        const falloff = isHead ? 1.0 : Math.pow(1 - j / trailCount, 1.25);
+        let alpha = falloff * s.brightness * densityRamp * HEART_RAIN_CONFIG.baseParticleOpacity * dpiBoost;
+
+        // Keep center readable for neon numbers and words
+        const distFromCenter = Math.hypot(s.x - centerX, py - centerY);
+        if (distFromCenter < 240) {
+          const ratio = distFromCenter / 240;
+          alpha *= (0.24 + 0.76 * ratio);
+        }
+
+        const minAlpha = HEART_RAIN_CONFIG.minParticleOpacity;
+        const maxAlpha = isHead ? HEART_RAIN_CONFIG.leadParticleOpacity : 0.96;
+        ctx.globalAlpha = Math.max(minAlpha, Math.min(maxAlpha, alpha));
+
+        if (isHead) {
+          // Bright white-pink glowing lead head heart
+          ctx.fillStyle = "#ffffff";
+          ctx.shadowColor = s.isPink ? "#ff2a7a" : "#00e5ff";
+          ctx.shadowBlur = 10;
+        } else {
+          // Trailing vertical pattern (shadowBlur disabled for 60fps performance)
+          ctx.fillStyle = s.palette[j % s.palette.length];
+          ctx.shadowBlur = 0;
+        }
+
+        ctx.fillText(char, s.x, py);
+      }
+
+      // Reset stream when fully off-screen
+      if (s.y - s.trailLength * s.spacing > logicalHeight) {
+        s.y = -Math.random() * 80 - 15;
+        s.speed = Math.random() * 3.4 + 2.6;
+        s.isPink = Math.random() < 0.76;
+        s.palette = s.isPink ? MATRIX_PINK_COLORS : MATRIX_BLUE_COLORS;
+        s.chars = Array.from({ length: 36 }, () => MATRIX_HEART_CHARS[Math.floor(Math.random() * MATRIX_HEART_CHARS.length)]);
+      }
+    }
+
+    ctx.globalAlpha = 1.0;
+    ctx.shadowBlur = 0;
+    heartRainAnimFrame = requestAnimationFrame(renderHeartRain);
+  }
+
+  heartRainAnimFrame = requestAnimationFrame(renderHeartRain);
+
+  // Helper function to animate numbers, words, and hearts with neon bloom
+  function showWord(word, customClass = "", duration = 1200, isHtml = false) {
+    return new Promise((resolve) => {
+      wordEl.className = `heart-rain-word ${customClass}`.trim();
+      if (isHtml) {
+        wordEl.innerHTML = word;
+      } else {
+        wordEl.textContent = word;
+      }
+
+      // Trigger entrance animation
+      void wordEl.offsetWidth;
+      wordEl.classList.add("word-show");
+
+      // Schedule exit transition
+      const exitTimer = setTimeout(() => {
+        wordEl.classList.remove("word-show");
+        wordEl.classList.add("word-exit");
+
+        const nextTimer = setTimeout(() => {
+          wordEl.className = "heart-rain-word";
+          wordEl.innerHTML = "";
+          resolve();
+        }, 200);
+        heartWordTimeouts.push(nextTimer);
+      }, duration);
+
+      heartWordTimeouts.push(exitTimer);
+    });
+  }
+
+  // EXACT SEQUENCE FROM THE VIDEO:
+  // Density build-up -> 3 -> 2 -> 1 -> HAPPY -> BIRTHDAY -> TO -> YOU -> JOY -> Glowing Pink Heart
+  async function runWordSequence() {
+    // 1. Density Build-Up: Allow the heart rain to build up immersion across the screen
+    await new Promise((r) => {
+      const t = setTimeout(r, 2400);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    // 2. Countdown 3 -> 2 -> 1 right in the center of the rain (00:02 - 00:05 in video)
+    await showWord("3", "word-countdown", 950);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 100);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    await showWord("2", "word-countdown", 950);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 100);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    await showWord("1", "word-countdown", 950);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 120);
+      heartWordTimeouts.push(t);
+    });
+
+    // 3. Words sequence (00:06 - 00:12 in video)
+    if (!isRunning) return;
+    await showWord("HAPPY", "", 1150);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 120);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    await showWord("BIRTHDAY", "", 1200);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 120);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    await showWord("TO", "", 950);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 120);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    await showWord("YOU", "", 950);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 120);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    // 4. JOY: Large impactful neon bloom with speed pulse
+    speedMultiplier = 1.35;
+    await showWord("JOY", "word-joy", 1650);
+
+    if (!isRunning) return;
+    await new Promise((r) => {
+      const t = setTimeout(r, 140);
+      heartWordTimeouts.push(t);
+    });
+
+    if (!isRunning) return;
+    // 5. Large Glowing Pink Heart (Matches exact same shade & bloom as words, NOT an emoji!)
+    await showWord(NEON_HEART_SVG, "word-heart", 1600, true);
+
+    if (!isRunning) return;
+    // Hold brief moment after Heart, then smoothly transition into birthday celebration reveal
+    const endTimer = setTimeout(() => {
+      finishCinematicHeartSequence();
+    }, 400);
+    heartWordTimeouts.push(endTimer);
+  }
+
+  function finishCinematicHeartSequence() {
+    isRunning = false;
+
+    // Smooth fade out of black heart rain overlay
+    overlay.classList.remove("active");
+
+    setTimeout(() => {
+      stopHeartRainAnimation();
+      // Seamlessly proceed directly into photo reveal & celebration!
+      triggerBirthdayRevealWithPhotoHover();
+    }, 650);
+  }
+
+  runWordSequence();
+}
+
+/**
+ * Safely terminates heart rain animation and frees all canvas/timer resources.
+ */
+function stopHeartRainAnimation() {
+  const overlay = document.getElementById("cinematicHeartRainOverlay");
+  const wordEl = document.getElementById("heartRainWord");
+
+  if (overlay) {
+    overlay.classList.remove("active");
+    overlay.style.display = "none";
+  }
+
+  if (wordEl) {
+    wordEl.textContent = "";
+    wordEl.className = "heart-rain-word";
+  }
+
+  if (heartRainAnimFrame) {
+    cancelAnimationFrame(heartRainAnimFrame);
+    heartRainAnimFrame = null;
+  }
+
+  heartWordTimeouts.forEach((t) => clearTimeout(t));
+  heartWordTimeouts = [];
+
+  if (heartRainResizeListener) {
+    window.removeEventListener("resize", heartRainResizeListener);
+    heartRainResizeListener = null;
+  }
+
+  isHeartSequenceActive = false;
+}
+
+/**
+ * Primary handler for SHOW ME button / photo sticker tap.
+ * Primes audio, begins music playback, and launches the raining hearts sequence.
+ */
+function startRevealSequence() {
+  if (isHeartSequenceActive) return;
+
+  // Prime and play background music right away so it accompanies the heart rain sequence
   if (bgAudio) {
-    // If audio is paused, calling play() then immediate pause (or keeping suspended context primed)
-    // primes the HTML5 audio element for instant playback when countdown finishes.
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx && !audioContext) {
@@ -2108,8 +2523,21 @@ function startRevealSequence() {
         audioContext.resume();
       }
     } catch (e) {}
+
+    if (!userExplicitlyPaused) {
+      playMusic();
+    }
   }
 
+  // Trigger cinematic raining hearts digital curtain + countdown + word reveal!
+  startCinematicHeartSequence();
+}
+
+/**
+ * EXISTING 3 -> 2 -> 1 Countdown Sequence.
+ * Handed off seamlessly immediately following the heart rain + "JOY" sequence.
+ */
+function proceedToExistingCountdown() {
   // Show 3 -> 2 -> 1 Reveal stage
   if (revealCountdownStage) {
     revealCountdownStage.style.display = "flex";
